@@ -7,16 +7,18 @@ echo "🚀 Starting Deployment Setup..."
 echo "Initializing Database Schema..."
 python initialize_db.py
 
-# 2. Check if trees table is empty effectively (simple check)
+# 2. Check if trees table is empty
 # If empty, run ingestion. If populated, skip to save time.
 # This prevents re-ingesting 30k trees on every deploy.
-COUNT=$(python -c "import psycopg2, os; conn = psycopg2.connect(os.environ['DATABASE_URL']); cur = conn.cursor(); cur.execute(\"SELECT to_regclass('gis_data.trees')\"); exists = cur.fetchone()[0]; print('exists' if exists else 'missing')")
+ROW_COUNT=$(python -c "import psycopg2, os; conn = psycopg2.connect(os.environ['DATABASE_URL']); cur = conn.cursor(); cur.execute('SELECT count(*) FROM gis_data.trees'); print(cur.fetchone()[0])")
 
-if [ "$COUNT" == "missing" ]; then
-    echo "📦 Database empty or missing tables. Running full data ingestion..."
+echo "Found $ROW_COUNT trees in database."
+
+if [ "$ROW_COUNT" -eq "0" ]; then
+    echo "📦 Database tables empty. Running full data ingestion..."
     python ingest_all_data.py
 else
-    echo "✅ Database tables exist. Skipping heavy ingestion."
+    echo "✅ Database populated. Skipping heavy ingestion."
     echo "   (To force re-ingest, run 'python ingest_all_data.py' in Shell)"
 fi
 

@@ -5,6 +5,23 @@
 		"description": "API for testing Bremen Livability Index. Scores 0-100 based on 7 factors: Greenery, Amenities, Public Transport, Healthcare (positive) and Accidents, Industrial Areas, Major Roads (negative).",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"let mode = pm.collectionVariables.get(\"environment_mode\");",
+					"if (mode === \"local\") {",
+					"    pm.collectionVariables.set(\"base_url\", pm.collectionVariables.get(\"local_url\"));",
+					"}",
+					"else {",
+					"    pm.collectionVariables.set(\"base_url\", pm.collectionVariables.get(\"deployed_url\"));",
+					"}"
+				]
+			}
+		}
+	],
 	"item": [
 		{
 			"name": "Health Check",
@@ -172,6 +189,22 @@
 		}
 	],
 	"variable": [
+		{
+			"key": "environment_mode",
+			"value": "deployed",
+			"type": "string",
+			"description": "Set to 'local' for localhost or 'deployed' for Render"
+		},
+		{
+			"key": "local_url",
+			"value": "http://127.0.0.1:8000",
+			"type": "string"
+		},
+		{
+			"key": "deployed_url",
+			"value": "https://bremen-livability-index.onrender.com",
+			"type": "string"
+		},
 		{
 			"key": "base_url",
 			"value": "https://bremen-livability-index.onrender.com",
