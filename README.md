@@ -27,6 +27,19 @@ The Bremen Livability Index allows users to tap any location on a map of Bremen 
 - **Database**: PostgreSQL 15 with PostGIS 3.3
 - **Data Sources**: OpenStreetMap, German Accident Atlas (Unfallatlas)
 
+## Deployment
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.yml` | **Local Development**: Runs local PostgreSQL/PostGIS database |
+| `backend/Dockerfile` | **Cloud Production**: Builds the API application container |
+| `backend/render.yaml` | **Render Config**: Defines cloud Web Service (connects to external Neon DB) |
+
+### Cloud Setup (Free Forever)
+
+1. **Database**: [Neon.tech](https://neon.tech) (PostgreSQL + PostGIS)
+2. **Web Service**: [Render.com](https://render.com) (Python FastAPI)
+
 ## Quick Start
 
 ### 1. Start Database

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: bremen-livability-backend
+    env: docker
+    plan: free
+    region: frankfurt
+    envVars:
+      - key: DATABASE_URL
+        sync: false # You will set this in Render Dashboard (value from Neon)
+      - key: PORT
+        value: 8000
