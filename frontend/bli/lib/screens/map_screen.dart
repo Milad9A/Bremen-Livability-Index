@@ -72,6 +72,20 @@ class _MapScreenState extends State<MapScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bremen Livability Index'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              _mapController.move(bremenCenter, 13.0);
+              setState(() {
+                _selectedMarker = null;
+                _currentScore = null;
+                _errorMessage = null;
+              });
+            },
+            tooltip: 'Center on Bremen',
+            icon: const Icon(Icons.my_location),
+          ),
+        ],
         backgroundColor: Colors.blue[700],
         foregroundColor: Colors.white,
         elevation: 2,
@@ -103,7 +117,7 @@ class _MapScreenState extends State<MapScreen> {
                       child: Icon(
                         Icons.location_on,
                         color: _selectedMarker!.score != null
-                            ? _getScoreColor(_selectedMarker!.score!)
+                            ? getScoreColor(_selectedMarker!.score!)
                             : Colors.blue,
                         size: 40,
                       ),
@@ -112,66 +126,67 @@ class _MapScreenState extends State<MapScreen> {
                 ),
             ],
           ),
-          if (_errorMessage != null)
-            Positioned(
-              top: 10,
-              left: 10,
-              right: 10,
-              child: Card(
-                color: Colors.red[100],
-                child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    children: [
-                      Icon(Icons.error_outline, color: Colors.red[900]),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _errorMessage!,
-                          style: TextStyle(color: Colors.red[900]),
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close),
-                        onPressed: () {
-                          setState(() {
-                            _errorMessage = null;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
+              if (_errorMessage != null)
+                ErrorBanner(
+                  message: _errorMessage!,
+                  onDismiss: () {
+                    setState(() {
+                      _errorMessage = null;
+                    });
+                  },
+                ),
+              if (_isLoading) const Center(child: CircularProgressIndicator()),
+              if (_currentScore != null)
+                Positioned(
+                  bottom: 20,
+                  left: 20,
+                  right: 20,
+                  child: ScoreCard(score: _currentScore!),
+                ),
+            ],
+          ),
+        );
+      }
+    }
+
+class ErrorBanner extends StatelessWidget {
+  final String message;
+  final VoidCallback onDismiss;
+
+  const ErrorBanner({
+    super.key,
+    required this.message,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      top: 10,
+      left: 10,
+      right: 10,
+      child: Card(
+        color: Colors.red[100],
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red[900]),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  message,
+                  style: TextStyle(color: Colors.red[900]),
                 ),
               ),
-            ),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
-          if (_currentScore != null)
-            Positioned(
-              bottom: 20,
-              left: 20,
-              right: 20,
-              child: ScoreCard(score: _currentScore!),
-            ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _mapController.move(bremenCenter, 13.0);
-          setState(() {
-            _selectedMarker = null;
-            _currentScore = null;
-            _errorMessage = null;
-          });
-        },
-        tooltip: 'Center on Bremen',
-        child: const Icon(Icons.my_location),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: onDismiss,
+              ),
+            ],
+          ),
+        ),
       ),
     );
-  }
-
-  Color _getScoreColor(double score) {
-    if (score >= 70) return Colors.green;
-    if (score >= 50) return Colors.orange;
-    return Colors.red;
   }
 }

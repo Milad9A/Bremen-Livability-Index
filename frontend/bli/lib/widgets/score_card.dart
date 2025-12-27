@@ -3,23 +3,21 @@ import '../services/api_service.dart';
 
 class ScoreCard extends StatelessWidget {
   final LivabilityScore score;
-  
+
   const ScoreCard({super.key, required this.score});
-  
+
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 8,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
             colors: [
-              _getScoreColor(score.score),
-              _getScoreColor(score.score).withOpacity(0.8),
+              getScoreColor(score.score),
+              getScoreColor(score.score).withOpacity(0.8),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -73,51 +71,58 @@ class ScoreCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              ...score.factors.map((factor) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      children: [
-                        Icon(
-                          factor.impact == 'positive'
-                              ? Icons.add_circle
-                              : Icons.remove_circle,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            '${factor.factor}: ${factor.description}',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          factor.value >= 0
-                              ? '+${factor.value.toStringAsFixed(1)}'
-                              : factor.value.toStringAsFixed(1),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
+              ...score.factors.map((factor) => ScoreFactorItem(factor: factor)),
             ],
           ),
         ),
       ),
     );
   }
-  
-  Color _getScoreColor(double score) {
-    if (score >= 70) return Colors.green;
-    if (score >= 50) return Colors.orange;
-    return Colors.red;
+}
+
+class ScoreFactorItem extends StatelessWidget {
+  final Factor factor;
+
+  const ScoreFactorItem({super.key, required this.factor});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Icon(
+            factor.impact == 'positive'
+                ? Icons.add_circle
+                : Icons.remove_circle,
+            color: Colors.white,
+            size: 20,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '${factor.factor}: ${factor.description}',
+              style: const TextStyle(color: Colors.white, fontSize: 12),
+            ),
+          ),
+          Text(
+            factor.value >= 0
+                ? '+${factor.value.toStringAsFixed(1)}'
+                : factor.value.toStringAsFixed(1),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
+Color getScoreColor(double score) {
+  if (score >= 70) return Colors.green;
+  if (score >= 50) return Colors.orange;
+  return Colors.red;
+}
