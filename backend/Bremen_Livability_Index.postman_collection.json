@@ -1,0 +1,191 @@
+{
+	"info": {
+		"_postman_id": "bremen-livability-api",
+		"name": "Bremen Livability Index API",
+		"description": "API for testing Bremen Livability Index. Scores 0-100 based on 7 factors: Greenery, Amenities, Public Transport, Healthcare (positive) and Accidents, Industrial Areas, Major Roads (negative).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health"
+					]
+				},
+				"description": "Check API and database health"
+			}
+		},
+		{
+			"name": "Root Endpoint",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						""
+					]
+				},
+				"description": "Get API information"
+			}
+		},
+		{
+			"name": "Analyze - City Center (Marktplatz)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"latitude\": 53.0793,\n    \"longitude\": 8.8017\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/analyze",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"analyze"
+					]
+				},
+				"description": "City center - good amenities, public transport, healthcare. Some traffic accidents."
+			}
+		},
+		{
+			"name": "Analyze - University of Bremen",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"latitude\": 53.1076,\n    \"longitude\": 8.8511\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/analyze",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"analyze"
+					]
+				},
+				"description": "University area - good greenery, public transport."
+			}
+		},
+		{
+			"name": "Analyze - Airport Area",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"latitude\": 53.0474,\n    \"longitude\": 8.7867\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/analyze",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"analyze"
+					]
+				},
+				"description": "Airport area - low score, industrial/highway nearby."
+			}
+		},
+		{
+			"name": "Analyze - Industrial Port (Überseestadt)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"latitude\": 53.1150,\n    \"longitude\": 8.7800\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/analyze",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"analyze"
+					]
+				},
+				"description": "Industrial port area - tests industrial area penalty."
+			}
+		},
+		{
+			"name": "Analyze - Custom Location",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"latitude\": {{latitude}},\n    \"longitude\": {{longitude}}\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/analyze",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"analyze"
+					]
+				},
+				"description": "Custom location - set latitude/longitude variables"
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "latitude",
+			"value": "53.0793",
+			"type": "string"
+		},
+		{
+			"key": "longitude",
+			"value": "8.8017",
+			"type": "string"
+		}
+	]
+}

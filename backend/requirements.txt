@@ -1,0 +1,17 @@
+# Core API dependencies (required for running the server)
+fastapi==0.115.0
+uvicorn[standard]==0.32.0
+psycopg2-binary==2.9.10
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+python-dotenv==1.0.1
+requests==2.32.3
+
+# Data ingestion dependencies (optional - only needed for importing data)
+# Note: geopandas requires GDAL to be installed system-wide
+# On macOS: brew install gdal
+# On Ubuntu/Debian: sudo apt-get install gdal-bin libgdal-dev
+overpy==0.6
+geopandas==0.14.4
+shapely==2.0.5
+
