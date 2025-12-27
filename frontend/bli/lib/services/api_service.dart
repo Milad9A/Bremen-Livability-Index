@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  // Update this to match your backend URL
-  static const String baseUrl = 'http://localhost:8000';
+  // Production (Render)
+  static const String baseUrl = 'https://bremen-livability-index.onrender.com';
+  // Local (Emulator: 10.0.2.2:8000, iOS: localhost:8000)
+  // static const String baseUrl = 'http://localhost:8000';
 
   Future<LivabilityScore> analyzeLocation(
     double latitude,

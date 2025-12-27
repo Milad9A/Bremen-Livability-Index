@@ -1,16 +1,46 @@
-# bli
+# Bremen Livability Index - Frontend
 
-A new Flutter project.
+The mobile application for the Bremen Livability Index, built with **Flutter**.
+
+## Features
+
+- 🗺️ **Interactive Map**: View Bremen using OpenStreetMap.
+- 👆 **Tap to Analyze**: Tap any location to get a real-time livability score.
+- 📊 **Detailed Breakdown**: See scores for all 7 factors (Greenery, Shops, Safety, etc.).
+- 🚦 **Visual Indicators**: Color-coded markers (Green/Orange/Red) based on the score.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+### Prerequisites
 
-A few resources to get you started if this is your first Flutter project:
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed.
+- iOS Simulator (Mac) or Android Emulator.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Installation
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+1. Resolve dependencies:
+   ```bash
+   flutter pub get
+   ```
+
+2. Run the app:
+   ```bash
+   flutter run
+   ```
+
+## Configuration
+
+The API URL is configured in `lib/services/api_service.dart`.
+By default, it points to the **Production Backend** on Render:
+`https://bremen-livability-index.onrender.com`
+
+To use a local backend:
+1. Open `lib/services/api_service.dart`.
+2. Uncomment the localhost line and comment out the Render URL.
+
+## Dependencies
+
+- `flutter_map`: For map rendering.
+- `latlong2`: Geospatial coordinates.
+- `http`: API requests.
+- `provider`: State management.
