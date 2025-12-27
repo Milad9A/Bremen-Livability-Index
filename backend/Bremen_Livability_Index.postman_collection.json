@@ -174,7 +174,7 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "http://localhost:8000",
+			"value": "https://bremen-livability-index.onrender.com",
 			"type": "string"
 		},
 		{

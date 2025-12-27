@@ -156,3 +156,15 @@ University project for educational purposes.
 
 - OpenStreetMap contributors
 - German Accident Atlas (Statistisches Bundesamt)
+
+## Production Deployment (Automated)
+
+The project is configured for **Render** (App) + **Neon** (DB) with full automation.
+
+1. **Push to GitHub**: Render auto-deploys using `backend/Dockerfile`.
+2. **Auto-Setup**: The `entrypoint.sh` script runs automatically inside the cloud container to:
+   - Initialize database tables (if missing).
+   - Ingest all OSM data (first run only).
+   - Start the API server.
+
+**Live API**: `https://bremen-livability-index.onrender.com`

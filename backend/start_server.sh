@@ -13,7 +13,7 @@ if [ ! -d "venv" ]; then
     echo "   Installing core dependencies (API only)..."
     echo "   For data ingestion, install GDAL first: brew install gdal"
     echo "   Then run: pip install -r requirements.txt"
-    pip install -r requirements-core.txt
+    pip install -r requirements.txt
 else
     echo "✅ Virtual environment found"
     source venv/bin/activate
@@ -21,7 +21,7 @@ else
     # Check if dependencies are installed
     if ! python3 -c "import fastapi" 2>/dev/null; then
         echo "⚠️  Dependencies not installed, installing now..."
-        pip install -r requirements-core.txt
+        pip install -r requirements.txt
     else
         echo "✅ Dependencies already installed"
     fi

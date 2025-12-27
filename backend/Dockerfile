@@ -14,10 +14,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Make start script executable
-RUN chmod +x start.sh
+# Make entrypoint script executable
+RUN chmod +x entrypoint.sh
 
 EXPOSE 8000
 
-# Run the smart start script
-CMD ["./start.sh"]
+# Run the smart entrypoint script
+CMD ["./entrypoint.sh"]
