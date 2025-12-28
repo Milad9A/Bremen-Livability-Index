@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -25,6 +26,8 @@ class _MapScreenState extends State<MapScreen> {
   bool _isLoading = false;
   String? _errorMessage;
   bool _showSearch = false;
+  bool _showSlowLoadingMessage = false;
+  Timer? _slowLoadingTimer;
 
   @override
   void initState() {
@@ -42,13 +45,42 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  void _startSlowLoadingTimer() {
+    _slowLoadingTimer?.cancel();
+    _slowLoadingTimer = Timer(const Duration(seconds: 10), () {
+      if (mounted && _isLoading) {
+        setState(() {
+          _showSlowLoadingMessage = true;
+        });
+      }
+    });
+  }
+
+  void _stopSlowLoadingTimer() {
+    _slowLoadingTimer?.cancel();
+    if (_showSlowLoadingMessage) {
+      setState(() {
+        _showSlowLoadingMessage = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _slowLoadingTimer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _onMapTap(TapPosition tapPosition, LatLng point) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
       _selectedMarker = LocationMarker(position: point);
       _currentScore = null;
+      _showSlowLoadingMessage = false;
     });
+
+    _startSlowLoadingTimer();
 
     try {
       final score = await _apiService.analyzeLocation(
@@ -56,12 +88,14 @@ class _MapScreenState extends State<MapScreen> {
         point.longitude,
       );
 
+      _stopSlowLoadingTimer();
       setState(() {
         _currentScore = score;
         _selectedMarker = LocationMarker(position: point, score: score.score);
         _isLoading = false;
       });
     } catch (e) {
+      _stopSlowLoadingTimer();
       setState(() {
         _errorMessage = 'Failed to analyze location: $e';
         _isLoading = false;
@@ -79,7 +113,10 @@ class _MapScreenState extends State<MapScreen> {
       _errorMessage = null;
       _selectedMarker = LocationMarker(position: location);
       _currentScore = null;
+      _showSlowLoadingMessage = false;
     });
+
+    _startSlowLoadingTimer();
 
     try {
       final score = await _apiService.analyzeLocation(
@@ -87,6 +124,7 @@ class _MapScreenState extends State<MapScreen> {
         location.longitude,
       );
 
+      _stopSlowLoadingTimer();
       setState(() {
         _currentScore = score;
         _selectedMarker = LocationMarker(
@@ -96,6 +134,7 @@ class _MapScreenState extends State<MapScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      _stopSlowLoadingTimer();
       setState(() {
         _errorMessage = 'Failed to analyze location: $e';
         _isLoading = false;
@@ -180,7 +219,60 @@ class _MapScreenState extends State<MapScreen> {
                 });
               },
             ),
-          if (_isLoading) const Center(child: CircularProgressIndicator()),
+          if (_isLoading)
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const CircularProgressIndicator(),
+                  if (_showSlowLoadingMessage) ...const [SizedBox(height: 20)],
+                  if (_showSlowLoadingMessage)
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 40),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.access_time,
+                            color: Colors.blue[700],
+                            size: 32,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Server is starting up...',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue[900],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'The server may take up to 50 seconds to wake up after being idle.',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey[700],
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
           if (_currentScore != null)
             Positioned(
               bottom: 20,

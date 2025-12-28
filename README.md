@@ -4,7 +4,10 @@ A comprehensive geospatial platform featuring a **Flutter mobile & web applicati
 
 ## Project Overview
 
-The Bremen Livability Index allows users to tap any location on a map of Bremen and receive an immediate Quality of Life score (0-100) based on 7 spatial factors.
+The Bremen Livability Index allows users to explore Quality of Life scores across Bremen through:
+- **Tap-to-Analyze**: Tap any location on the map for instant scoring
+- **Address Search**: Search for addresses and get automatic livability analysis
+- **Real-time Results**: Immediate feedback based on 7 spatial factors
 
 ### Scoring Factors
 
@@ -76,6 +79,32 @@ flutter pub get
 flutter run
 ```
 
+## Features
+
+### 🗺️ Interactive Map
+- Pan and zoom across Bremen
+- OpenStreetMap tiles for detailed geography
+- Real-time marker placement
+
+### 📍 Location Analysis
+- **Tap-to-Analyze**: Click anywhere on the map
+- **Address Search**: Type an address (e.g., "Bürgermeister-Smidt-Straße")
+- Instant livability score calculation
+- Detailed breakdown of all 7 factors
+
+### 🔍 Address Search
+The app includes intelligent address search powered by OpenStreetMap Nominatim:
+- Search for streets, landmarks, or areas in Bremen
+- Auto-complete suggestions with debounced search
+- Prioritized results for Bremen, Germany
+- Automatic map navigation and analysis
+
+**Example searches:**
+- `Bürgermeister-Smidt-Straße`
+- `Schwachhausen`
+- `Am Wall`
+- `Bremen Hauptbahnhof`
+
 ## Data Summary
 
 | Data Type | Count |
@@ -95,7 +124,8 @@ flutter run
 |----------|--------|-------------|
 | `/` | GET | API info |
 | `/health` | GET | Health check |
-| `/analyze` | POST | Analyze location |
+| `/analyze` | POST | Analyze location livability |
+| `/geocode` | POST | Search addresses (OpenStreetMap) |
 
 ### Example Request
 ```bash

@@ -1,6 +1,9 @@
 # Backend - Bremen Livability Index API
 
-FastAPI backend for the Bremen Livability Index, providing spatial analysis of livability scores.
+FastAPI backend for the Bremen Livability Index, providing:
+- Spatial analysis of livability scores based on 7 factors
+- Address geocoding using OpenStreetMap Nominatim
+- Real-time location scoring with PostGIS
 
 ## Quick Start
 
@@ -77,8 +80,14 @@ This fetches from OpenStreetMap and Unfallatlas:
 | `/` | GET | API info |
 | `/health` | GET | Health check |
 | `/analyze` | POST | Analyze location |
+| `/geocode` | POST | Geocode address to coordinates |
 
-### Example Request
+### Analyze Location
+
+**Endpoint:** `POST /analyze`
+
+Calculate livability score for a specific coordinate.
+
 ```bash
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
@@ -100,6 +109,46 @@ curl -X POST http://localhost:8000/analyze \
   "summary": "Limited greenery. Excellent amenities. Good transit access. Traffic safety concerns"
 }
 ```
+
+### Geocode Address
+
+**Endpoint:** `POST /geocode`
+
+Convert an address to geographic coordinates using OpenStreetMap Nominatim.
+
+#### Request
+```bash
+curl -X POST http://localhost:8000/geocode \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Bürgermeister-Smidt-Straße", "limit": 5}'
+```
+
+#### Response
+```json
+{
+  "results": [
+    {
+      "latitude": 53.0810562,
+      "longitude": 8.8049425,
+      "display_name": "Bürgermeister-Smidt-Straße, Bahnhofsvorstadt, Mitte, Bremen-Mitte, Stadtgebiet Bremen, Bremen, 28195, Deutschland",
+      "address": {
+        "road": "Bürgermeister-Smidt-Straße",
+        "quarter": "Bahnhofsvorstadt",
+        "suburb": "Mitte",
+        "city": "Stadtgebiet Bremen",
+        "state": "Bremen",
+        "postcode": "28195",
+        "country": "Deutschland"
+      },
+      "type": "secondary",
+      "importance": 0.239
+    }
+  ],
+  "count": 1
+}
+```
+
+> **Note:** Geocoding uses the free OpenStreetMap Nominatim API with a rate limit of 1 request/second. Queries are automatically prioritized for Bremen, Germany results.
 
 ---
 
