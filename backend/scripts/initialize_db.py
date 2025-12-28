@@ -16,8 +16,11 @@ def main():
         conn = psycopg2.connect(db_url)
         cursor = conn.cursor()
         
-        # Read SQL file
-        with open("init_db.sql", "r") as f:
+        # Read SQL file from parent directory
+        script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sql_path = os.path.join(script_dir, "init_db.sql")
+        
+        with open(sql_path, "r") as f:
             sql_script = f.read()
         
         # Execute script

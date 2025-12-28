@@ -4,8 +4,8 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-from data_ingestion.ingest_osm_data import main as ingest_osm
-from data_ingestion.ingest_unfallatlas import main as ingest_accident
+from scripts.data_ingestion.ingest_osm_data import main as ingest_osm
+from scripts.data_ingestion.ingest_unfallatlas import main as ingest_accident
 
 
 def main():

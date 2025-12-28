@@ -2,10 +2,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import json
-from models import LocationRequest, LivabilityScoreResponse, GeocodeRequest, GeocodeResponse, GeocodeResult, FeatureDetail
-from scoring import LivabilityScorer
-from database import get_db_cursor
-from geocode import GeocodeService
+from app.models import LocationRequest, LivabilityScoreResponse, GeocodeRequest, GeocodeResponse, GeocodeResult, FeatureDetail
+from core.scoring import LivabilityScorer
+from core.database import get_db_cursor
+from services.geocode import GeocodeService
 
 app = FastAPI(
     title="Bremen Livability Index API",

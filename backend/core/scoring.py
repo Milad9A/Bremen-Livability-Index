@@ -1,6 +1,6 @@
 """Scoring algorithm for livability index."""
 from typing import List, Dict, Optional
-from models import FactorBreakdown
+from app.models import FactorBreakdown
 import math
 
 

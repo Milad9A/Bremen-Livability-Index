@@ -84,7 +84,7 @@ pip install -r requirements.txt
 
 ### 3. Ingest Data
 ```bash
-python ingest_all_data.py
+python -m scripts.ingest_all_data
 ```
 
 ### 4. Start Server
@@ -181,9 +181,11 @@ curl -X POST http://localhost:8000/geocode \
 ```
 Project/
 ├── backend/
-│   ├── data_ingestion/      # Data import scripts
-│   ├── main.py              # FastAPI application
-│   ├── scoring.py           # 7-factor scoring algorithm
+│   ├── app/                 # Main application code
+│   ├── core/                # Business logic
+│   ├── services/            # External services
+│   ├── scripts/             # Data ingestion & utilities
+│   ├── tests/               # API tests
 │   ├── init_db.sql          # Database schema
 │   └── requirements.txt
 ├── frontend/bli/            # Flutter app
@@ -273,7 +275,7 @@ If you've downloaded the APK from [GitHub Releases](../../releases/tag/latest), 
 ### Backend API Tests
 ```bash
 cd backend
-python test_api.py
+python -m tests.test_api
 ```
 
 ### Postman Collection

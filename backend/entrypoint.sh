@@ -5,7 +5,7 @@ echo "🚀 Starting Deployment Setup..."
 
 # 1. Initialize Database Schema (safe to run multiple times, IF NOT EXISTS checks)
 echo "Initializing Database Schema..."
-python initialize_db.py
+python -m scripts.initialize_db
 
 # 2. Check if trees table is empty
 # If empty, run ingestion. If populated, skip to save time.
@@ -16,12 +16,12 @@ echo "Found $ROW_COUNT trees in database."
 
 if [ "$ROW_COUNT" -eq "0" ]; then
     echo "📦 Database tables empty. Running full data ingestion..."
-    python ingest_all_data.py
+    python -m scripts.ingest_all_data
 else
     echo "✅ Database populated. Skipping heavy ingestion."
-    echo "   (To force re-ingest, run 'python ingest_all_data.py' in Shell)"
+    echo "   (To force re-ingest, run 'python -m scripts.ingest_all_data' in Shell)"
 fi
 
 # 3. Start the Server
 echo "🚀 Starting Uvicorn Server..."
-uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}
+uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
