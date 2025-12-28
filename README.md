@@ -6,7 +6,7 @@ A comprehensive geospatial platform featuring a **Flutter mobile & web applicati
 
 Access the Bremen Livability Index on multiple platforms:
 
-### �️ Web Application
+### 🕸️ Web Application
 **Live App:** [bremen-livability-index-web.onrender.com](https://bremen-livability-index-web.onrender.com)  
 Run the full app directly in your browser—no installation required.
 
@@ -71,7 +71,7 @@ The livability score is calculated using 7 spatial factors:
 
 ### 1. Start Database
 ```bash
-docker-compose up -d
+cd backend && docker-compose up -d
 ```
 
 ### 2. Setup Backend
@@ -205,7 +205,7 @@ Project/
 
 | File | Purpose |
 |------|---------|
-| `docker-compose.yml` | **Local Development**: Runs local PostgreSQL/PostGIS database |
+| `backend/docker-compose.yml` | **Local Development**: Runs local PostgreSQL/PostGIS database |
 | `backend/Dockerfile` | **Cloud Backend**: Builds the API application container |
 | `backend/render.yaml` | **Backend Config**: Render Web Service + Database connection |
 | `frontend/bli/render.yaml` | **Frontend Config**: Render Static Site (Flutter Web) |
