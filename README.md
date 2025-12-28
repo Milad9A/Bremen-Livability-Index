@@ -11,27 +11,48 @@ The Bremen Livability Index allows users to explore Quality of Life scores acros
 
 ## 📱 Download Android App
 
-**Choose your download:**
-
-| Version | Status | Download |
-|---------|--------|----------|
-| **Stable Release** | Manually versioned releases | [![Download Release](https://img.shields.io/badge/Download-Stable%20Release-blue.svg)](../../releases) |
-| **Latest Build** | Auto-updated on every commit | [![Download Latest](https://img.shields.io/badge/Download-Latest%20Build-green.svg)](../../releases/tag/latest) |
+[![Download APK](https://img.shields.io/badge/Download-Android%20APK-green.svg)](../../releases/tag/latest)
 
 ### Installation Instructions
 
-1. Download your preferred APK:
-   - **Stable**: Choose from [versioned releases](../../releases) (e.g., v1.0.0)
-   - **Latest**: Get the [newest auto-build](../../releases/tag/latest) with the latest features
-2. On your Android device, enable **Install from Unknown Sources**:
+1. **Download the APK** from the [latest release](../../releases/tag/latest)
+2. **Enable installation** on your Android device:
    - Go to **Settings** → **Security** → Enable **Unknown Sources**
    - Or on newer Android: **Settings** → **Apps** → **Special Access** → **Install Unknown Apps**
-3. Open the downloaded APK file and tap **Install**
-4. Launch the app and start exploring Bremen's livability!
+3. **Install**: Open the downloaded APK file and tap **Install**
+4. **Launch**: Start exploring Bremen's livability!
 
-> **Note**: Latest builds are automatically generated from the newest code and may be unstable. For production use, download stable releases.
+> The APK is automatically built and updated whenever there are changes to the app.
 
-### Scoring Factors
+## ✨ Features
+
+### 🗺️ Interactive Map
+- Pan and zoom across Bremen
+- OpenStreetMap tiles for detailed geography
+- Real-time marker placement
+
+### 📍 Location Analysis
+- **Tap-to-Analyze**: Click anywhere on the map for instant scoring
+- **Address Search**: Type an address (e.g., "Bürgermeister-Smidt-Straße")
+- Instant livability score calculation
+- Detailed breakdown of all 7 factors with visual indicators
+
+### 🔍 Address Search
+Intelligent address search powered by OpenStreetMap Nominatim:
+- Search for streets, landmarks, or areas in Bremen
+- Auto-complete suggestions with debounced search
+- Prioritized results for Bremen, Germany
+- Automatic map navigation and analysis
+
+**Example searches:**
+- `Bürgermeister-Smidt-Straße`
+- `Schwachhausen`
+- `Am Wall`
+- `Bremen Hauptbahnhof`
+
+## 📊 Scoring System
+
+The livability score is calculated using 7 spatial factors:
 
 | Factor | Type | Weight | Radius | Source |
 |--------|------|--------|--------|--------|
@@ -43,31 +64,23 @@ The Bremen Livability Index allows users to explore Quality of Life scores acros
 | 🏭 Industrial Areas | Negative | -15 | 200m | OSM industrial zones |
 | 🛣️ Major Roads | Negative | -10 | 100m | OSM highways |
 
-**Base Score:** 25 points
+**Base Score:** 25 points  
+**Total Range:** 0-100
 
-## Architecture
+### Data Summary
 
-- **Backend**: FastAPI (Python) with PostGIS spatial database
-- **Frontend**: Flutter mobile & web application ("BLI")
-- **Database**: PostgreSQL 15 with PostGIS 3.3
-- **Data Sources**: OpenStreetMap, German Accident Atlas (Unfallatlas)
+| Data Type | Count |
+|-----------|-------|
+| Trees | ~26,600 |
+| Parks | ~260 |
+| Amenities | ~1,260 |
+| Public Transport | ~2,500 |
+| Healthcare | ~490 |
+| Industrial Areas | ~390 |
+| Major Roads | ~2,160 |
+| Accidents | ~2,080 |
 
-## Deployment
-
-| File | Purpose |
-|------|---------|
-| `docker-compose.yml` | **Local Development**: Runs local PostgreSQL/PostGIS database |
-| `backend/Dockerfile` | **Cloud Backend**: Builds the API application container |
-| `backend/render.yaml` | **Backend Config**: Render Web Service + Database connection |
-| `frontend/bli/render.yaml` | **Frontend Config**: Render Static Site (Flutter Web) |
-
-### Cloud Setup (Free Forever)
-
-1. **Database**: [Neon.tech](https://neon.tech) (PostgreSQL + PostGIS)
-2. **Backend**: [Render.com](https://render.com) (Python FastAPI Web Service)
-3. **Frontend**: [Render.com](https://render.com) (Static Site)
-
-## Quick Start
+## 🚀 Quick Start
 
 ### 1. Start Database
 ```bash
@@ -101,46 +114,9 @@ flutter pub get
 flutter run
 ```
 
-## Features
+## 📡 API Documentation
 
-### 🗺️ Interactive Map
-- Pan and zoom across Bremen
-- OpenStreetMap tiles for detailed geography
-- Real-time marker placement
-
-### 📍 Location Analysis
-- **Tap-to-Analyze**: Click anywhere on the map
-- **Address Search**: Type an address (e.g., "Bürgermeister-Smidt-Straße")
-- Instant livability score calculation
-- Detailed breakdown of all 7 factors
-
-### 🔍 Address Search
-The app includes intelligent address search powered by OpenStreetMap Nominatim:
-- Search for streets, landmarks, or areas in Bremen
-- Auto-complete suggestions with debounced search
-- Prioritized results for Bremen, Germany
-- Automatic map navigation and analysis
-
-**Example searches:**
-- `Bürgermeister-Smidt-Straße`
-- `Schwachhausen`
-- `Am Wall`
-- `Bremen Hauptbahnhof`
-
-## Data Summary
-
-| Data Type | Count |
-|-----------|-------|
-| Trees | ~26,600 |
-| Parks | ~260 |
-| Amenities | ~1,260 |
-| Public Transport | ~2,500 |
-| Healthcare | ~490 |
-| Industrial Areas | ~390 |
-| Major Roads | ~2,160 |
-| Accidents | ~2,080 |
-
-## API Endpoints
+### Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -216,78 +192,14 @@ curl -X POST http://localhost:8000/geocode \
 
 > **Note:** Geocoding uses the free OpenStreetMap Nominatim API with a rate limit of 1 request/second. Queries are automatically prioritized for Bremen, Germany results.
 
-## Testing
+## 🏗️ Architecture
 
-```bash
-cd backend
-python test_api.py
-```
+- **Backend**: FastAPI (Python) with PostGIS spatial database
+- **Frontend**: Flutter mobile & web application ("BLI")
+- **Database**: PostgreSQL 15 with PostGIS 3.3
+- **Data Sources**: OpenStreetMap, German Accident Atlas (Unfallatlas)
 
-## Flutter Development
-
-### Prerequisites
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed
-- iOS Simulator (Mac), Android Emulator, or Chrome (for web)
-
-### Running the App
-
-```bash
-cd frontend/bli
-flutter pub get
-flutter run          # Default device
-flutter run -d chrome    # Web
-flutter run -d emulator-5554  # Android emulator
-```
-
-### App Features & Usage
-
-**Analyze by Tapping:**
-1. Open the app
-2. Pan/zoom to your desired location in Bremen
-3. Tap anywhere on the map
-4. View the livability score and detailed breakdown
-
-**Analyze by Address Search:**
-1. Click the **search icon** (🔍) in the top-right corner
-2. Type an address or location (e.g., "Bürgermeister-Smidt-Straße", "Schwachhausen")
-3. Select a result from the list
-4. The map will pan to that location and show the livability score automatically
-
-**Search Tips:**
-- Results appear after 500ms of typing (debounced for efficiency)
-- Bremen locations are prioritized in search results
-- Click the X button or search icon again to close the search
-
-### API Configuration
-
-The API URL is configured in `lib/services/api_service.dart`.
-By default, it points to the **Production Backend**: `https://bremen-livability-index.onrender.com`
-
-To use a local backend:
-1. Open `lib/services/api_service.dart`
-2. Uncomment the localhost line and comment out the Render URL
-
-### App Icons
-
-The app icon is generated from `assets/app_icon.png` using `flutter_launcher_icons`.
-
-**To update the icon:**
-```bash
-# Replace assets/app_icon.png, then run:
-dart run flutter_launcher_icons
-```
-
-## Postman Collection
-
-A Postman collection is included in `backend/Bremen_Livability_Index.postman_collection.json`.
-
-**Features:**
-- **Environment Switching**: Use the `environment_mode` variable to switch between `local` and `deployed`
-  - `deployed`: `https://bremen-livability-index.onrender.com`
-  - `local`: `http://127.0.0.1:8000`
-- **Pre-configured Requests**: Analyze Location, Geocode Address, Health Check, and more
-
-## Project Structure
+### Project Structure
 
 ```
 Project/
@@ -302,31 +214,122 @@ Project/
 └── README.md
 ```
 
-## Troubleshooting
+## ☁️ Deployment
+
+### Cloud Setup (Free Forever)
+
+1. **Database**: [Neon.tech](https://neon.tech) (PostgreSQL + PostGIS)
+2. **Backend**: [Render.com](https://render.com) (Python FastAPI Web Service)
+3. **Frontend**: [Render.com](https://render.com) (Static Site)
+
+### Deployment Files
+
+| File | Purpose |
+|------|---------|
+| `docker-compose.yml` | **Local Development**: Runs local PostgreSQL/PostGIS database |
+| `backend/Dockerfile` | **Cloud Backend**: Builds the API application container |
+| `backend/render.yaml` | **Backend Config**: Render Web Service + Database connection |
+| `frontend/bli/render.yaml` | **Frontend Config**: Render Static Site (Flutter Web) |
+
+### Automated Deployment
+
+The project auto-deploys to **Render** (App) + **Neon** (DB):
+
+1. **Push to GitHub**: Render auto-deploys using `backend/Dockerfile`
+2. **Auto-Setup**: The `entrypoint.sh` script runs automatically to:
+   - Initialize database tables (if missing)
+   - Ingest all OSM data (first run only)
+   - Start the API server
+
+**Live API**: `https://bremen-livability-index.onrender.com`
+
+## 💻 Flutter Development
+
+### Prerequisites
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed
+- iOS Simulator (Mac), Android Emulator, or Chrome (for web)
+
+### Running the App
+
+```bash
+cd frontend/bli
+flutter pub get
+flutter run              # Default device
+flutter run -d chrome    # Web
+flutter run -d emulator-5554  # Android emulator
+```
+
+### App Usage
+
+**Analyze by Tapping:**
+1. Open the app
+2. Pan/zoom to your desired location in Bremen
+3. Tap anywhere on the map
+4. View the livability score and detailed breakdown
+
+**Analyze by Address Search:**
+1. Click the **search icon** (🔍) in the top-right corner
+2. Type an address or location
+3. Select a result from the list
+4. The map will pan to that location and show the livability score automatically
+
+**Search Tips:**
+- Results appear after 500ms of typing (debounced for efficiency)
+- Bremen locations are prioritized in search results
+- Click the X button or search icon again to close the search
+
+### API Configuration
+
+The API URL is configured in `lib/services/api_service.dart`.
+
+**Default**: Production Backend (`https://bremen-livability-index.onrender.com`)
+
+**To use local backend:**
+1. Open `lib/services/api_service.dart`
+2. Uncomment the localhost line and comment out the Render URL
+
+### App Icons
+
+The app icon is generated from `assets/app_icon.png` using `flutter_launcher_icons`.
+
+**To update the icon:**
+```bash
+# Replace assets/app_icon.png, then run:
+dart run flutter_launcher_icons
+```
+
+## 🧪 Testing
+
+### Backend API Tests
+```bash
+cd backend
+python test_api.py
+```
+
+### Postman Collection
+
+A Postman collection is included in `backend/Bremen_Livability_Index.postman_collection.json`.
+
+**Features:**
+- **Environment Switching**: Use the `environment_mode` variable to switch between `local` and `deployed`
+  - `deployed`: `https://bremen-livability-index.onrender.com`
+  - `local`: `http://127.0.0.1:8000`
+- **Pre-configured Requests**: Analyze Location, Geocode Address, Health Check, and more
+
+## 🔧 Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
-| Database connection failed | `docker ps` to check container |
+| Database connection failed | `docker ps` to check container status |
 | Port 8000 in use | `lsof -i :8000` then `kill -9 <PID>` |
 | Overpass API timeout | Retry - the API has rate limits |
+| Flutter build errors | Run `flutter clean && flutter pub get` |
 
-## License
+## 📄 License
 
 University project for educational purposes.
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - OpenStreetMap contributors
 - German Accident Atlas (Statistisches Bundesamt)
-
-## Production Deployment (Automated)
-
-The project is configured for **Render** (App) + **Neon** (DB) with full automation.
-
-1. **Push to GitHub**: Render auto-deploys using `backend/Dockerfile`.
-2. **Auto-Setup**: The `entrypoint.sh` script runs automatically inside the cloud container to:
-   - Initialize database tables (if missing).
-   - Ingest all OSM data (first run only).
-   - Start the API server.
-
-**Live API**: `https://bremen-livability-index.onrender.com`
