@@ -58,6 +58,58 @@
 			}
 		},
 		{
+			"name": "Geocode - Search Address",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": \"Bürgermeister-Smidt-Straße\",\n    \"limit\": 5\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/geocode",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"geocode"
+					]
+				},
+				"description": "Search for addresses in Bremen using OpenStreetMap Nominatim. Returns coordinates and location details."
+			}
+		},
+		{
+			"name": "Geocode - Search Landmark",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"query\": \"Bremen Hauptbahnhof\",\n    \"limit\": 3\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/geocode",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"geocode"
+					]
+				},
+				"description": "Search for landmarks like train stations, universities, or neighborhoods in Bremen."
+			}
+		},
+		{
 			"name": "Analyze - City Center (Marktplatz)",
 			"request": {
 				"method": "POST",

@@ -2,27 +2,27 @@
 
 A comprehensive geospatial platform featuring a **Flutter mobile & web application** and a **Python FastAPI backend**. It calculates Quality of Life scores for any location in Bremen, Germany, in real-time.
 
-## Project Overview
+## 🌐 Live Applications
 
-The Bremen Livability Index allows users to explore Quality of Life scores across Bremen through:
-- **Tap-to-Analyze**: Tap any location on the map for instant scoring
-- **Address Search**: Search for addresses and get automatic livability analysis
-- **Real-time Results**: Immediate feedback based on 7 spatial factors
+Access the Bremen Livability Index on multiple platforms:
 
-## 📱 Download Android App
+### �️ Web Application
+**Live App:** [bremen-livability-index-web.onrender.com](https://bremen-livability-index-web.onrender.com)  
+Run the full app directly in your browser—no installation required.
 
-[![Download APK](https://img.shields.io/badge/Download-Android%20APK-green.svg)](../../releases/tag/latest)
+### 📡 API Endpoint
+**Live API:** [bremen-livability-index.onrender.com](https://bremen-livability-index.onrender.com)  
+**Docs:** [bremen-livability-index.onrender.com/docs](https://bremen-livability-index.onrender.com/docs)  
+RESTful API for livability analysis and geocoding.
 
-### Installation Instructions
+### 📱 Mobile Apps
 
-1. **Download the APK** from the [latest release](../../releases/tag/latest)
-2. **Enable installation** on your Android device:
-   - Go to **Settings** → **Security** → Enable **Unknown Sources**
-   - Or on newer Android: **Settings** → **Apps** → **Special Access** → **Install Unknown Apps**
-3. **Install**: Open the downloaded APK file and tap **Install**
-4. **Launch**: Start exploring Bremen's livability!
+**Android:** [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-green.svg)](../../releases/tag/latest)  
+Download the latest Android APK from [GitHub Releases](../../releases/tag/latest). Auto-built on every update.
 
-> The APK is automatically built and updated whenever there are changes to the app.
+**iOS:** Coming soon (build locally with Flutter for now)
+
+> All platforms use the same backend API and provide the same core functionality.
 
 ## ✨ Features
 
@@ -33,24 +33,11 @@ The Bremen Livability Index allows users to explore Quality of Life scores acros
 
 ### 📍 Location Analysis
 - **Tap-to-Analyze**: Click anywhere on the map for instant scoring
-- **Address Search**: Type an address (e.g., "Bürgermeister-Smidt-Straße")
+- **Address Search**: Search for streets, landmarks, or areas (e.g., "Bürgermeister-Smidt-Straße", "Schwachhausen")
 - Instant livability score calculation
 - Detailed breakdown of all 7 factors with visual indicators
 
-### 🔍 Address Search
-Intelligent address search powered by OpenStreetMap Nominatim:
-- Search for streets, landmarks, or areas in Bremen
-- Auto-complete suggestions with debounced search
-- Prioritized results for Bremen, Germany
-- Automatic map navigation and analysis
-
-**Example searches:**
-- `Bürgermeister-Smidt-Straße`
-- `Schwachhausen`
-- `Am Wall`
-- `Bremen Hauptbahnhof`
-
-## 📊 Scoring System
+##  Scoring System
 
 The livability score is calculated using 7 spatial factors:
 
@@ -172,18 +159,8 @@ curl -X POST http://localhost:8000/geocode \
     {
       "latitude": 53.0810562,
       "longitude": 8.8049425,
-      "display_name": "Bürgermeister-Smidt-Straße, Bahnhofsvorstadt, Mitte, Bremen-Mitte, Stadtgebiet Bremen, Bremen, 28195, Deutschland",
-      "address": {
-        "road": "Bürgermeister-Smidt-Straße",
-        "quarter": "Bahnhofsvorstadt",
-        "suburb": "Mitte",
-        "city": "Stadtgebiet Bremen",
-        "state": "Bremen",
-        "postcode": "28195",
-        "country": "Deutschland"
-      },
-      "type": "secondary",
-      "importance": 0.239
+      "display_name": "Bürgermeister-Smidt-Straße, Bahnhofsvorstadt, Mitte, Bremen, 28195, Deutschland",
+      "type": "secondary"
     }
   ],
   "count": 1
@@ -241,8 +218,6 @@ The project auto-deploys to **Render** (App) + **Neon** (DB):
    - Ingest all OSM data (first run only)
    - Start the API server
 
-**Live API**: `https://bremen-livability-index.onrender.com`
-
 ## 💻 Flutter Development
 
 ### Prerequisites
@@ -258,25 +233,6 @@ flutter run              # Default device
 flutter run -d chrome    # Web
 flutter run -d emulator-5554  # Android emulator
 ```
-
-### App Usage
-
-**Analyze by Tapping:**
-1. Open the app
-2. Pan/zoom to your desired location in Bremen
-3. Tap anywhere on the map
-4. View the livability score and detailed breakdown
-
-**Analyze by Address Search:**
-1. Click the **search icon** (🔍) in the top-right corner
-2. Type an address or location
-3. Select a result from the list
-4. The map will pan to that location and show the livability score automatically
-
-**Search Tips:**
-- Results appear after 500ms of typing (debounced for efficiency)
-- Bremen locations are prioritized in search results
-- Click the X button or search icon again to close the search
 
 ### API Configuration
 
@@ -297,6 +253,20 @@ The app icon is generated from `assets/app_icon.png` using `flutter_launcher_ico
 # Replace assets/app_icon.png, then run:
 dart run flutter_launcher_icons
 ```
+
+### Android APK Installation
+
+If you've downloaded the APK from [GitHub Releases](../../releases/tag/latest), follow these steps:
+
+1. **Download the APK** from the [latest release](../../releases/tag/latest)
+2. **Enable installation** on your Android device:
+   - Go to **Settings** → **Security** → Enable **Unknown Sources**
+   - Or on newer Android: **Settings** → **Apps** → **Special Access** → **Install Unknown Apps**
+3. **Install**: Open the downloaded APK file and tap **Install**
+4. **Launch**: Start exploring Bremen's livability!
+
+> The APK is automatically built and updated on every push to the repository via GitHub Actions.
+
 
 ## 🧪 Testing
 
