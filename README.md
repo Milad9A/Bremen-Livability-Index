@@ -23,7 +23,7 @@ The Bremen Livability Index allows users to tap any location on a map of Bremen 
 ## Architecture
 
 - **Backend**: FastAPI (Python) with PostGIS spatial database
-- **Frontend**: Flutter mobile application
+- **Frontend**: Flutter mobile & web application ("BLI")
 - **Database**: PostgreSQL 15 with PostGIS 3.3
 - **Data Sources**: OpenStreetMap, German Accident Atlas (Unfallatlas)
 
@@ -32,13 +32,15 @@ The Bremen Livability Index allows users to tap any location on a map of Bremen 
 | File | Purpose |
 |------|---------|
 | `docker-compose.yml` | **Local Development**: Runs local PostgreSQL/PostGIS database |
-| `backend/Dockerfile` | **Cloud Production**: Builds the API application container |
-| `backend/render.yaml` | **Render Config**: Defines cloud Web Service (connects to external Neon DB) |
+| `backend/Dockerfile` | **Cloud Backend**: Builds the API application container |
+| `backend/render.yaml` | **Backend Config**: Render Web Service + Database connection |
+| `frontend/bli/render.yaml` | **Frontend Config**: Render Static Site (Flutter Web) |
 
 ### Cloud Setup (Free Forever)
 
 1. **Database**: [Neon.tech](https://neon.tech) (PostgreSQL + PostGIS)
-2. **Web Service**: [Render.com](https://render.com) (Python FastAPI)
+2. **Backend**: [Render.com](https://render.com) (Python FastAPI Web Service)
+3. **Frontend**: [Render.com](https://render.com) (Static Site)
 
 ## Quick Start
 

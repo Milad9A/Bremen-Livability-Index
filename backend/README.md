@@ -105,9 +105,16 @@ curl -X POST http://localhost:8000/analyze \
 
 ## Testing
 
-```bash
-python test_api.py
-```
+---
+## Postman Collection
+
+A Postman collection is included in `Bremen_Livability_Index.postman_collection.json`.
+
+**Features:**
+-   **Environment Switching**: Use the `environment_mode` variable to switch between `local` and `deployed`.
+    -   `deployed`: `https://bremen-livability-index.onrender.com`
+    -   `local`: `http://127.0.0.1:8000`
+-   **Pre-configured Requests**: Analyze Location, Health Check, and more.
 
 ---
 
