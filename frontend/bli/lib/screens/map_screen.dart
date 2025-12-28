@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 import '../services/api_service.dart';
 import '../models/location_marker.dart';
 import '../widgets/score_card.dart';
+import '../widgets/address_search.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -23,6 +24,7 @@ class _MapScreenState extends State<MapScreen> {
   LivabilityScore? _currentScore;
   bool _isLoading = false;
   String? _errorMessage;
+  bool _showSearch = false;
 
   @override
   void initState() {
@@ -67,12 +69,55 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
+  Future<void> _onLocationSelected(LatLng location, String addressName) async {
+    // Move map to selected location
+    _mapController.move(location, 15.0);
+
+    // Analyze the selected location
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _selectedMarker = LocationMarker(position: location);
+      _currentScore = null;
+    });
+
+    try {
+      final score = await _apiService.analyzeLocation(
+        location.latitude,
+        location.longitude,
+      );
+
+      setState(() {
+        _currentScore = score;
+        _selectedMarker = LocationMarker(
+          position: location,
+          score: score.score,
+        );
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to analyze location: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bremen Livability Index'),
         actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _showSearch = !_showSearch;
+              });
+            },
+            tooltip: 'Search address',
+            icon: Icon(_showSearch ? Icons.close : Icons.search),
+          ),
           IconButton(
             onPressed: () {
               _mapController.move(bremenCenter, 13.0);
@@ -126,28 +171,42 @@ class _MapScreenState extends State<MapScreen> {
                 ),
             ],
           ),
-              if (_errorMessage != null)
-                ErrorBanner(
-                  message: _errorMessage!,
-                  onDismiss: () {
-                    setState(() {
-                      _errorMessage = null;
-                    });
-                  },
-                ),
-              if (_isLoading) const Center(child: CircularProgressIndicator()),
-              if (_currentScore != null)
-                Positioned(
-                  bottom: 20,
-                  left: 20,
-                  right: 20,
-                  child: ScoreCard(score: _currentScore!),
-                ),
-            ],
-          ),
-        );
-      }
-    }
+          if (_errorMessage != null)
+            ErrorBanner(
+              message: _errorMessage!,
+              onDismiss: () {
+                setState(() {
+                  _errorMessage = null;
+                });
+              },
+            ),
+          if (_isLoading) const Center(child: CircularProgressIndicator()),
+          if (_currentScore != null)
+            Positioned(
+              bottom: 20,
+              left: 20,
+              right: 20,
+              child: ScoreCard(score: _currentScore!),
+            ),
+          if (_showSearch)
+            Positioned(
+              top: 10,
+              left: 10,
+              right: 10,
+              child: AddressSearchWidget(
+                onLocationSelected: _onLocationSelected,
+                onClose: () {
+                  setState(() {
+                    _showSearch = false;
+                  });
+                },
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
 
 class ErrorBanner extends StatelessWidget {
   final String message;
@@ -174,15 +233,9 @@ class ErrorBanner extends StatelessWidget {
               Icon(Icons.error_outline, color: Colors.red[900]),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  message,
-                  style: TextStyle(color: Colors.red[900]),
-                ),
+                child: Text(message, style: TextStyle(color: Colors.red[900])),
               ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: onDismiss,
-              ),
+              IconButton(icon: const Icon(Icons.close), onPressed: onDismiss),
             ],
           ),
         ),

@@ -6,6 +6,7 @@ pydantic>=2.10.0
 pydantic-settings>=2.6.0
 python-dotenv==1.0.1
 requests==2.32.3
+aiohttp==3.9.1
 
 # Data ingestion dependencies (optional - only needed for importing data)
 # Note: geopandas requires GDAL to be installed system-wide

@@ -37,6 +37,30 @@ class ApiService {
       return false;
     }
   }
+
+  Future<List<GeocodeResult>> geocodeAddress(
+    String query, {
+    int limit = 5,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/geocode'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'query': query, 'limit': limit}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return (data['results'] as List)
+            .map((r) => GeocodeResult.fromJson(r))
+            .toList();
+      } else {
+        throw Exception('Failed to geocode address: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error geocoding address: $e');
+    }
+  }
 }
 
 class LivabilityScore {
@@ -104,6 +128,35 @@ class Factor {
       value: (json['value'] as num).toDouble(),
       description: json['description'] as String,
       impact: json['impact'] as String,
+    );
+  }
+}
+
+class GeocodeResult {
+  final double latitude;
+  final double longitude;
+  final String displayName;
+  final Map<String, dynamic> address;
+  final String type;
+  final double importance;
+
+  GeocodeResult({
+    required this.latitude,
+    required this.longitude,
+    required this.displayName,
+    required this.address,
+    required this.type,
+    required this.importance,
+  });
+
+  factory GeocodeResult.fromJson(Map<String, dynamic> json) {
+    return GeocodeResult(
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      displayName: json['display_name'] as String,
+      address: json['address'] as Map<String, dynamic>,
+      type: json['type'] as String,
+      importance: (json['importance'] as num).toDouble(),
     );
   }
 }

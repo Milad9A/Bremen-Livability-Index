@@ -24,3 +24,25 @@ class LivabilityScoreResponse(BaseModel):
     factors: List[FactorBreakdown] = Field(..., description="Breakdown of contributing factors")
     summary: str = Field(..., description="Human-readable summary")
 
+
+class GeocodeRequest(BaseModel):
+    """Request model for address geocoding."""
+    query: str = Field(..., min_length=1, description="Address search query")
+    limit: int = Field(5, ge=1, le=10, description="Maximum number of results to return")
+
+
+class GeocodeResult(BaseModel):
+    """Individual geocoded result."""
+    latitude: float
+    longitude: float
+    display_name: str
+    address: dict
+    type: str
+    importance: float
+
+
+class GeocodeResponse(BaseModel):
+    """Response model for geocoding."""
+    results: List[GeocodeResult] = Field(..., description="List of geocoded results")
+    count: int = Field(..., description="Number of results returned")
+

@@ -1,9 +1,10 @@
 """FastAPI backend for Bremen Livability Index."""
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import LocationRequest, LivabilityScoreResponse
+from models import LocationRequest, LivabilityScoreResponse, GeocodeRequest, GeocodeResponse, GeocodeResult
 from scoring import LivabilityScorer
 from database import get_db_cursor
+from geocode import GeocodeService
 
 app = FastAPI(
     title="Bremen Livability Index API",
@@ -37,6 +38,17 @@ async def health_check():
         return {"status": "healthy", "database": "connected"}
     except Exception as e:
         raise HTTPException(status_code=503, detail="Database connection failed")
+
+
+@app.post("/geocode", response_model=GeocodeResponse)
+async def geocode_address(request: GeocodeRequest):
+    """Geocode an address and return possible locations."""
+    try:
+        results = await GeocodeService.geocode_address(request.query, request.limit)
+        geocode_results = [GeocodeResult(**result) for result in results]
+        return GeocodeResponse(results=geocode_results, count=len(geocode_results))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Geocoding failed: {str(e)}")
 
 
 @app.post("/analyze", response_model=LivabilityScoreResponse)
