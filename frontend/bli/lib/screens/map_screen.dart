@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 import '../models/location_marker.dart';
 import '../widgets/score_card.dart';
 import '../widgets/address_search.dart';
+import '../widgets/nearby_feature_layers.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -191,6 +192,10 @@ class _MapScreenState extends State<MapScreen> {
                 userAgentPackageName: 'com.example.bli',
                 maxZoom: 19,
               ),
+              if (_currentScore != null)
+                NearbyFeatureLayers(
+                  nearbyFeatures: _currentScore!.nearbyFeatures,
+                ),
               if (_selectedMarker != null)
                 MarkerLayer(
                   markers: [

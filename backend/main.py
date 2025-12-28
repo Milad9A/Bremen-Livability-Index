@@ -1,7 +1,8 @@
 """FastAPI backend for Bremen Livability Index."""
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from models import LocationRequest, LivabilityScoreResponse, GeocodeRequest, GeocodeResponse, GeocodeResult
+import json
+from models import LocationRequest, LivabilityScoreResponse, GeocodeRequest, GeocodeResponse, GeocodeResult, FeatureDetail
 from scoring import LivabilityScorer
 from database import get_db_cursor
 from geocode import GeocodeService
@@ -56,67 +57,123 @@ async def analyze_location(request: LocationRequest):
     """Analyze a location and return livability score."""
     try:
         lat, lon = request.latitude, request.longitude
+        nearby_features = {}
         
         with get_db_cursor() as cursor:
+            # Helper function to process results
+            def fetch_features(query, params, feature_type):
+                cursor.execute(query, params)
+                rows = cursor.fetchall()
+                features = []
+                for row in rows:
+
+                    features.append(FeatureDetail(
+                        id=row.get("id"),
+                        name=row.get("name"),
+                        type=feature_type,
+                        subtype=row.get("type_detail"),
+                        distance=round(row["dist"], 1),
+                        geometry=json.loads(row["geojson"])
+                    ))
+                return features
+
+            point_geom = f"ST_SetSRID(ST_MakePoint({lon}, {lat}), 4326)::geography"
+            
             # Trees within 100m
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM gis_data.trees
-                WHERE ST_DWithin(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, 100)
-            """, (lon, lat))
-            tree_count = cursor.fetchone()["count"]
+            trees = fetch_features(f"""
+                SELECT id, name, ST_AsGeoJSON(geometry) as geojson, 
+                       ST_Distance(geometry, {point_geom}) as dist
+                FROM gis_data.trees
+                WHERE ST_DWithin(geometry, {point_geom}, 100)
+                ORDER BY dist ASC
+            """, (), "tree")
+            nearby_features["trees"] = trees
+            tree_count = len(trees)
             
             # Parks within 100m
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM gis_data.parks
-                WHERE ST_DWithin(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, 100)
-            """, (lon, lat))
-            park_count = cursor.fetchone()["count"]
+            parks = fetch_features(f"""
+                SELECT id, name, ST_AsGeoJSON(geometry) as geojson,
+                       ST_Distance(geometry, {point_geom}) as dist
+                FROM gis_data.parks
+                WHERE ST_DWithin(geometry, {point_geom}, 100)
+                ORDER BY dist ASC
+            """, (), "park")
+            nearby_features["parks"] = parks
+            park_count = len(parks)
             
             # Amenities within 500m
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM gis_data.amenities
-                WHERE ST_DWithin(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, 500)
-            """, (lon, lat))
-            amenity_count = cursor.fetchone()["count"]
-            
+            amenities = fetch_features(f"""
+                SELECT id, name, amenity_type as type_detail, ST_AsGeoJSON(geometry) as geojson,
+                       ST_Distance(geometry, {point_geom}) as dist
+                FROM gis_data.amenities
+                WHERE ST_DWithin(geometry, {point_geom}, 500)
+                ORDER BY dist ASC
+            """, (), "amenity")
+            # Update type to include specific amenity type
+            for a, row in zip(amenities, cursor.fetchall() if False else amenities): # Hack to keep logic simple
+                if hasattr(a, 'type_detail') and a.type_detail: # fetch_features doesn't capture extra cols easily without custom row access
+                     pass 
+            # Re-doing fetch to be safer given the helper
+            # Actually let's just use a more generic approach or query
+            nearby_features["amenities"] = amenities
+            amenity_count = len(amenities)
+
             # Accidents within 150m
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM gis_data.accidents
-                WHERE ST_DWithin(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, 150)
-            """, (lon, lat))
-            accident_count = cursor.fetchone()["count"]
+            accidents = fetch_features(f"""
+                SELECT id, severity as name, ST_AsGeoJSON(geometry) as geojson,
+                       ST_Distance(geometry, {point_geom}) as dist
+                FROM gis_data.accidents
+                WHERE ST_DWithin(geometry, {point_geom}, 150)
+                ORDER BY dist ASC
+            """, (), "accident")
+            nearby_features["accidents"] = accidents
+            accident_count = len(accidents)
             
             # Public transport stops within 300m
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM gis_data.public_transport
-                WHERE ST_DWithin(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, 300)
-            """, (lon, lat))
-            transport_count = cursor.fetchone()["count"]
+            transport = fetch_features(f"""
+                SELECT id, name, transport_type as type_detail, ST_AsGeoJSON(geometry) as geojson,
+                       ST_Distance(geometry, {point_geom}) as dist
+                FROM gis_data.public_transport
+                WHERE ST_DWithin(geometry, {point_geom}, 300)
+                ORDER BY dist ASC
+            """, (), "public_transport")
+            nearby_features["public_transport"] = transport
+            transport_count = len(transport)
             
             # Healthcare within 500m
-            cursor.execute("""
-                SELECT COUNT(*) as count FROM gis_data.healthcare
-                WHERE ST_DWithin(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, 500)
-            """, (lon, lat))
-            healthcare_count = cursor.fetchone()["count"]
+            healthcare = fetch_features(f"""
+                SELECT id, name, healthcare_type as type_detail, ST_AsGeoJSON(geometry) as geojson,
+                       ST_Distance(geometry, {point_geom}) as dist
+                FROM gis_data.healthcare
+                WHERE ST_DWithin(geometry, {point_geom}, 500)
+                ORDER BY dist ASC
+            """, (), "healthcare")
+            nearby_features["healthcare"] = healthcare
+            healthcare_count = len(healthcare)
             
             # Industrial areas within 200m
-            cursor.execute("""
-                SELECT EXISTS(
-                    SELECT 1 FROM gis_data.industrial_areas
-                    WHERE ST_DWithin(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, 200)
-                ) as near
-            """, (lon, lat))
-            near_industrial = cursor.fetchone()["near"]
+            industrial = fetch_features(f"""
+                SELECT id, name, ST_AsGeoJSON(geometry) as geojson,
+                       ST_Distance(geometry, {point_geom}) as dist
+                FROM gis_data.industrial_areas
+                WHERE ST_DWithin(geometry, {point_geom}, 200)
+                LIMIT 1
+            """, (), "industrial")
+            near_industrial = len(industrial) > 0
+            if near_industrial:
+                nearby_features["industrial"] = industrial
             
             # Major roads within 100m
-            cursor.execute("""
-                SELECT EXISTS(
-                    SELECT 1 FROM gis_data.major_roads
-                    WHERE ST_DWithin(geometry, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, 100)
-                ) as near
-            """, (lon, lat))
-            near_major_road = cursor.fetchone()["near"]
+            roads = fetch_features(f"""
+                SELECT id, name, road_type as type_detail, ST_AsGeoJSON(geometry) as geojson,
+                       ST_Distance(geometry, {point_geom}) as dist
+                FROM gis_data.major_roads
+                WHERE ST_DWithin(geometry, {point_geom}, 100)
+                LIMIT 1
+            """, (), "major_road")
+            near_major_road = len(roads) > 0
+            if near_major_road:
+                nearby_features["major_roads"] = roads
         
         # Calculate score
         result = LivabilityScorer.calculate_score(
@@ -134,10 +191,13 @@ async def analyze_location(request: LocationRequest):
             score=result["score"],
             location={"latitude": lat, "longitude": lon},
             factors=result["factors"],
+            nearby_features=nearby_features,
             summary=result["summary"]
         )
         
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 

@@ -1,0 +1,210 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import '../services/api_service.dart';
+
+class NearbyFeatureLayers extends StatelessWidget {
+  final Map<String, List<FeatureDetail>> nearbyFeatures;
+
+  const NearbyFeatureLayers({super.key, required this.nearbyFeatures});
+
+  @override
+  Widget build(BuildContext context) {
+    if (nearbyFeatures.isEmpty) return const SizedBox.shrink();
+
+    List<Marker> markers = [];
+    List<Polygon> polygons = [];
+    List<Polyline> polylines = [];
+
+    nearbyFeatures.forEach((type, features) {
+      for (var feature in features) {
+        // Parse geometry
+        var geom = feature.geometry;
+        var geomType = geom['type'];
+        var coords = geom['coordinates'];
+
+        Color color = _getColorForType(type);
+        IconData icon = _getIconForType(type, subtype: feature.subtype);
+
+        if (geomType == 'Point') {
+          // Point coordinates: [lon, lat]
+          markers.add(
+            Marker(
+              point: LatLng(
+                (coords[1] as num).toDouble(),
+                (coords[0] as num).toDouble(),
+              ),
+              width: 30,
+              height: 30,
+              child: Icon(icon, color: color, size: 20),
+            ),
+          );
+        } else if (geomType == 'Polygon') {
+          // Polygon coordinates: [[[lon, lat], ...], ...]
+          List<dynamic> rings = coords;
+          if (rings.isNotEmpty) {
+            List<LatLng> points = (rings[0] as List)
+                .map(
+                  (p) => LatLng(
+                    (p[1] as num).toDouble(),
+                    (p[0] as num).toDouble(),
+                  ),
+                )
+                .toList();
+            polygons.add(
+              Polygon(
+                points: points,
+                color: color.withOpacity(0.3),
+                borderColor: color,
+                borderStrokeWidth: 2,
+              ),
+            );
+          }
+        } else if (geomType == 'LineString') {
+          // LineString: [[lon, lat], ...]
+          List<LatLng> points = (coords as List)
+              .map(
+                (p) =>
+                    LatLng((p[1] as num).toDouble(), (p[0] as num).toDouble()),
+              )
+              .toList();
+          polylines.add(Polyline(points: points, color: color, strokeWidth: 3));
+        } else if (geomType == 'MultiPolygon') {
+          // MultiPolygon: [[[[lon, lat]...]], ...]
+          List<dynamic> polys = coords;
+          for (var poly in polys) {
+            List<dynamic> rings = poly;
+            if (rings.isNotEmpty) {
+              List<LatLng> points = (rings[0] as List)
+                  .map(
+                    (p) => LatLng(
+                      (p[1] as num).toDouble(),
+                      (p[0] as num).toDouble(),
+                    ),
+                  )
+                  .toList();
+              polygons.add(
+                Polygon(
+                  points: points,
+                  color: color.withOpacity(0.3),
+                  borderColor: color,
+                  borderStrokeWidth: 2,
+                ),
+              );
+            }
+          }
+        }
+      }
+    });
+
+    return Stack(
+      children: [
+        if (polygons.isNotEmpty) PolygonLayer(polygons: polygons),
+        if (polylines.isNotEmpty) PolylineLayer(polylines: polylines),
+        if (markers.isNotEmpty) MarkerLayer(markers: markers),
+      ],
+    );
+  }
+
+  Color _getColorForType(String type) {
+    switch (type) {
+      case 'trees':
+      case 'tree':
+        return Colors.green;
+      case 'parks':
+      case 'park':
+        return Colors.lightGreen;
+      case 'amenities':
+      case 'amenity':
+        return Colors.blue;
+      case 'public_transport':
+        return Colors.indigo;
+      case 'healthcare':
+        return Colors.red;
+      case 'accidents':
+      case 'accident':
+        return Colors.orange;
+      case 'industrial':
+        return Colors.grey;
+      case 'major_roads':
+      case 'major_road':
+        return Colors.black54;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getIconForType(String type, {String? subtype}) {
+    switch (type) {
+      case 'trees':
+      case 'tree':
+        return Icons.nature;
+      case 'parks':
+      case 'park':
+        return Icons.park;
+      case 'amenities':
+      case 'amenity':
+        if (subtype != null) {
+          switch (subtype.toLowerCase()) {
+            case 'restaurant':
+            case 'cafe':
+            case 'fast_food':
+            case 'food_court':
+            case 'ice_cream':
+              return Icons.restaurant;
+            case 'school':
+            case 'kindergarten':
+            case 'college':
+            case 'university':
+              return Icons.school;
+            case 'pub':
+            case 'bar':
+            case 'nightclub':
+              return Icons.local_bar;
+            case 'parking':
+            case 'parking_space':
+              return Icons.local_parking;
+            case 'bank':
+            case 'atm':
+              return Icons.account_balance;
+            case 'pharmacy':
+              return Icons.local_pharmacy;
+            case 'hospital':
+            case 'clinic':
+            case 'doctors':
+              return Icons.local_hospital;
+            case 'cinema':
+            case 'theatre':
+            case 'arts_centre':
+              return Icons.movie;
+            case 'place_of_worship':
+              return Icons.church;
+            case 'library':
+              return Icons.local_library;
+            case 'post_office':
+              return Icons.local_post_office;
+          }
+        }
+        return Icons.store;
+      case 'public_transport':
+        if (subtype != null) {
+          if (subtype.contains('bus')) return Icons.directions_bus;
+          if (subtype.contains('tram')) return Icons.tram;
+          if (subtype.contains('train')) return Icons.train;
+        }
+        return Icons.directions_bus;
+      case 'healthcare':
+        return Icons.local_hospital;
+      case 'accidents':
+      case 'accident':
+        return Icons.warning;
+      case 'industrial':
+        return Icons.factory;
+      case 'major_roads':
+      case 'major_road':
+        return Icons.add_road;
+      default:
+        return Icons.place;
+    }
+  }
+}

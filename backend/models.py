@@ -1,6 +1,6 @@
 """Pydantic models for API requests and responses."""
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 
 class LocationRequest(BaseModel):
@@ -17,11 +17,21 @@ class FactorBreakdown(BaseModel):
     impact: str  # "positive" or "negative"
 
 
+class FeatureDetail(BaseModel):
+    """Detail of a nearby feature."""
+    id: Optional[int] = None
+    name: Optional[str] = None
+    type: str = Field(..., description="Type of feature (tree, park, amenity, etc.)")
+    subtype: Optional[str] = Field(None, description="Specific subtype (e.g. restaurant, school)")
+    distance: float = Field(..., description="Distance from query point in meters")
+    geometry: dict = Field(..., description="GeoJSON geometry")
+
 class LivabilityScoreResponse(BaseModel):
     """Response model for livability score."""
     score: float = Field(..., ge=0, le=100, description="Overall livability score (0-100)")
     location: dict = Field(..., description="Requested location coordinates")
     factors: List[FactorBreakdown] = Field(..., description="Breakdown of contributing factors")
+    nearby_features: Dict[str, List[FeatureDetail]] = Field(default_factory=dict, description="Details of nearby features")
     summary: str = Field(..., description="Human-readable summary")
 
 

@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Production (Render)
-  static const String baseUrl = 'https://bremen-livability-index.onrender.com';
+  // static const String baseUrl = 'https://bremen-livability-index.onrender.com';
   // Local (Emulator: 10.0.2.2:8000, iOS: localhost:8000)
-  // static const String baseUrl = 'http://localhost:8000';
+  static const String baseUrl = 'http://localhost:8000';
 
   Future<LivabilityScore> analyzeLocation(
     double latitude,
@@ -67,22 +67,31 @@ class LivabilityScore {
   final double score;
   final Location location;
   final List<Factor> factors;
+  final Map<String, List<FeatureDetail>> nearbyFeatures;
   final String summary;
 
   LivabilityScore({
     required this.score,
     required this.location,
     required this.factors,
+    required this.nearbyFeatures,
     required this.summary,
   });
 
   factory LivabilityScore.fromJson(Map<String, dynamic> json) {
+    var featuresJson = json['nearby_features'] as Map<String, dynamic>? ?? {};
+    var features = featuresJson.map((key, value) {
+      var list = (value as List).map((i) => FeatureDetail.fromJson(i)).toList();
+      return MapEntry(key, list);
+    });
+
     return LivabilityScore(
       score: (json['score'] as num).toDouble(),
       location: Location.fromJson(json['location']),
       factors: (json['factors'] as List)
           .map((f) => Factor.fromJson(f))
           .toList(),
+      nearbyFeatures: features,
       summary: json['summary'] as String,
     );
   }
@@ -92,6 +101,35 @@ class LivabilityScore {
     if (score >= 70) return '#4CAF50'; // Green
     if (score >= 50) return '#FF9800'; // Orange
     return '#F44336'; // Red
+  }
+}
+
+class FeatureDetail {
+  final int? id;
+  final String? name;
+  final String type;
+  final String? subtype;
+  final double distance;
+  final Map<String, dynamic> geometry;
+
+  FeatureDetail({
+    this.id,
+    this.name,
+    required this.type,
+    this.subtype,
+    required this.distance,
+    required this.geometry,
+  });
+
+  factory FeatureDetail.fromJson(Map<String, dynamic> json) {
+    return FeatureDetail(
+      id: json['id'] as int?,
+      name: json['name'] as String?,
+      type: json['type'] as String,
+      subtype: json['subtype'] as String?,
+      distance: (json['distance'] as num).toDouble(),
+      geometry: json['geometry'] as Map<String, dynamic>,
+    );
   }
 }
 
