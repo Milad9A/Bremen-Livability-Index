@@ -1,0 +1,11 @@
+services:
+  - type: staticSite
+    name: bremen-livability-frontend
+    repo: https://github.com/Milad9A/Bremen-Livability-Index # Replace with your repo URL if different
+    rootDir: frontend/bli
+    buildCommand: ./render_build.sh
+    staticPublishPath: ./build/web
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
