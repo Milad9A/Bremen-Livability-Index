@@ -9,6 +9,28 @@ The Bremen Livability Index allows users to explore Quality of Life scores acros
 - **Address Search**: Search for addresses and get automatic livability analysis
 - **Real-time Results**: Immediate feedback based on 7 spatial factors
 
+## 📱 Download Android App
+
+**Choose your download:**
+
+| Version | Status | Download |
+|---------|--------|----------|
+| **Stable Release** | Manually versioned releases | [![Download Release](https://img.shields.io/badge/Download-Stable%20Release-blue.svg)](../../releases) |
+| **Latest Build** | Auto-updated on every commit | [![Download Latest](https://img.shields.io/badge/Download-Latest%20Build-green.svg)](../../releases/tag/latest) |
+
+### Installation Instructions
+
+1. Download your preferred APK:
+   - **Stable**: Choose from [versioned releases](../../releases) (e.g., v1.0.0)
+   - **Latest**: Get the [newest auto-build](../../releases/tag/latest) with the latest features
+2. On your Android device, enable **Install from Unknown Sources**:
+   - Go to **Settings** → **Security** → Enable **Unknown Sources**
+   - Or on newer Android: **Settings** → **Apps** → **Special Access** → **Install Unknown Apps**
+3. Open the downloaded APK file and tap **Install**
+4. Launch the app and start exploring Bremen's livability!
+
+> **Note**: Latest builds are automatically generated from the newest code and may be unstable. For production use, download stable releases.
+
 ### Scoring Factors
 
 | Factor | Type | Weight | Radius | Source |
@@ -127,28 +149,72 @@ The app includes intelligent address search powered by OpenStreetMap Nominatim:
 | `/analyze` | POST | Analyze location livability |
 | `/geocode` | POST | Search addresses (OpenStreetMap) |
 
-### Example Request
+### Analyze Location
+
+**Endpoint:** `POST /analyze`
+
+Calculate livability score for a specific coordinate.
+
 ```bash
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
   -d '{"latitude": 53.0793, "longitude": 8.8017}'
 ```
 
-### Example Response
+**Example Response:**
 ```json
 {
   "score": 59.1,
   "location": {"latitude": 53.0793, "longitude": 8.8017},
   "factors": [
-    {"factor": "Greenery", "value": 5.5, "impact": "positive"},
-    {"factor": "Amenities", "value": 22.7, "impact": "positive"},
-    {"factor": "Public Transport", "value": 11.0, "impact": "positive"},
-    {"factor": "Healthcare", "value": 10.0, "impact": "positive"},
-    {"factor": "Traffic Safety", "value": -15.0, "impact": "negative"}
+    {"factor": "Greenery", "value": 5.5, "description": "8 trees, 0 parks within 100m", "impact": "positive"},
+    {"factor": "Amenities", "value": 22.7, "description": "78 amenities within 500m", "impact": "positive"},
+    {"factor": "Public Transport", "value": 11.0, "description": "8 stops within 300m", "impact": "positive"},
+    {"factor": "Healthcare", "value": 10.0, "description": "9 facilities within 500m", "impact": "positive"},
+    {"factor": "Traffic Safety", "value": -15.0, "description": "14 accidents within 150m", "impact": "negative"}
   ],
-  "summary": "Limited greenery. Excellent amenities. Good transit access."
+  "summary": "Limited greenery. Excellent amenities. Good transit access. Traffic safety concerns"
 }
 ```
+
+### Geocode Address
+
+**Endpoint:** `POST /geocode`
+
+Convert an address to geographic coordinates using OpenStreetMap Nominatim.
+
+```bash
+curl -X POST http://localhost:8000/geocode \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Bürgermeister-Smidt-Straße", "limit": 5}'
+```
+
+**Example Response:**
+```json
+{
+  "results": [
+    {
+      "latitude": 53.0810562,
+      "longitude": 8.8049425,
+      "display_name": "Bürgermeister-Smidt-Straße, Bahnhofsvorstadt, Mitte, Bremen-Mitte, Stadtgebiet Bremen, Bremen, 28195, Deutschland",
+      "address": {
+        "road": "Bürgermeister-Smidt-Straße",
+        "quarter": "Bahnhofsvorstadt",
+        "suburb": "Mitte",
+        "city": "Stadtgebiet Bremen",
+        "state": "Bremen",
+        "postcode": "28195",
+        "country": "Deutschland"
+      },
+      "type": "secondary",
+      "importance": 0.239
+    }
+  ],
+  "count": 1
+}
+```
+
+> **Note:** Geocoding uses the free OpenStreetMap Nominatim API with a rate limit of 1 request/second. Queries are automatically prioritized for Bremen, Germany results.
 
 ## Testing
 
@@ -156,6 +222,70 @@ curl -X POST http://localhost:8000/analyze \
 cd backend
 python test_api.py
 ```
+
+## Flutter Development
+
+### Prerequisites
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed
+- iOS Simulator (Mac), Android Emulator, or Chrome (for web)
+
+### Running the App
+
+```bash
+cd frontend/bli
+flutter pub get
+flutter run          # Default device
+flutter run -d chrome    # Web
+flutter run -d emulator-5554  # Android emulator
+```
+
+### App Features & Usage
+
+**Analyze by Tapping:**
+1. Open the app
+2. Pan/zoom to your desired location in Bremen
+3. Tap anywhere on the map
+4. View the livability score and detailed breakdown
+
+**Analyze by Address Search:**
+1. Click the **search icon** (🔍) in the top-right corner
+2. Type an address or location (e.g., "Bürgermeister-Smidt-Straße", "Schwachhausen")
+3. Select a result from the list
+4. The map will pan to that location and show the livability score automatically
+
+**Search Tips:**
+- Results appear after 500ms of typing (debounced for efficiency)
+- Bremen locations are prioritized in search results
+- Click the X button or search icon again to close the search
+
+### API Configuration
+
+The API URL is configured in `lib/services/api_service.dart`.
+By default, it points to the **Production Backend**: `https://bremen-livability-index.onrender.com`
+
+To use a local backend:
+1. Open `lib/services/api_service.dart`
+2. Uncomment the localhost line and comment out the Render URL
+
+### App Icons
+
+The app icon is generated from `assets/app_icon.png` using `flutter_launcher_icons`.
+
+**To update the icon:**
+```bash
+# Replace assets/app_icon.png, then run:
+dart run flutter_launcher_icons
+```
+
+## Postman Collection
+
+A Postman collection is included in `backend/Bremen_Livability_Index.postman_collection.json`.
+
+**Features:**
+- **Environment Switching**: Use the `environment_mode` variable to switch between `local` and `deployed`
+  - `deployed`: `https://bremen-livability-index.onrender.com`
+  - `local`: `http://127.0.0.1:8000`
+- **Pre-configured Requests**: Analyze Location, Geocode Address, Health Check, and more
 
 ## Project Structure
 

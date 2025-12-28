@@ -1,0 +1,73 @@
+name: Android Build on Push
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'frontend/bli/**'
+      - '.github/workflows/android-build-on-push.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Update Latest Release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.4'
+          channel: 'stable'
+      
+      - name: Install dependencies
+        working-directory: frontend/bli
+        run: flutter pub get
+      
+      - name: Build APK
+        working-directory: frontend/bli
+        run: flutter build apk --release
+      
+      - name: Get commit info
+        id: commit
+        run: |
+          echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      
+      - name: Rename APK
+        working-directory: frontend/bli
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk \
+             build/app/outputs/flutter-apk/BLI-latest-${{ steps.commit.outputs.date }}-${{ steps.commit.outputs.sha_short }}.apk
+      
+      - name: Update Latest Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: latest
+          name: Latest Build (Auto-updated)
+          body: |
+            🚀 **Automatic build from latest commit**
+            
+            **Commit**: ${{ github.sha }}
+            **Date**: ${{ steps.commit.outputs.date }}
+            **Branch**: ${{ github.ref_name }}
+            
+            This is an automatic build from the latest code. For stable releases, see [Releases](../../releases).
+            
+            > ⚠️ **Note**: This is a development build and may be unstable.
+          files: frontend/bli/build/app/outputs/flutter-apk/BLI-latest-*.apk
+          prerelease: true
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
