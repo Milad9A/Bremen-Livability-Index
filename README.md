@@ -1,6 +1,6 @@
 # Bremen Livability Index
 
-A mobile application that calculates Quality of Life scores for any location in Bremen, Germany, based on real-world spatial data analysis.
+A comprehensive geospatial platform featuring a **Flutter mobile & web application** and a **Python FastAPI backend**. It calculates Quality of Life scores for any location in Bremen, Germany, in real-time.
 
 ## Project Overview
 
