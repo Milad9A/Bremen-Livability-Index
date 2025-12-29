@@ -485,10 +485,11 @@ flutter test
 ### Auto-Deployment Flow
 
 1. **Push to `master`** triggers:
+   - GitHub Actions runs backend tests (`backend-ci.yml`)
    - Render rebuilds backend from `Dockerfile`
    - Render rebuilds frontend static site
-   - GitHub Actions builds Android APK (`android-build-on-push.yml`)
-   - GitHub Actions builds desktop apps (`desktop-build.yml`)
+   - GitHub Actions runs Flutter tests, then builds Android APK (`android-build-on-push.yml`)
+   - GitHub Actions runs Flutter tests, then builds desktop apps (`desktop-build.yml`)
 
 2. **First Deploy**: `entrypoint.sh` runs:
    ```bash

@@ -1,5 +1,9 @@
 # Bremen Livability Index
 
+[![Backend CI](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-ci.yml)
+[![Build and Release APK](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/android-build-on-push.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/android-build-on-push.yml)
+[![Build Desktop Apps](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/desktop-build.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/desktop-build.yml)
+
 A comprehensive geospatial platform featuring a **Flutter mobile & web application** and a **Python FastAPI backend**. It calculates Quality of Life scores for any location in Bremen, Germany, in real-time.
 
 ## 🌐 Live Applications
@@ -236,13 +240,16 @@ Project/
 
 ### Automated Deployment
 
-The project auto-deploys to **Render** (App) + **Neon** (DB):
+The project uses a complete CI/CD pipeline:
 
-1. **Push to GitHub**: Render auto-deploys using `backend/Dockerfile`
-2. **Auto-Setup**: The `entrypoint.sh` script runs automatically to:
-   - Initialize database tables (if missing)
-   - Ingest all OSM data (first run only)
-   - Start the API server
+1.  **Backend Deployment**:
+    *   **Render** auto-deploys from `backend/Dockerfile` on push.
+    *   `entrypoint.sh` initializes the DB and ingests data.
+
+2.  **GitHub Actions Pipelines**:
+    *   **Backend CI**: Runs `pytest` on push.
+    *   **Android Build**: Runs unit/widget tests, then builds APK & releases to GitHub.
+    *   **Desktop Build**: Runs tests on all platforms, then builds apps & releases to GitHub.
 
 ## 💻 Flutter Development
 
