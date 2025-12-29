@@ -366,7 +366,10 @@ frontend/bli/lib/
 ├── services/
 │   └── api_service.dart         # Backend API client
 └── widgets/
-    ├── address_search.dart      # Search autocomplete (Glassmorphism)
+    ├── address_search.dart      # Search logic wrapper
+    ├── search_results_list.dart # Reusable search results list
+    ├── floating_search_bar.dart # Collapsed floating search bar
+    ├── loading_overlay.dart     # Glass-morphic loading indicator
     ├── nearby_feature_layers.dart  # Map markers
     ├── score_card.dart          # Score display
     └── glass_container.dart     # Reusable glass effect widget
@@ -415,9 +418,11 @@ class ApiService {
 The application uses a **Liquid Glass** design system:
 - **Immersive Map**: Full-screen map with no app bar.
 - **Floating Controls**: Search bar and buttons float above the map.
-- **Glass Effect**: UI elements use `BackdropFilter` with blur and semi-transparent backgrounds to blend with the map.
-
-```
+- **Glass Effect**: UI elements use `BackdropFilter` with blur (`sigmaX/Y: 10`) and semi-transparent white backgrounds (`opacity: 0.6`) to blend with the map.
+- **Components**:
+    - `GlassContainer`: Core widget providing the frosted glass look.
+    - `FloatingSearchBar`: Collapsed state of the search bar.
+    - `LoadingOverlay`: Glass-morphic loading indicator.
 
 ---
 

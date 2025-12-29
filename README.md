@@ -41,6 +41,7 @@ RESTful API for livability analysis and geocoding.
 
 ### 🗺️ Interactive Map
 - **Immersive Design**: Full-screen map with "Liquid Glass" floating controls
+- **Modern UI**: Frosted glass effects using custom `GlassContainer` widgets
 - OpenStreetMap tiles for detailed geography
 - Real-time marker placement
 
