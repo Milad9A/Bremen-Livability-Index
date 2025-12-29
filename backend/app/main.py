@@ -1,7 +1,8 @@
 """FastAPI backend for Bremen Livability Index using SQLModel ORM."""
-from fastapi import FastAPI, HTTPException
+from typing import List
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import select
+from sqlmodel import Session, select
 from sqlalchemy import func, cast
 from geoalchemy2 import Geography
 from geoalchemy2.functions import ST_AsGeoJSON, ST_Distance, ST_DWithin, ST_SetSRID, ST_MakePoint
@@ -16,8 +17,10 @@ from app.db_models import (
     Healthcare, IndustrialArea, MajorRoad
 )
 from core.scoring import LivabilityScorer
-from core.database import get_db_session, check_database_connection
+from core.database import get_session, check_database_connection
+from core.logging import logger
 from services.geocode import GeocodeService
+from config import settings
 
 app = FastAPI(
     title="Bremen Livability Index API",
@@ -25,29 +28,36 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# Configure CORS with settings
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+logger.info(f"Starting Bremen Livability Index API v1.0.0")
+logger.info(f"CORS origins: {settings.cors_origins_list}")
+
 
 @app.get("/")
 async def root():
+    """Root endpoint returning API information."""
     return {
         "message": "Bremen Livability Index API",
         "version": "1.0.0",
-        "endpoints": {"analyze": "/analyze", "health": "/health"}
+        "endpoints": {"analyze": "/analyze", "health": "/health", "geocode": "/geocode"}
     }
 
 
 @app.get("/health")
 async def health_check():
+    """Health check endpoint to verify API and database status."""
     if check_database_connection():
         return {"status": "healthy", "database": "connected"}
     else:
+        logger.error("Database connection check failed")
         raise HTTPException(status_code=503, detail="Database connection failed")
 
 
@@ -55,10 +65,13 @@ async def health_check():
 async def geocode_address(request: GeocodeRequest):
     """Geocode an address and return possible locations."""
     try:
+        logger.debug(f"Geocoding address: {request.query}")
         results = await GeocodeService.geocode_address(request.query, request.limit)
         geocode_results = [GeocodeResult(**result) for result in results]
+        logger.info(f"Geocoded '{request.query}' -> {len(geocode_results)} results")
         return GeocodeResponse(results=geocode_results, count=len(geocode_results))
     except Exception as e:
+        logger.exception(f"Geocoding failed for '{request.query}'")
         raise HTTPException(status_code=500, detail=f"Geocoding failed: {str(e)}")
 
 
@@ -67,8 +80,15 @@ def create_point_geography(lon: float, lat: float):
     return cast(ST_SetSRID(ST_MakePoint(lon, lat), 4326), Geography)
 
 
-def fetch_nearby_features(session, model, point, radius: float, feature_type: str, 
-                          type_field=None, name_field="name"):
+def fetch_nearby_features(
+    session: Session, 
+    model, 
+    point, 
+    radius: float, 
+    feature_type: str, 
+    type_field: str = None, 
+    name_field: str = "name"
+) -> List[FeatureDetail]:
     """Generic function to fetch nearby features using ORM.
     
     Args:
@@ -105,7 +125,7 @@ def fetch_nearby_features(session, model, point, radius: float, feature_type: st
     results = session.exec(statement).all()
     
     # Convert to FeatureDetail objects
-    features = []
+    features: List[FeatureDetail] = []
     for row in results:
         subtype = getattr(row, "type_detail", None) if type_field else None
         features.append(FeatureDetail(
@@ -121,92 +141,92 @@ def fetch_nearby_features(session, model, point, radius: float, feature_type: st
 
 
 @app.post("/analyze", response_model=LivabilityScoreResponse)
-async def analyze_location(request: LocationRequest):
+async def analyze_location(
+    request: LocationRequest,
+    session: Session = Depends(get_session)
+):
     """Analyze a location and return livability score."""
+    lat, lon = request.latitude, request.longitude
+    logger.debug(f"Analyzing location: ({lat}, {lon})")
+    
     try:
-        lat, lon = request.latitude, request.longitude
         nearby_features = {}
         
-        with get_db_session() as session:
-            # Create the point once for all queries
-            point = create_point_geography(lon, lat)
-            
-            # Trees within 100m
-            trees = fetch_nearby_features(
-                session, Tree, point, 100, "tree"
+        # Create the point once for all queries
+        point = create_point_geography(lon, lat)
+        
+        # Trees within 100m
+        trees = fetch_nearby_features(session, Tree, point, 100, "tree")
+        nearby_features["trees"] = trees
+        tree_count = len(trees)
+        
+        # Parks within 100m
+        parks = fetch_nearby_features(session, Park, point, 100, "park")
+        nearby_features["parks"] = parks
+        park_count = len(parks)
+        
+        # Amenities within 500m
+        amenities = fetch_nearby_features(
+            session, Amenity, point, 500, "amenity",
+            type_field="amenity_type"
+        )
+        nearby_features["amenities"] = amenities
+        amenity_count = len(amenities)
+        
+        # Accidents within 150m (use severity as name)
+        accidents = fetch_nearby_features(
+            session, Accident, point, 150, "accident",
+            name_field="severity"
+        )
+        nearby_features["accidents"] = accidents
+        accident_count = len(accidents)
+        
+        # Public transport stops within 300m
+        transport = fetch_nearby_features(
+            session, PublicTransport, point, 300, "public_transport",
+            type_field="transport_type"
+        )
+        nearby_features["public_transport"] = transport
+        transport_count = len(transport)
+        
+        # Healthcare within 500m
+        healthcare = fetch_nearby_features(
+            session, Healthcare, point, 500, "healthcare",
+            type_field="healthcare_type"
+        )
+        nearby_features["healthcare"] = healthcare
+        healthcare_count = len(healthcare)
+        
+        # Industrial areas within 200m (just check if any exist)
+        industrial_statement = (
+            select(func.count())
+            .select_from(IndustrialArea)
+            .where(ST_DWithin(IndustrialArea.geometry, point, 200))
+        )
+        industrial_count = session.exec(industrial_statement).one()
+        near_industrial = industrial_count > 0
+        
+        if near_industrial:
+            industrial = fetch_nearby_features(
+                session, IndustrialArea, point, 200, "industrial"
             )
-            nearby_features["trees"] = trees
-            tree_count = len(trees)
-            
-            # Parks within 100m
-            parks = fetch_nearby_features(
-                session, Park, point, 100, "park"
+            nearby_features["industrial"] = industrial[:1]  # Limit to 1
+        
+        # Major roads within 100m (just check if any exist)
+        roads_statement = (
+            select(func.count())
+            .select_from(MajorRoad)
+            .where(ST_DWithin(MajorRoad.geometry, point, 100))
+        )
+        roads_count = session.exec(roads_statement).one()
+        near_major_road = roads_count > 0
+        
+        if near_major_road:
+            roads = fetch_nearby_features(
+                session, MajorRoad, point, 100, "major_road",
+                type_field="road_type"
             )
-            nearby_features["parks"] = parks
-            park_count = len(parks)
-            
-            # Amenities within 500m
-            amenities = fetch_nearby_features(
-                session, Amenity, point, 500, "amenity",
-                type_field="amenity_type"
-            )
-            nearby_features["amenities"] = amenities
-            amenity_count = len(amenities)
-            
-            # Accidents within 150m (use severity as name)
-            accidents = fetch_nearby_features(
-                session, Accident, point, 150, "accident",
-                name_field="severity"
-            )
-            nearby_features["accidents"] = accidents
-            accident_count = len(accidents)
-            
-            # Public transport stops within 300m
-            transport = fetch_nearby_features(
-                session, PublicTransport, point, 300, "public_transport",
-                type_field="transport_type"
-            )
-            nearby_features["public_transport"] = transport
-            transport_count = len(transport)
-            
-            # Healthcare within 500m
-            healthcare = fetch_nearby_features(
-                session, Healthcare, point, 500, "healthcare",
-                type_field="healthcare_type"
-            )
-            nearby_features["healthcare"] = healthcare
-            healthcare_count = len(healthcare)
-            
-            # Industrial areas within 200m (just check if any exist)
-            industrial_statement = (
-                select(func.count())
-                .select_from(IndustrialArea)
-                .where(ST_DWithin(IndustrialArea.geometry, point, 200))
-            )
-            industrial_count = session.exec(industrial_statement).one()
-            near_industrial = industrial_count > 0
-            
-            if near_industrial:
-                industrial = fetch_nearby_features(
-                    session, IndustrialArea, point, 200, "industrial"
-                )
-                nearby_features["industrial"] = industrial[:1]  # Limit to 1
-            
-            # Major roads within 100m (just check if any exist)
-            roads_statement = (
-                select(func.count())
-                .select_from(MajorRoad)
-                .where(ST_DWithin(MajorRoad.geometry, point, 100))
-            )
-            roads_count = session.exec(roads_statement).one()
-            near_major_road = roads_count > 0
-            
-            if near_major_road:
-                roads = fetch_nearby_features(
-                    session, MajorRoad, point, 100, "major_road",
-                    type_field="road_type"
-                )
-                nearby_features["major_roads"] = roads[:1]  # Limit to 1
+            nearby_features["major_roads"] = roads[:1]  # Limit to 1
         
         # Calculate score
         result = LivabilityScorer.calculate_score(
@@ -220,6 +240,8 @@ async def analyze_location(request: LocationRequest):
             near_major_road=near_major_road
         )
         
+        logger.info(f"Analyzed ({lat}, {lon}) -> Score: {result['score']}")
+        
         return LivabilityScoreResponse(
             score=result["score"],
             location={"latitude": lat, "longitude": lon},
@@ -229,12 +251,10 @@ async def analyze_location(request: LocationRequest):
         )
         
     except Exception as e:
-        import traceback
-        traceback.print_exc()
+        logger.exception(f"Analysis failed for ({lat}, {lon})")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 
 if __name__ == "__main__":
     import uvicorn
-    from config import settings
     uvicorn.run(app, host=settings.api_host, port=settings.api_port)

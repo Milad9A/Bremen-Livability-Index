@@ -1,22 +1,39 @@
-"""Configuration settings for the backend."""
-import os
-from pydantic_settings import BaseSettings
+"""Configuration settings for the backend using pydantic-settings."""
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field
+from typing import List
 
 
 class Settings(BaseSettings):
-    """Application settings."""
-    # Railway provides DATABASE_URL automatically when PostgreSQL is added
-    database_url: str = os.getenv(
-        "DATABASE_URL",
-        "postgresql://postgres:postgres@localhost:5433/bremen_livability"
-    )
-    api_host: str = "0.0.0.0"
-    # Railway uses PORT, local dev uses API_PORT or defaults to 8000
-    api_port: int = int(os.getenv("PORT", os.getenv("API_PORT", "8000")))
+    """Application settings loaded from environment variables."""
     
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=False,
+        extra="ignore"
+    )
+    
+    # Database
+    database_url: str = "postgresql://postgres:postgres@localhost:5433/bremen_livability"
+    
+    # API Server
+    api_host: str = "0.0.0.0"
+    # Support both PORT (Render/Railway) and API_PORT (local)
+    api_port: int = Field(default=8000, validation_alias="PORT")
+    
+    # CORS - comma-separated list of allowed origins, or "*" for all
+    cors_origins: str = "*"
+    
+    # Logging
+    log_level: str = "INFO"
+    
+    @property
+    def cors_origins_list(self) -> List[str]:
+        """Parse CORS origins as a list."""
+        if self.cors_origins == "*":
+            return ["*"]
+        return [origin.strip() for origin in self.cors_origins.split(",")]
 
 
 settings = Settings()
+
