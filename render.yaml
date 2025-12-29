@@ -13,7 +13,7 @@ services:
         value: 8000
 
   # Frontend Service
-  - type: staticSite
+  - type: static
     name: bremen-livability-frontend
     repo: https://github.com/Milad9A/Bremen-Livability-Index
     rootDir: frontend/bli
