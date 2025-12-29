@@ -197,35 +197,21 @@ async def analyze_location(
         nearby_features["healthcare"] = healthcare
         healthcare_count = len(healthcare)
         
-        # Industrial areas within 200m (just check if any exist)
-        industrial_statement = (
-            select(func.count())
-            .select_from(IndustrialArea)
-            .where(ST_DWithin(IndustrialArea.geometry, point, 200))
+        # Industrial areas within 200m
+        industrial = fetch_nearby_features(
+            session, IndustrialArea, point, 200, "industrial"
         )
-        industrial_count = session.exec(industrial_statement).one()
-        near_industrial = industrial_count > 0
-        
+        near_industrial = len(industrial) > 0
         if near_industrial:
-            industrial = fetch_nearby_features(
-                session, IndustrialArea, point, 200, "industrial"
-            )
             nearby_features["industrial"] = industrial
         
-        # Major roads within 100m (just check if any exist)
-        roads_statement = (
-            select(func.count())
-            .select_from(MajorRoad)
-            .where(ST_DWithin(MajorRoad.geometry, point, 100))
+        # Major roads within 100m
+        roads = fetch_nearby_features(
+            session, MajorRoad, point, 100, "major_road",
+            type_field="road_type"
         )
-        roads_count = session.exec(roads_statement).one()
-        near_major_road = roads_count > 0
-        
+        near_major_road = len(roads) > 0
         if near_major_road:
-            roads = fetch_nearby_features(
-                session, MajorRoad, point, 100, "major_road",
-                type_field="road_type"
-            )
             nearby_features["major_roads"] = roads
         
         # Calculate score
