@@ -54,11 +54,10 @@ jobs:
              build/app/outputs/flutter-apk/BLI-latest-${{ steps.commit.outputs.date }}-${{ steps.commit.outputs.sha_short }}.apk
       
       - name: Delete existing release and tag
-        uses: dev-hanse/delete-tag-and-release@v1.1
-        with:
-          tag_name: latest
-          delete_release: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete latest --cleanup-tag -y || echo "No existing release to delete"
       
       - name: Create/Update Release
         uses: softprops/action-gh-release@v2
