@@ -7,7 +7,7 @@ A comprehensive geospatial platform featuring a **Flutter mobile & web applicati
 Access the Bremen Livability Index on multiple platforms:
 
 ### 🕸️ Web Application
-**Live App:** [bremen-livability-index-web.onrender.com](https://bremen-livability-index-web.onrender.com)  
+**Live App:** [bremen-livability-frontend.onrender.com](https://bremen-livability-frontend.onrender.com)  
 Run the full app directly in your browser—no installation required.
 
 ### 📡 API Endpoint
