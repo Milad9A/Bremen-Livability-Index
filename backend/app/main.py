@@ -210,7 +210,7 @@ async def analyze_location(
             industrial = fetch_nearby_features(
                 session, IndustrialArea, point, 200, "industrial"
             )
-            nearby_features["industrial"] = industrial[:1]  # Limit to 1
+            nearby_features["industrial"] = industrial
         
         # Major roads within 100m (just check if any exist)
         roads_statement = (
@@ -226,7 +226,7 @@ async def analyze_location(
                 session, MajorRoad, point, 100, "major_road",
                 type_field="road_type"
             )
-            nearby_features["major_roads"] = roads[:1]  # Limit to 1
+            nearby_features["major_roads"] = roads
         
         # Calculate score
         result = LivabilityScorer.calculate_score(
