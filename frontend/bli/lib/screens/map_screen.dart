@@ -1,9 +1,7 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
-import '../services/api_service.dart';
-import '../models/location_marker.dart';
+import '../viewmodels/map_viewmodel.dart';
 import '../widgets/score_card.dart';
 import '../widgets/address_search.dart';
 import '../widgets/nearby_feature_layers.dart';
@@ -11,171 +9,38 @@ import '../widgets/glass_container.dart';
 import '../widgets/floating_search_bar.dart';
 import '../widgets/loading_overlay.dart';
 
-class MapScreen extends StatefulWidget {
+class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
 
   @override
-  State<MapScreen> createState() => _MapScreenState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => MapViewModel(),
+      child: const _MapScreenContent(),
+    );
+  }
 }
 
-class _MapScreenState extends State<MapScreen> {
-  final MapController _mapController = MapController();
-  final ApiService _apiService = ApiService();
-
-  // Bremen center coordinates
-  static const LatLng bremenCenter = LatLng(53.0793, 8.8017);
-
-  LocationMarker? _selectedMarker;
-  LivabilityScore? _currentScore;
-  bool _isLoading = false;
-  String? _errorMessage;
-  bool _showSearch = false; // Controls if the full search widget is active
-  bool _showSlowLoadingMessage = false;
-  Timer? _slowLoadingTimer;
-
-  @override
-  void initState() {
-    super.initState();
-    _checkApiHealth();
-  }
-
-  Future<void> _checkApiHealth() async {
-    final isHealthy = await _apiService.checkHealth();
-    if (!isHealthy && mounted) {
-      if (mounted) {
-        setState(() {
-          _errorMessage =
-              'API server is not available. Please start the backend server.';
-        });
-      }
-    }
-  }
-
-  void _startSlowLoadingTimer() {
-    _slowLoadingTimer?.cancel();
-    _slowLoadingTimer = Timer(const Duration(seconds: 10), () {
-      if (mounted && _isLoading) {
-        setState(() {
-          _showSlowLoadingMessage = true;
-        });
-      }
-    });
-  }
-
-  void _stopSlowLoadingTimer() {
-    _slowLoadingTimer?.cancel();
-    if (_showSlowLoadingMessage) {
-      setState(() {
-        _showSlowLoadingMessage = false;
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _slowLoadingTimer?.cancel();
-    super.dispose();
-  }
-
-  Future<void> _onMapTap(TapPosition tapPosition, LatLng point) async {
-    // If search is active, tapping map should close it
-    if (_showSearch) {
-      setState(() {
-        _showSearch = false;
-      });
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _selectedMarker = LocationMarker(position: point);
-      _currentScore = null;
-      _showSlowLoadingMessage = false;
-    });
-
-    _startSlowLoadingTimer();
-
-    try {
-      final score = await _apiService.analyzeLocation(
-        point.latitude,
-        point.longitude,
-      );
-
-      _stopSlowLoadingTimer();
-      setState(() {
-        _currentScore = score;
-        _selectedMarker = LocationMarker(position: point, score: score.score);
-        _isLoading = false;
-      });
-    } catch (e) {
-      _stopSlowLoadingTimer();
-      setState(() {
-        _errorMessage = 'Failed to analyze location: $e';
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _onLocationSelected(LatLng location, String addressName) async {
-    _mapController.move(location, 16.0);
-
-    // Analyze the selected location
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-      _selectedMarker = LocationMarker(position: location);
-      _currentScore = null;
-      _showSlowLoadingMessage = false;
-      _showSearch = false;
-    });
-
-    _startSlowLoadingTimer();
-
-    try {
-      final score = await _apiService.analyzeLocation(
-        location.latitude,
-        location.longitude,
-      );
-
-      _stopSlowLoadingTimer();
-      if (mounted) {
-        setState(() {
-          _currentScore = score;
-          _selectedMarker = LocationMarker(
-            position: location,
-            score: score.score,
-          );
-          _isLoading = false;
-        });
-      }
-    } catch (e) {
-      _stopSlowLoadingTimer();
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Failed to analyze location: $e';
-          _isLoading = false;
-        });
-      }
-    }
-  }
+class _MapScreenContent extends StatelessWidget {
+  const _MapScreenContent();
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<MapViewModel>();
+
     return Scaffold(
-      resizeToAvoidBottomInset:
-          false, // Prevent map from resizing when keyboard opens
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
           FlutterMap(
-            mapController: _mapController,
+            mapController: viewModel.mapController,
             options: MapOptions(
-              initialCenter: bremenCenter,
+              initialCenter: MapViewModel.bremenCenter,
               initialZoom: 13.0,
               minZoom: 10.0,
               maxZoom: 18.0,
-              onTap: _onMapTap,
+              onTap: viewModel.onMapTap,
             ),
             children: [
               TileLayer(
@@ -183,21 +48,21 @@ class _MapScreenState extends State<MapScreen> {
                 userAgentPackageName: 'com.example.bli',
                 maxZoom: 19,
               ),
-              if (_currentScore != null)
+              if (viewModel.currentScore != null)
                 NearbyFeatureLayers(
-                  nearbyFeatures: _currentScore!.nearbyFeatures,
+                  nearbyFeatures: viewModel.currentScore!.nearbyFeatures,
                 ),
-              if (_selectedMarker != null)
+              if (viewModel.selectedMarker != null)
                 MarkerLayer(
                   markers: [
                     Marker(
-                      point: _selectedMarker!.position,
+                      point: viewModel.selectedMarker!.position,
                       width: 50,
                       height: 50,
                       child: Icon(
                         Icons.location_on,
-                        color: _selectedMarker!.score != null
-                            ? getScoreColor(_selectedMarker!.score!)
+                        color: viewModel.selectedMarker!.score != null
+                            ? getScoreColor(viewModel.selectedMarker!.score!)
                             : Colors.teal,
                         size: 50,
                         shadows: [
@@ -214,33 +79,23 @@ class _MapScreenState extends State<MapScreen> {
             ],
           ),
 
+          // Search Bar
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             left: 16,
-            right: 80, // Leave space for the location button on the right
-            child: _showSearch
+            right: 80, // Leave space for location button
+            child: viewModel.showSearch
                 ? AddressSearchWidget(
-                    onLocationSelected: _onLocationSelected,
-                    onClose: () {
-                      setState(() {
-                        _showSearch = false;
-                      });
-                    },
+                    onLocationSelected: viewModel.onLocationSelected,
+                    onClose: () => viewModel.toggleSearch(false),
                   )
-                : FloatingSearchBar(
-                    onTap: () {
-                      setState(() {
-                        _showSearch = true;
-                      });
-                    },
-                  ),
+                : FloatingSearchBar(onTap: () => viewModel.toggleSearch(true)),
           ),
 
-          if (_errorMessage != null)
+          // Error Banner
+          if (viewModel.errorMessage != null)
             Positioned(
-              top:
-                  MediaQuery.of(context).padding.top +
-                  80, // push down below search
+              top: MediaQuery.of(context).padding.top + 80,
               left: 16,
               right: 16,
               child: Card(
@@ -257,7 +112,7 @@ class _MapScreenState extends State<MapScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          _errorMessage!,
+                          viewModel.errorMessage!,
                           style: TextStyle(
                             color: Colors.red[900],
                             fontWeight: FontWeight.w500,
@@ -266,7 +121,7 @@ class _MapScreenState extends State<MapScreen> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.close),
-                        onPressed: () => setState(() => _errorMessage = null),
+                        onPressed: viewModel.clearError,
                         color: Colors.red[900],
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
@@ -277,21 +132,18 @@ class _MapScreenState extends State<MapScreen> {
               ),
             ),
 
-          if (_isLoading)
-            LoadingOverlay(showSlowLoadingMessage: _showSlowLoadingMessage),
+          // Loading Overlay
+          if (viewModel.isLoading)
+            LoadingOverlay(
+              showSlowLoadingMessage: viewModel.showSlowLoadingMessage,
+            ),
 
+          // Location Reset Button
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             right: 16,
             child: GestureDetector(
-              onTap: () {
-                _mapController.move(bremenCenter, 13.0);
-                setState(() {
-                  _selectedMarker = null;
-                  _currentScore = null;
-                  _errorMessage = null;
-                });
-              },
+              onTap: viewModel.resetMap,
               child: GlassContainer(
                 borderRadius: 30, // Circle
                 padding: const EdgeInsets.all(14),
@@ -300,12 +152,13 @@ class _MapScreenState extends State<MapScreen> {
             ),
           ),
 
-          if (_currentScore != null)
+          // Score Card
+          if (viewModel.currentScore != null)
             Positioned(
               bottom: 20,
               left: 16,
               right: 16,
-              child: ScoreCard(score: _currentScore!),
+              child: ScoreCard(score: viewModel.currentScore!),
             ),
         ],
       ),
