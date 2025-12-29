@@ -190,8 +190,11 @@ Project/
 │   └── requirements.txt
 ├── frontend/bli/            # Flutter app
 ├── docker-compose.yml
+├── TECHNICAL.md             # Detailed technical documentation
 └── README.md
 ```
+
+> 📖 For in-depth technical details (database schema, scoring algorithm, data pipelines), see [TECHNICAL.md](TECHNICAL.md).
 
 ## ☁️ Deployment
 

@@ -1,23 +1,24 @@
 services:
   postgis:
     image: postgis/postgis:16-3.4
-    platform: linux/amd64  # Use AMD64 for compatibility, or linux/arm64 if available
+    platform: linux/amd64 # Use AMD64 for compatibility, or linux/arm64 if available
     container_name: bremen_livability_db
     environment:
       POSTGRES_DB: bremen_livability
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      - "5433:5432"  # Changed to 5433 to avoid conflict with existing PostgreSQL
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
 volumes:
   postgres_data:
+
 

@@ -18,10 +18,9 @@ class Settings(BaseSettings):
     
     # API Server
     api_host: str = "0.0.0.0"
-    # Support both PORT (Render/Railway) and API_PORT (local)
     api_port: int = Field(default=8000, validation_alias="PORT")
     
-    # CORS - comma-separated list of allowed origins, or "*" for all
+    # CORS
     cors_origins: str = "*"
     
     # Logging
