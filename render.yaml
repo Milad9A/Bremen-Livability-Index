@@ -1,0 +1,25 @@
+services:
+  # Backend Service
+  - type: web
+    name: bremen-livability-backend
+    env: docker
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: PORT
+        value: 8000
+
+  # Frontend Service
+  - type: staticSite
+    name: bremen-livability-frontend
+    repo: https://github.com/Milad9A/Bremen-Livability-Index
+    rootDir: frontend/bli
+    buildCommand: ./render_build.sh
+    staticPublishPath: ./build/web
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
