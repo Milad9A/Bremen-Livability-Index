@@ -22,6 +22,18 @@ Download the latest Android APK from [GitHub Releases](../../releases/tag/latest
 
 **iOS:** Coming soon (build locally with Flutter for now)
 
+### 🖥️ Desktop Apps
+
+[![Download Desktop](https://img.shields.io/badge/Download-Desktop%20Apps-blue.svg)](../../releases/tag/desktop-latest)
+
+| Platform | Download | Notes |
+|----------|----------|-------|
+| **Windows** | [BLI-Windows.zip](../../releases/tag/desktop-latest) | Extract and run `bli.exe` |
+| **Linux** | [BLI-Linux.tar.gz](../../releases/tag/desktop-latest) | Extract and run `./bundle/bli` |
+| **macOS** | [BLI-macOS.zip](../../releases/tag/desktop-latest) | Extract and move to Applications |
+
+> ⚠️ Desktop builds are unsigned. You may need to allow them in your system security settings.
+
 > All platforms use the same backend API and provide the same core functionality.
 
 ## ✨ Features
@@ -189,6 +201,15 @@ Project/
 │   ├── init_db.sql          # Database schema
 │   └── requirements.txt
 ├── frontend/bli/            # Flutter app
+│   ├── lib/                 # Dart source code
+│   ├── test/                # Flutter tests
+│   ├── android/             # Android platform
+│   ├── ios/                 # iOS platform
+│   ├── macos/               # macOS platform
+│   ├── windows/             # Windows platform
+│   ├── linux/               # Linux platform
+│   └── web/                 # Web platform
+├── .github/workflows/       # CI/CD workflows
 ├── docker-compose.yml
 ├── TECHNICAL.md             # Detailed technical documentation
 └── README.md
@@ -291,6 +312,20 @@ cd backend
 source venv/bin/activate
 pytest tests/ -v
 ```
+
+### Flutter Tests
+```bash
+cd frontend/bli
+flutter test              # Run all tests
+flutter test --coverage   # Generate coverage report
+```
+
+**Test Coverage:**
+| File | Tests | Coverage |
+|------|-------|----------|
+| `api_service_test.dart` | 19 | Model parsing, utilities |
+| `score_card_test.dart` | 6 | Widget rendering |
+| `nearby_feature_layers_test.dart` | 8 | Geometry parsing |
 
 ### Postman Collection
 

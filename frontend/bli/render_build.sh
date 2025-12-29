@@ -28,8 +28,7 @@ flutter pub get
 
 # 4. Build Web App
 echo "🏗️  Building web app..."
-# --base-href "/" is standard for root deployments. 
-# Change this if deploying to a subpath.
+
 flutter build web --release --base-href "/"
 
 echo "✅ Build successful! Output is in build/web"

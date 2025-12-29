@@ -1,0 +1,182 @@
+name: Build Desktop Apps
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'frontend/bli/**'
+      - '.github/workflows/desktop-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      
+      - name: Install dependencies
+        working-directory: frontend/bli
+        run: flutter pub get
+      
+      - name: Build Windows
+        working-directory: frontend/bli
+        run: flutter build windows --release
+      
+      - name: Create ZIP archive
+        working-directory: frontend/bli/build/windows/x64/runner
+        run: Compress-Archive -Path Release/* -DestinationPath BLI-Windows.zip
+      
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: frontend/bli/build/windows/x64/runner/BLI-Windows.zip
+
+  build-linux:
+    name: Build Linux
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install Linux dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      
+      - name: Install dependencies
+        working-directory: frontend/bli
+        run: flutter pub get
+      
+      - name: Build Linux
+        working-directory: frontend/bli
+        run: flutter build linux --release
+      
+      - name: Create tarball
+        working-directory: frontend/bli/build/linux/x64/release
+        run: tar -czvf BLI-Linux.tar.gz bundle/
+      
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-build
+          path: frontend/bli/build/linux/x64/release/BLI-Linux.tar.gz
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      
+      - name: Install dependencies
+        working-directory: frontend/bli
+        run: flutter pub get
+      
+      - name: Build macOS
+        working-directory: frontend/bli
+        run: flutter build macos --release
+      
+      - name: Create ZIP archive
+        working-directory: frontend/bli/build/macos/Build/Products/Release
+        run: zip -r BLI-macOS.zip "bli.app"
+      
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: frontend/bli/build/macos/Build/Products/Release/BLI-macOS.zip
+
+  release:
+    name: Create Release
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+          path: ./artifacts
+      
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-build
+          path: ./artifacts
+      
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-build
+          path: ./artifacts
+      
+      - name: Get date
+        id: date
+        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+      
+      - name: Rename artifacts
+        working-directory: ./artifacts
+        run: |
+          mv BLI-Windows.zip BLI-Windows-${{ steps.date.outputs.date }}.zip
+          mv BLI-Linux.tar.gz BLI-Linux-${{ steps.date.outputs.date }}.tar.gz
+          mv BLI-macOS.zip BLI-macOS-${{ steps.date.outputs.date }}.zip
+      
+      - name: Delete existing desktop release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete desktop-latest --cleanup-tag -y || echo "No existing release to delete"
+        continue-on-error: true
+      
+      - name: Create Desktop Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: desktop-latest
+          name: BLI Desktop Apps
+          body: |
+            🖥️ **Bremen Livability Index Desktop Applications**
+            
+            **Build Date**: ${{ steps.date.outputs.date }}
+            **Platforms**: Windows, Linux, macOS
+            
+            ## Installation
+            
+            **Windows**: Extract ZIP and run `bli.exe`
+            **Linux**: Extract tarball and run `./bundle/bli`
+            **macOS**: Extract ZIP and drag `bli.app` to Applications
+            
+            > ⚠️ These builds are unsigned. You may need to allow them in your system security settings.
+          files: |
+            ./artifacts/BLI-Windows-*.zip
+            ./artifacts/BLI-Linux-*.tar.gz
+            ./artifacts/BLI-macOS-*.zip
+          prerelease: false
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

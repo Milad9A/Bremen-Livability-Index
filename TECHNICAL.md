@@ -12,7 +12,8 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 4. [Data Ingestion Pipeline](#data-ingestion-pipeline)
 5. [Scoring Algorithm](#scoring-algorithm)
 6. [Frontend Implementation](#frontend-implementation)
-7. [Deployment Architecture](#deployment-architecture)
+7. [Testing](#testing)
+8. [Deployment Architecture](#deployment-architecture)
 
 ---
 
@@ -411,7 +412,48 @@ class ApiService {
 
 ---
 
+## Testing
+
+### Backend Tests
+
+Located in `backend/tests/`:
+
+```bash
+cd backend
+source venv/bin/activate
+pytest tests/ -v
+```
+
+### Flutter Tests
+
+Located in `frontend/bli/test/`:
+
+```
+test/
+├── api_service_test.dart        # Unit tests for models
+├── score_card_test.dart         # Widget tests
+└── nearby_feature_layers_test.dart  # Geometry parsing tests
+```
+
+**Run tests:**
+```bash
+cd frontend/bli
+flutter test
+```
+---
+
 ## Deployment Architecture
+
+### Supported Platforms
+
+| Platform | Directory | Build Output |
+|----------|-----------|---------------|
+| **Web** | `web/` | Static site (Render) |
+| **Android** | `android/` | APK (GitHub Release) |
+| **iOS** | `ios/` | .app (local build) |
+| **macOS** | `macos/` | .app (GitHub Release) |
+| **Windows** | `windows/` | .exe (GitHub Release) |
+| **Linux** | `linux/` | bundle (GitHub Release) |
 
 ### Production Environment
 
@@ -424,18 +466,20 @@ class ApiService {
           ┌────────────────┼────────────────┐
           │                │                │
           ▼                ▼                ▼
-┌─────────────────┐ ┌─────────────┐ ┌─────────────────┐
-│  RENDER.COM     │ │ RENDER.COM  │ │ GITHUB ACTIONS  │
-│  Backend        │ │ Frontend    │ │ APK Builder     │
-│  (Web Service)  │ │ (Static)    │ │                 │
-└────────┬────────┘ └─────────────┘ └────────┬────────┘
-         │                                   │
-         ▼                                   ▼
-┌─────────────────┐                ┌─────────────────┐
-│   NEON.TECH     │                │ GITHUB RELEASES │
-│   PostgreSQL    │                │ Android APK     │
-│   + PostGIS     │                │                 │
-└─────────────────┘                └─────────────────┘
+┌─────────────────┐ ┌─────────────┐ ┌───────────────────────┐
+│  RENDER.COM     │ │ RENDER.COM  │ │    GITHUB ACTIONS     │
+│  Backend        │ │ Frontend    │ │  App Builders         │
+│  (Web Service)  │ │ (Static)    │ │  Android/Win/Mac/Lin  │
+└────────┬────────┘ └─────────────┘ └───────────┬───────────┘
+         │                                      │
+         ▼                                      ▼
+┌─────────────────┐                ┌────────────────────────┐
+│   NEON.TECH     │                │    GITHUB RELEASES     │
+│   PostgreSQL    │                │  - Android APK         │
+│   + PostGIS     │                │  - Windows .exe        │
+│                 │                │  - macOS .app          │
+│                 │                │  - Linux bundle        │
+└─────────────────┘                └────────────────────────┘
 ```
 
 ### Auto-Deployment Flow
@@ -443,7 +487,8 @@ class ApiService {
 1. **Push to `master`** triggers:
    - Render rebuilds backend from `Dockerfile`
    - Render rebuilds frontend static site
-   - GitHub Actions builds Android APK
+   - GitHub Actions builds Android APK (`android-build-on-push.yml`)
+   - GitHub Actions builds desktop apps (`desktop-build.yml`)
 
 2. **First Deploy**: `entrypoint.sh` runs:
    ```bash
