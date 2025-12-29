@@ -171,7 +171,7 @@ curl -X POST http://localhost:8000/geocode \
 
 ## 🏗️ Architecture
 
-- **Backend**: FastAPI (Python) with PostGIS spatial database
+- **Backend**: FastAPI (Python) with SQLModel ORM + GeoAlchemy2 for PostGIS
 - **Frontend**: Flutter mobile & web application ("BLI")
 - **Database**: PostgreSQL 15 with PostGIS 3.3
 - **Data Sources**: OpenStreetMap, German Accident Atlas (Unfallatlas)
@@ -246,6 +246,16 @@ The API URL is configured in `lib/services/api_service.dart`.
 1. Open `lib/services/api_service.dart`
 2. Uncomment the localhost line and comment out the Render URL
 
+### Backend Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5433/bremen_livability` |
+| `PORT` | Server port (Render/Railway) | `8000` |
+| `API_PORT` | Server port (local dev) | `8000` |
+| `CORS_ORIGINS` | Allowed CORS origins (comma-separated or `*`) | `*` |
+| `LOG_LEVEL` | Logging level (DEBUG, INFO, WARNING, ERROR) | `INFO` |
+
 ### App Icons
 
 The app icon is generated from `assets/app_icon.png` using `flutter_launcher_icons`.
@@ -275,7 +285,8 @@ If you've downloaded the APK from [GitHub Releases](../../releases/tag/latest), 
 ### Backend API Tests
 ```bash
 cd backend
-python -m tests.test_api
+source venv/bin/activate
+pytest tests/ -v
 ```
 
 ### Postman Collection
