@@ -22,31 +22,25 @@ Run the full app directly in your browser—no installation required.
 **Docs:** [bremen-livability-backend.onrender.com/docs](https://bremen-livability-backend.onrender.com/docs)  
 RESTful API for livability analysis and geocoding.
 
-### 📱 Mobile Apps
+### 📱 & 🖥️ Native Applications
 
-**Android:** [![Download APK](https://img.shields.io/badge/Download-Latest%20APK-green.svg)](../../releases/tag/latest)  
-Download the latest Android APK from [GitHub Releases](../../releases/tag/latest). Auto-built on every update.
+**Download the latest version for all platforms from [GitHub Releases](https://github.com/Milad9A/Bremen-Livability-Index/releases/latest).**
 
-**iOS:** Coming soon (build locally with Flutter for now)
+| Platform | File | Instructions |
+|----------|------|--------------|
+| **Android** | `BLI-Android-*.apk` | Install APK on device. |
+| **Windows** | `BLI-Windows-*.zip` | Extract and run `bli.exe`. |
+| **macOS** | `BLI-macOS-*.zip` | Extract and run `bli.app`. |
+| **Linux** | `BLI-Linux-*.tar.gz` | Extract and run `./bundle/bli`. |
 
-### 🖥️ Desktop Apps
-
-[![Download Desktop](https://img.shields.io/badge/Download-Desktop%20Apps-blue.svg)](../../releases/tag/desktop-latest)
-
-| Platform | Download | Notes |
-|----------|----------|-------|
-| **Windows** | [BLI-Windows.zip](../../releases/tag/desktop-latest) | Extract and run `bli.exe` |
-| **Linux** | [BLI-Linux.tar.gz](../../releases/tag/desktop-latest) | Extract and run `./bundle/bli` |
-| **macOS** | [BLI-macOS.zip](../../releases/tag/desktop-latest) | Extract and move to Applications |
-
-> ⚠️ Desktop builds are unsigned. You may need to allow them in your system security settings.
+> ⚠️ **Note:** Desktop builds are unsigned. You may need to verify them in your system security settings (e.g., "Open Anyway" in Windows Defender or macOS Gatekeeper).
 
 > All platforms use the same backend API and provide the same core functionality.
 
 ## ✨ Features
 
 ### 🗺️ Interactive Map
-- Pan and zoom across Bremen
+- **Immersive Design**: Full-screen map with "Liquid Glass" floating controls
 - OpenStreetMap tiles for detailed geography
 - Real-time marker placement
 

@@ -7,6 +7,9 @@ import '../models/location_marker.dart';
 import '../widgets/score_card.dart';
 import '../widgets/address_search.dart';
 import '../widgets/nearby_feature_layers.dart';
+import '../widgets/glass_container.dart';
+import '../widgets/floating_search_bar.dart';
+import '../widgets/loading_overlay.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -26,7 +29,7 @@ class _MapScreenState extends State<MapScreen> {
   LivabilityScore? _currentScore;
   bool _isLoading = false;
   String? _errorMessage;
-  bool _showSearch = false;
+  bool _showSearch = false; // Controls if the full search widget is active
   bool _showSlowLoadingMessage = false;
   Timer? _slowLoadingTimer;
 
@@ -39,10 +42,12 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _checkApiHealth() async {
     final isHealthy = await _apiService.checkHealth();
     if (!isHealthy && mounted) {
-      setState(() {
-        _errorMessage =
-            'API server is not available. Please start the backend server.';
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage =
+              'API server is not available. Please start the backend server.';
+        });
+      }
     }
   }
 
@@ -73,6 +78,14 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _onMapTap(TapPosition tapPosition, LatLng point) async {
+    // If search is active, tapping map should close it
+    if (_showSearch) {
+      setState(() {
+        _showSearch = false;
+      });
+      return;
+    }
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -105,8 +118,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   Future<void> _onLocationSelected(LatLng location, String addressName) async {
-    // Move map to selected location
-    _mapController.move(location, 15.0);
+    _mapController.move(location, 16.0);
 
     // Analyze the selected location
     setState(() {
@@ -115,6 +127,7 @@ class _MapScreenState extends State<MapScreen> {
       _selectedMarker = LocationMarker(position: location);
       _currentScore = null;
       _showSlowLoadingMessage = false;
+      _showSearch = false;
     });
 
     _startSlowLoadingTimer();
@@ -126,55 +139,33 @@ class _MapScreenState extends State<MapScreen> {
       );
 
       _stopSlowLoadingTimer();
-      setState(() {
-        _currentScore = score;
-        _selectedMarker = LocationMarker(
-          position: location,
-          score: score.score,
-        );
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _currentScore = score;
+          _selectedMarker = LocationMarker(
+            position: location,
+            score: score.score,
+          );
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       _stopSlowLoadingTimer();
-      setState(() {
-        _errorMessage = 'Failed to analyze location: $e';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to analyze location: $e';
+          _isLoading = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bremen Livability Index'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              setState(() {
-                _showSearch = !_showSearch;
-              });
-            },
-            tooltip: 'Search address',
-            icon: Icon(_showSearch ? Icons.close : Icons.search),
-          ),
-          IconButton(
-            onPressed: () {
-              _mapController.move(bremenCenter, 13.0);
-              setState(() {
-                _selectedMarker = null;
-                _currentScore = null;
-                _errorMessage = null;
-              });
-            },
-            tooltip: 'Center on Bremen',
-            icon: const Icon(Icons.my_location),
-          ),
-        ],
-        backgroundColor: Colors.blue[700],
-        foregroundColor: Colors.white,
-        elevation: 2,
-      ),
+      resizeToAvoidBottomInset:
+          false, // Prevent map from resizing when keyboard opens
+      extendBodyBehindAppBar: true,
       body: Stack(
         children: [
           FlutterMap(
@@ -201,141 +192,122 @@ class _MapScreenState extends State<MapScreen> {
                   markers: [
                     Marker(
                       point: _selectedMarker!.position,
-                      width: 40,
-                      height: 40,
+                      width: 50,
+                      height: 50,
                       child: Icon(
                         Icons.location_on,
                         color: _selectedMarker!.score != null
                             ? getScoreColor(_selectedMarker!.score!)
-                            : Colors.blue,
-                        size: 40,
+                            : Colors.teal,
+                        size: 50,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 5),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
             ],
           ),
+
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            left: 16,
+            right: 80, // Leave space for the location button on the right
+            child: _showSearch
+                ? AddressSearchWidget(
+                    onLocationSelected: _onLocationSelected,
+                    onClose: () {
+                      setState(() {
+                        _showSearch = false;
+                      });
+                    },
+                  )
+                : FloatingSearchBar(
+                    onTap: () {
+                      setState(() {
+                        _showSearch = true;
+                      });
+                    },
+                  ),
+          ),
+
           if (_errorMessage != null)
-            ErrorBanner(
-              message: _errorMessage!,
-              onDismiss: () {
+            Positioned(
+              top:
+                  MediaQuery.of(context).padding.top +
+                  80, // push down below search
+              left: 16,
+              right: 16,
+              child: Card(
+                color: Colors.red[50],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.error_outline, color: Colors.red[900]),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _errorMessage!,
+                          style: TextStyle(
+                            color: Colors.red[900],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => setState(() => _errorMessage = null),
+                        color: Colors.red[900],
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+          if (_isLoading)
+            LoadingOverlay(showSlowLoadingMessage: _showSlowLoadingMessage),
+
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 16,
+            child: GestureDetector(
+              onTap: () {
+                _mapController.move(bremenCenter, 13.0);
                 setState(() {
+                  _selectedMarker = null;
+                  _currentScore = null;
                   _errorMessage = null;
                 });
               },
-            ),
-          if (_isLoading)
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const CircularProgressIndicator(),
-                  if (_showSlowLoadingMessage) ...const [SizedBox(height: 20)],
-                  if (_showSlowLoadingMessage)
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 40),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.access_time,
-                            color: Colors.blue[700],
-                            size: 32,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Server is starting up...',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[900],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'The server may take up to 50 seconds to wake up after being idle.',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.grey[700],
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
+              child: GlassContainer(
+                borderRadius: 30, // Circle
+                padding: const EdgeInsets.all(14),
+                child: Icon(Icons.my_location, color: Colors.teal[800]),
               ),
             ),
+          ),
+
           if (_currentScore != null)
             Positioned(
               bottom: 20,
-              left: 20,
-              right: 20,
+              left: 16,
+              right: 16,
               child: ScoreCard(score: _currentScore!),
             ),
-          if (_showSearch)
-            Positioned(
-              top: 10,
-              left: 10,
-              right: 10,
-              child: AddressSearchWidget(
-                onLocationSelected: _onLocationSelected,
-                onClose: () {
-                  setState(() {
-                    _showSearch = false;
-                  });
-                },
-              ),
-            ),
         ],
-      ),
-    );
-  }
-}
-
-class ErrorBanner extends StatelessWidget {
-  final String message;
-  final VoidCallback onDismiss;
-
-  const ErrorBanner({
-    super.key,
-    required this.message,
-    required this.onDismiss,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: 10,
-      left: 10,
-      right: 10,
-      child: Card(
-        color: Colors.red[100],
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Row(
-            children: [
-              Icon(Icons.error_outline, color: Colors.red[900]),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(message, style: TextStyle(color: Colors.red[900])),
-              ),
-              IconButton(icon: const Icon(Icons.close), onPressed: onDismiss),
-            ],
-          ),
-        ),
       ),
     );
   }

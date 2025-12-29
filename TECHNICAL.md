@@ -366,9 +366,10 @@ frontend/bli/lib/
 ├── services/
 │   └── api_service.dart         # Backend API client
 └── widgets/
-    ├── address_search.dart      # Search autocomplete
+    ├── address_search.dart      # Search autocomplete (Glassmorphism)
     ├── nearby_feature_layers.dart  # Map markers
-    └── score_panel.dart         # Score display
+    ├── score_card.dart          # Score display
+    └── glass_container.dart     # Reusable glass effect widget
 ```
 
 ### Map Rendering
@@ -408,6 +409,14 @@ class ApiService {
     return LivabilityScore.fromJson(jsonDecode(response.body));
   }
 }
+
+### User Interface (Glassmorphism)
+
+The application uses a **Liquid Glass** design system:
+- **Immersive Map**: Full-screen map with no app bar.
+- **Floating Controls**: Search bar and buttons float above the map.
+- **Glass Effect**: UI elements use `BackdropFilter` with blur and semi-transparent backgrounds to blend with the map.
+
 ```
 
 ---

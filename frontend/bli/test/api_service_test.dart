@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 import 'package:bli/services/api_service.dart';
 import 'package:bli/models/location_marker.dart';
 import 'package:bli/widgets/score_card.dart';
@@ -262,22 +263,22 @@ void main() {
   });
 
   group('getScoreColor', () {
-    test('returns green for score >= 70', () {
-      expect(getScoreColor(70.0).value, 0xFF4CAF50);
-      expect(getScoreColor(85.0).value, 0xFF4CAF50);
-      expect(getScoreColor(100.0).value, 0xFF4CAF50);
+    test('returns teal[700] for score >= 75', () {
+      expect(getScoreColor(75.0), Colors.teal[700]);
+      expect(getScoreColor(85.0), Colors.teal[700]);
+      expect(getScoreColor(100.0), Colors.teal[700]);
     });
 
-    test('returns orange for score >= 50 and < 70', () {
-      expect(getScoreColor(50.0).value, 0xFFFF9800);
-      expect(getScoreColor(60.0).value, 0xFFFF9800);
-      expect(getScoreColor(69.9).value, 0xFFFF9800);
+    test('returns orange[800] for score >= 50 and < 75', () {
+      expect(getScoreColor(50.0), Colors.orange[800]);
+      expect(getScoreColor(60.0), Colors.orange[800]);
+      expect(getScoreColor(74.9), Colors.orange[800]);
     });
 
-    test('returns red for score < 50', () {
-      expect(getScoreColor(0.0).value, 0xFFF44336);
-      expect(getScoreColor(25.0).value, 0xFFF44336);
-      expect(getScoreColor(49.9).value, 0xFFF44336);
+    test('returns red[700] for score < 50', () {
+      expect(getScoreColor(0.0), Colors.red[700]);
+      expect(getScoreColor(25.0), Colors.red[700]);
+      expect(getScoreColor(49.9), Colors.red[700]);
     });
   });
 }

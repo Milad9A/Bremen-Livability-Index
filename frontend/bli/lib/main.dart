@@ -14,10 +14,13 @@ class BremenLivabilityApp extends StatelessWidget {
       title: 'BLI',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
+          seedColor: Colors.teal,
+          primary: Colors.teal,
+          secondary: Colors.tealAccent,
           brightness: Brightness.light,
         ),
         useMaterial3: true,
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: const MapScreen(),
       debugShowCheckedModeBanner: false,

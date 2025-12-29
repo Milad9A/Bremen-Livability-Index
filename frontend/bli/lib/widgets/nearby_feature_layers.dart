@@ -54,7 +54,7 @@ class NearbyFeatureLayers extends StatelessWidget {
             polygons.add(
               Polygon(
                 points: points,
-                color: color.withOpacity(0.3),
+                color: color.withValues(alpha: 0.3),
                 borderColor: color,
                 borderStrokeWidth: 2,
               ),
@@ -86,7 +86,7 @@ class NearbyFeatureLayers extends StatelessWidget {
               polygons.add(
                 Polygon(
                   points: points,
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   borderColor: color,
                   borderStrokeWidth: 2,
                 ),

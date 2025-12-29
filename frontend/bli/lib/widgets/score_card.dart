@@ -17,11 +17,18 @@ class ScoreCard extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               getScoreColor(score.score),
-              getScoreColor(score.score).withOpacity(0.8),
+              getScoreColor(score.score).withValues(alpha: 0.85),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
+          boxShadow: [
+            BoxShadow(
+              color: getScoreColor(score.score).withValues(alpha: 0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(20.0),
@@ -122,7 +129,7 @@ class ScoreFactorItem extends StatelessWidget {
 }
 
 Color getScoreColor(double score) {
-  if (score >= 70) return Colors.green;
-  if (score >= 50) return Colors.orange;
-  return Colors.red;
+  if (score >= 75) return Colors.teal[700]!;
+  if (score >= 50) return Colors.orange[800]!;
+  return Colors.red[700]!;
 }

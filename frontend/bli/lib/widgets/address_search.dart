@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/api_service.dart';
 import 'dart:async';
+import 'glass_container.dart';
+import 'search_results_list.dart';
 
 class AddressSearchWidget extends StatefulWidget {
   final Function(LatLng, String) onLocationSelected;
@@ -19,6 +21,7 @@ class AddressSearchWidget extends StatefulWidget {
 
 class _AddressSearchWidgetState extends State<AddressSearchWidget> {
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _focusNode = FocusNode();
   final ApiService _apiService = ApiService();
   List<GeocodeResult> _searchResults = [];
   bool _isSearching = false;
@@ -26,8 +29,18 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
   Timer? _debounce;
 
   @override
+  void initState() {
+    super.initState();
+    // Request focus immediately when the widget is built
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _focusNode.requestFocus();
+    });
+  }
+
+  @override
   void dispose() {
     _searchController.dispose();
+    _focusNode.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -61,11 +74,13 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
         _isSearching = false;
       });
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Search failed: $e';
-        _isSearching = false;
-        _searchResults = [];
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Search failed: $e';
+          _isSearching = false;
+          _searchResults = [];
+        });
+      }
     }
   }
 
@@ -77,112 +92,63 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(16),
-      elevation: 8,
-      child: Container(
-        constraints: const BoxConstraints(maxHeight: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Search bar header
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.blue[700],
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  topRight: Radius.circular(4),
-                ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Floating Search Bar
+        GlassContainer(
+          borderRadius: 30,
+          padding: EdgeInsets.zero,
+          child: TextField(
+            controller: _searchController,
+            focusNode: _focusNode,
+            autofocus: true, // Keep safe fallback
+            onChanged: _onSearchChanged,
+            style: const TextStyle(fontSize: 16),
+            decoration: InputDecoration(
+              hintText: 'Search for an address...',
+              hintStyle: TextStyle(
+                color: Colors.grey[700],
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
               ),
-              child: Row(
-                children: [
-                  const Icon(Icons.search, color: Colors.white),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      autofocus: true,
-                      onChanged: _onSearchChanged,
-                      style: const TextStyle(color: Colors.white),
-                      decoration: const InputDecoration(
-                        hintText: 'Search for an address...',
-                        hintStyle: TextStyle(color: Colors.white70),
-                        border: InputBorder.none,
-                        isDense: true,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: widget.onClose,
-                  ),
-                ],
+              prefixIcon: Icon(Icons.search, color: Colors.teal[800]),
+              suffixIcon: IconButton(
+                icon: const Icon(Icons.close, color: Colors.grey),
+                onPressed: widget.onClose,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 14,
               ),
             ),
-            // Results list
-            if (_isSearching)
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: CircularProgressIndicator(),
-              )
-            else if (_errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    const Icon(Icons.error_outline, color: Colors.red),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        _errorMessage!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else if (_searchResults.isEmpty &&
-                _searchController.text.isNotEmpty)
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text(
-                  'No results found',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              )
-            else if (_searchResults.isNotEmpty)
-              Expanded(
-                child: ListView.separated(
-                  shrinkWrap: true,
-                  itemCount: _searchResults.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final result = _searchResults[index];
-                    return ListTile(
-                      leading: const Icon(
-                        Icons.location_on,
-                        color: Colors.blue,
-                      ),
-                      title: Text(
-                        result.address['road'] ?? result.displayName,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      subtitle: Text(
-                        result.displayName,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      onTap: () => _selectResult(result),
-                    );
-                  },
-                ),
-              ),
-          ],
+          ),
         ),
-      ),
+
+        const SizedBox(height: 8),
+
+        // Results List (only if active)
+        if (_isSearching ||
+            _errorMessage != null ||
+            _searchResults.isNotEmpty ||
+            (_searchController.text.isNotEmpty && _searchResults.isEmpty))
+          GlassContainer(
+            borderRadius: 20,
+            padding: EdgeInsets.zero,
+            child: Container(
+              constraints: const BoxConstraints(maxHeight: 300),
+              child: SearchResultsList(
+                isSearching: _isSearching,
+                errorMessage: _errorMessage,
+                searchResults: _searchResults,
+                showNoResults:
+                    _searchResults.isEmpty && _searchController.text.isNotEmpty,
+                onResultSelected: _selectResult,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
