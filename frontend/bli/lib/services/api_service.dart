@@ -3,7 +3,8 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Production (Render)
-  static const String baseUrl = 'https://bremen-livability-index.onrender.com';
+  static const String baseUrl =
+      'https://bremen-livability-backend.onrender.com';
   // Local (Emulator: 10.0.2.2:8000, iOS: localhost:8000)
   // static const String baseUrl = 'http://localhost:8000';
 

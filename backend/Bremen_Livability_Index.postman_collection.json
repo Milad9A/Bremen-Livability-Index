@@ -254,12 +254,12 @@
 		},
 		{
 			"key": "deployed_url",
-			"value": "https://bremen-livability-index.onrender.com",
+			"value": "https://bremen-livability-backend.onrender.com",
 			"type": "string"
 		},
 		{
 			"key": "base_url",
-			"value": "https://bremen-livability-index.onrender.com",
+			"value": "https://bremen-livability-backend.onrender.com",
 			"type": "string"
 		},
 		{

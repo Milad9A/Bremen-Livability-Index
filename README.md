@@ -11,8 +11,8 @@ Access the Bremen Livability Index on multiple platforms:
 Run the full app directly in your browser—no installation required.
 
 ### 📡 API Endpoint
-**Live API:** [bremen-livability-index.onrender.com](https://bremen-livability-index.onrender.com)  
-**Docs:** [bremen-livability-index.onrender.com/docs](https://bremen-livability-index.onrender.com/docs)  
+**Live API:** [bremen-livability-backend.onrender.com](https://bremen-livability-backend.onrender.com)  
+**Docs:** [bremen-livability-backend.onrender.com/docs](https://bremen-livability-backend.onrender.com/docs)  
 RESTful API for livability analysis and geocoding.
 
 ### 📱 Mobile Apps
@@ -240,7 +240,7 @@ flutter run -d emulator-5554  # Android emulator
 
 The API URL is configured in `lib/services/api_service.dart`.
 
-**Default**: Production Backend (`https://bremen-livability-index.onrender.com`)
+**Default**: Production Backend (`https://bremen-livability-backend.onrender.com`)
 
 **To use local backend:**
 1. Open `lib/services/api_service.dart`
@@ -284,7 +284,7 @@ A Postman collection is included in `backend/Bremen_Livability_Index.postman_col
 
 **Features:**
 - **Environment Switching**: Use the `environment_mode` variable to switch between `local` and `deployed`
-  - `deployed`: `https://bremen-livability-index.onrender.com`
+  - `deployed`: `https://bremen-livability-backend.onrender.com`
   - `local`: `http://127.0.0.1:8000`
 - **Pre-configured Requests**: Analyze Location, Geocode Address, Health Check, and more
 
