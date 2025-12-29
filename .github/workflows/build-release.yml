@@ -1,4 +1,4 @@
-name: Build Desktop Apps
+name: Build and Release Apps
 
 on:
   push:
@@ -7,17 +7,63 @@ on:
       - main
     paths:
       - 'frontend/bli/**'
-      - '.github/workflows/desktop-build.yml'
+      - '.github/workflows/build-release.yml'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
+  # -----------------------------------------------------------------
+  # Android Build Job
+  # -----------------------------------------------------------------
+  build-android:
+    name: Build Android
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+      
+      - name: Install dependencies
+        working-directory: frontend/bli
+        run: flutter pub get
+      
+      - name: Run Tests
+        working-directory: frontend/bli
+        run: flutter test
+      
+      - name: Build APK
+        working-directory: frontend/bli
+        run: flutter build apk --release
+      
+      - name: Rename APK
+        working-directory: frontend/bli
+        run: |
+          mv build/app/outputs/flutter-apk/app-release.apk BLI-Android.apk
+      
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-build
+          path: frontend/bli/BLI-Android.apk
+
+  # -----------------------------------------------------------------
+  # Windows Build Job
+  # -----------------------------------------------------------------
   build-windows:
     name: Build Windows
     runs-on: windows-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -49,10 +95,12 @@ jobs:
           name: windows-build
           path: frontend/bli/build/windows/x64/runner/BLI-Windows.zip
 
+  # -----------------------------------------------------------------
+  # Linux Build Job
+  # -----------------------------------------------------------------
   build-linux:
     name: Build Linux
     runs-on: ubuntu-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -89,10 +137,12 @@ jobs:
           name: linux-build
           path: frontend/bli/build/linux/x64/release/BLI-Linux.tar.gz
 
+  # -----------------------------------------------------------------
+  # macOS Build Job
+  # -----------------------------------------------------------------
   build-macos:
     name: Build macOS
     runs-on: macos-latest
-    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -124,67 +174,67 @@ jobs:
           name: macos-build
           path: frontend/bli/build/macos/Build/Products/Release/BLI-macOS.zip
 
+  # -----------------------------------------------------------------
+  # Release Job
+  # -----------------------------------------------------------------
   release:
-    name: Create Release
-    needs: [build-windows, build-linux, build-macos]
+    name: Create Unified Release
+    needs: [build-android, build-windows, build-linux, build-macos]
     runs-on: ubuntu-latest
-    
     steps:
-      - name: Download Windows artifact
+      - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: windows-build
           path: ./artifacts
+          merge-multiple: true # Flattens the structure so all files are in ./artifacts/
       
-      - name: Download Linux artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: linux-build
-          path: ./artifacts
+      - name: Get date and sha
+        id: meta
+        run: |
+          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+          echo "sha_short=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
       
-      - name: Download macOS artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: macos-build
-          path: ./artifacts
-      
-      - name: Get date
-        id: date
-        run: echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
-      
-      - name: Rename artifacts
+      - name: Rename artifacts with version
         working-directory: ./artifacts
         run: |
-          mv BLI-Windows.zip BLI-Windows-${{ steps.date.outputs.date }}.zip
-          mv BLI-Linux.tar.gz BLI-Linux-${{ steps.date.outputs.date }}.tar.gz
-          mv BLI-macOS.zip BLI-macOS-${{ steps.date.outputs.date }}.zip
+          mv BLI-Android.apk BLI-Android-${{ steps.meta.outputs.date }}.apk
+          mv BLI-Windows.zip BLI-Windows-${{ steps.meta.outputs.date }}.zip
+          mv BLI-Linux.tar.gz BLI-Linux-${{ steps.meta.outputs.date }}.tar.gz
+          mv BLI-macOS.zip BLI-macOS-${{ steps.meta.outputs.date }}.zip
       
-      - name: Delete existing desktop release
+      - name: Delete existing release and tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete desktop-latest --cleanup-tag -y || echo "No existing release to delete"
+          gh release delete latest --cleanup-tag -y || echo "No existing 'latest' release to delete"
+          gh release delete desktop-latest --cleanup-tag -y || echo "No existing 'desktop-latest' release to delete"
         continue-on-error: true
       
-      - name: Create Desktop Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: desktop-latest
-          name: BLI Desktop Apps
+          tag_name: latest
+          name: BLI Latest Build
+          make_latest: true
           body: |
-            🖥️ **Bremen Livability Index Desktop Applications**
+            🚀 **Latest Bremen Livability Index Builds**
             
-            **Build Date**: ${{ steps.date.outputs.date }}
-            **Platforms**: Windows, Linux, macOS
+            **Build Date**: ${{ steps.meta.outputs.date }}
+            **Commit**: ${{ steps.meta.outputs.sha_short }}
             
-            ## Installation
+            ---
             
-            **Windows**: Extract ZIP and run `bli.exe`
-            **Linux**: Extract tarball and run `./bundle/bli`
-            **macOS**: Extract ZIP and drag `bli.app` to Applications
+            ### 📱 Mobile
+            - **Android**: Download `BLI-Android-*.apk` and install.
             
-            > ⚠️ These builds are unsigned. You may need to allow them in your system security settings.
+            ### 🖥️ Desktop
+            - **Windows**: Extract `BLI-Windows-*.zip`, run `bli.exe`.
+            - **Linux**: Extract `BLI-Linux-*.tar.gz`, run `./bundle/bli`.
+            - **macOS**: Extract `BLI-macOS-*.zip`, run `bli.app`.
+            
+            > ⚠️ Note: Desktop apps are unsigned and may require security exceptions to run.
           files: |
+            ./artifacts/BLI-Android-*.apk
             ./artifacts/BLI-Windows-*.zip
             ./artifacts/BLI-Linux-*.tar.gz
             ./artifacts/BLI-macOS-*.zip

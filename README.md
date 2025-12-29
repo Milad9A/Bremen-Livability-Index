@@ -1,8 +1,11 @@
-# Bremen Livability Index
+<div align="center">
+  <img src="frontend/bli/assets/app_icon_rounded.png" alt="Bremen Livability Index Icon" width="128" height="128">
+
+  # Bremen Livability Index (BLI)
+</div>
 
 [![Backend CI](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-ci.yml)
-[![Build and Release APK](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/android-build-on-push.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/android-build-on-push.yml)
-[![Build Desktop Apps](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/desktop-build.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/desktop-build.yml)
+[![Build and Release Apps](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/build-release.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/build-release.yml)
 
 A comprehensive geospatial platform featuring a **Flutter mobile & web application** and a **Python FastAPI backend**. It calculates Quality of Life scores for any location in Bremen, Germany, in real-time.
 
@@ -248,8 +251,7 @@ The project uses a complete CI/CD pipeline:
 
 2.  **GitHub Actions Pipelines**:
     *   **Backend CI**: Runs `pytest` on push.
-    *   **Android Build**: Runs unit/widget tests, then builds APK & releases to GitHub.
-    *   **Desktop Build**: Runs tests on all platforms, then builds apps & releases to GitHub.
+    *   **App Build & Release**: Runs tests & builds for Android, Windows, Linux, and macOS, then publishes to a single "Latest" release.
 
 ## 💻 Flutter Development
 

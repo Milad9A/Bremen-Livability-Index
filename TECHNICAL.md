@@ -488,8 +488,7 @@ flutter test
    - GitHub Actions runs backend tests (`backend-ci.yml`)
    - Render rebuilds backend from `Dockerfile`
    - Render rebuilds frontend static site
-   - GitHub Actions runs Flutter tests, then builds Android APK (`android-build-on-push.yml`)
-   - GitHub Actions runs Flutter tests, then builds desktop apps (`desktop-build.yml`)
+   - GitHub Actions runs Flutter tests, then builds all apps (Android, Windows, Linux, macOS) in `build-release.yml`
 
 2. **First Deploy**: `entrypoint.sh` runs:
    ```bash
