@@ -8,6 +8,7 @@ import '../widgets/nearby_feature_layers.dart';
 import '../widgets/glass_container.dart';
 import '../widgets/floating_search_bar.dart';
 import '../widgets/loading_overlay.dart';
+import '../theme/app_theme.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
@@ -108,13 +109,13 @@ class _MapScreenContent extends StatelessWidget {
                   padding: const EdgeInsets.all(12.0),
                   child: Row(
                     children: [
-                      Icon(Icons.error_outline, color: Colors.red[900]),
+                      Icon(Icons.error_outline, color: AppColors.error),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
                           viewModel.errorMessage!,
                           style: TextStyle(
-                            color: Colors.red[900],
+                            color: AppColors.error,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -122,7 +123,7 @@ class _MapScreenContent extends StatelessWidget {
                       IconButton(
                         icon: const Icon(Icons.close),
                         onPressed: viewModel.clearError,
-                        color: Colors.red[900],
+                        color: AppColors.error,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                       ),
@@ -145,9 +146,9 @@ class _MapScreenContent extends StatelessWidget {
             child: GestureDetector(
               onTap: viewModel.resetMap,
               child: GlassContainer(
-                borderRadius: 30, // Circle
+                borderRadius: 30,
                 padding: const EdgeInsets.all(14),
-                child: Icon(Icons.my_location, color: Colors.teal[800]),
+                child: Icon(Icons.my_location, color: AppColors.primaryDark),
               ),
             ),
           ),

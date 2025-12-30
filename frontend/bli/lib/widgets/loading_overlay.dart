@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'glass_container.dart';
+import '../theme/app_theme.dart';
 
 class LoadingOverlay extends StatelessWidget {
   final bool showSlowLoadingMessage;
@@ -15,7 +16,7 @@ class LoadingOverlay extends StatelessWidget {
           GlassContainer(
             borderRadius: 100,
             padding: const EdgeInsets.all(20),
-            child: const CircularProgressIndicator(),
+            child: CircularProgressIndicator(color: AppColors.primary),
           ),
           if (showSlowLoadingMessage) ...[
             const SizedBox(height: 24),
@@ -28,7 +29,7 @@ class LoadingOverlay extends StatelessWidget {
                     Icon(
                       Icons.cloud_upload_outlined,
                       size: 40,
-                      color: Colors.teal[800],
+                      color: AppColors.primaryDark,
                     ),
                     const SizedBox(height: 12),
                     Text(
@@ -36,14 +37,14 @@ class LoadingOverlay extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.teal[900],
+                        color: AppColors.primaryDark,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'The backend is starting up. This may take up to 50 seconds.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey[800], height: 1.4),
+                      style: TextStyle(color: AppColors.greyDark, height: 1.4),
                     ),
                   ],
                 ),

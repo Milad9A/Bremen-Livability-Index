@@ -4,6 +4,7 @@ import '../services/api_service.dart';
 import 'dart:async';
 import 'glass_container.dart';
 import 'search_results_list.dart';
+import '../theme/app_theme.dart';
 
 class AddressSearchWidget extends StatefulWidget {
   final Function(LatLng, String) onLocationSelected;
@@ -95,26 +96,24 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Floating Search Bar
         GlassContainer(
           borderRadius: 30,
           padding: EdgeInsets.zero,
           child: TextField(
             controller: _searchController,
             focusNode: _focusNode,
-            autofocus: true, // Keep safe fallback
+            autofocus: true,
             onChanged: _onSearchChanged,
-            style: const TextStyle(fontSize: 16),
+            style: Theme.of(context).textTheme.bodyLarge,
             decoration: InputDecoration(
               hintText: 'Search for an address...',
-              hintStyle: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+              hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
+              prefixIcon: Icon(
+                Icons.search,
+                color: Theme.of(context).iconTheme.color,
               ),
-              prefixIcon: Icon(Icons.search, color: Colors.teal[800]),
               suffixIcon: IconButton(
-                icon: const Icon(Icons.close, color: Colors.grey),
+                icon: Icon(Icons.close, color: AppColors.greyMedium),
                 onPressed: widget.onClose,
               ),
               border: InputBorder.none,
@@ -128,7 +127,6 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
 
         const SizedBox(height: 8),
 
-        // Results List (only if active)
         if (_isSearching ||
             _errorMessage != null ||
             _searchResults.isNotEmpty ||

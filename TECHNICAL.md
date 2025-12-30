@@ -367,6 +367,8 @@ frontend/bli/lib/
 │   └── api_service.dart         # Backend API client
 ├── viewmodels/
 │   └── map_viewmodel.dart       # Map logic & state (MVVM)
+├── theme/
+│   └── app_theme.dart           # Design system (colors, text styles)
 └── widgets/
     ├── address_search.dart      # Search logic wrapper
     ├── search_results_list.dart # Reusable search results list
@@ -431,16 +433,24 @@ The application uses the **Model-View-ViewModel (MVVM)** pattern with the `provi
   - Interacting with `ApiService` and `MapController`
   - Rebuilding the View via `notifyListeners()` when state changes
 
-### User Interface (Glassmorphism)
+### User Interface (Glassmorphism & Theming)
 
-The application uses a **Liquid Glass** design system:
-- **Immersive Map**: Full-screen map with no app bar.
-- **Floating Controls**: Search bar and buttons float above the map.
-- **Glass Effect**: UI elements use `BackdropFilter` with blur (`sigmaX/Y: 10`) and semi-transparent white backgrounds (`opacity: 0.6`) to blend with the map.
+The application uses a **Liquid Glass** design system supported by a centralized `AppTheme`:
+
+- **Design System (`AppTheme`)**:
+    - **Palette**: Centralized `AppColors` (Teal primary, specific semantic colors).
+    - **Typography**: Unified `AppTextStyles` for consistency.
+    - **Standardization**: Widgets access styles via `Theme.of(context)` or `AppColors`.
+
+- **Visual Style**:
+    - **Immersive Map**: Full-screen map with no app bar.
+    - **Floating Controls**: Search bar and buttons float above the map.
+    - **Glass Effect**: UI elements use `BackdropFilter` with blur (`sigmaX/Y: 10`) and semi-transparent backgrounds to blend with the map.
 - **Components**:
     - `GlassContainer`: Core widget providing the frosted glass look.
     - `FloatingSearchBar`: Collapsed state of the search bar.
     - `LoadingOverlay`: Glass-morphic loading indicator.
+
 
 ---
 

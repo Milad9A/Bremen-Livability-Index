@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 
 class ScoreCard extends StatelessWidget {
   final LivabilityScore score;
@@ -42,7 +43,7 @@ class ScoreCard extends StatelessWidget {
                   const Text(
                     'Livability Score',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
@@ -50,7 +51,7 @@ class ScoreCard extends StatelessWidget {
                   Text(
                     '${score.score.toStringAsFixed(1)}/100',
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                     ),
@@ -61,7 +62,7 @@ class ScoreCard extends StatelessWidget {
               Text(
                 score.summary,
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: AppColors.white,
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
@@ -72,7 +73,7 @@ class ScoreCard extends StatelessWidget {
               const Text(
                 'Factors:',
                 style: TextStyle(
-                  color: Colors.white,
+                  color: AppColors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -102,14 +103,14 @@ class ScoreFactorItem extends StatelessWidget {
             factor.impact == 'positive'
                 ? Icons.add_circle
                 : Icons.remove_circle,
-            color: Colors.white,
+            color: AppColors.white,
             size: 20,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               '${factor.factor}: ${factor.description}',
-              style: const TextStyle(color: Colors.white, fontSize: 12),
+              style: const TextStyle(color: AppColors.white, fontSize: 12),
             ),
           ),
           Text(
@@ -117,7 +118,7 @@ class ScoreFactorItem extends StatelessWidget {
                 ? '+${factor.value.toStringAsFixed(1)}'
                 : factor.value.toStringAsFixed(1),
             style: const TextStyle(
-              color: Colors.white,
+              color: AppColors.white,
               fontSize: 12,
               fontWeight: FontWeight.bold,
             ),

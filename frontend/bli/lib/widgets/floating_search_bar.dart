@@ -18,12 +18,11 @@ class FloatingSearchBar extends StatelessWidget {
             readOnly: true,
             decoration: InputDecoration(
               hintText: 'Search for an address...',
-              hintStyle: TextStyle(
-                color: Colors.grey[700],
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+              hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
+              prefixIcon: Icon(
+                Icons.search,
+                color: Theme.of(context).iconTheme.color,
               ),
-              prefixIcon: Icon(Icons.search, color: Colors.teal[800]),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 20,

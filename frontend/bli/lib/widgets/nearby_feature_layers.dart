@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../services/api_service.dart';
+import '../theme/app_theme.dart';
 
 class NearbyFeatureLayers extends StatelessWidget {
   final Map<String, List<FeatureDetail>> nearbyFeatures;
@@ -125,12 +126,12 @@ class NearbyFeatureLayers extends StatelessWidget {
       case 'accident':
         return Colors.orange;
       case 'industrial':
-        return Colors.grey;
+        return AppColors.greyMedium;
       case 'major_roads':
       case 'major_road':
-        return Colors.black54;
+        return AppColors.black.withValues(alpha: 0.54);
       default:
-        return Colors.grey;
+        return AppColors.greyLight;
     }
   }
 

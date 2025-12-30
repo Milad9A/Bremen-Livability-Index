@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/api_service.dart';
+import '../theme/app_theme.dart';
 
 class SearchResultsList extends StatelessWidget {
   final bool isSearching;
@@ -22,7 +23,9 @@ class SearchResultsList extends StatelessWidget {
     if (isSearching) {
       return const Padding(
         padding: EdgeInsets.all(20),
-        child: Center(child: CircularProgressIndicator()),
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
       );
     }
 
@@ -31,12 +34,12 @@ class SearchResultsList extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            const Icon(Icons.error_outline, color: Colors.red),
+            Icon(Icons.error_outline, color: AppColors.error),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 errorMessage!,
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: AppColors.error),
               ),
             ),
           ],
@@ -45,9 +48,12 @@ class SearchResultsList extends StatelessWidget {
     }
 
     if (showNoResults) {
-      return const Padding(
-        padding: EdgeInsets.all(20),
-        child: Text('No results found', style: TextStyle(color: Colors.grey)),
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text(
+          'No results found',
+          style: TextStyle(color: AppColors.greyMedium),
+        ),
       );
     }
 
@@ -59,7 +65,7 @@ class SearchResultsList extends StatelessWidget {
       itemBuilder: (context, index) {
         final result = searchResults[index];
         return ListTile(
-          leading: Icon(Icons.location_on, color: Colors.teal[400]),
+          leading: Icon(Icons.location_on, color: AppColors.primaryLight),
           title: Text(
             result.address['road'] ?? result.displayName.split(',')[0],
             style: const TextStyle(fontWeight: FontWeight.w600),
@@ -68,7 +74,7 @@ class SearchResultsList extends StatelessWidget {
             result.displayName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+            style: TextStyle(fontSize: 12, color: AppColors.greyMedium),
           ),
           onTap: () => onResultSelected(result),
         );
