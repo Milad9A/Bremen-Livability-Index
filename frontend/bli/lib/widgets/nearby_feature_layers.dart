@@ -1,8 +1,8 @@
+import 'package:bli/services/api_service.dart';
+import 'package:bli/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../services/api_service.dart';
-import '../theme/app_theme.dart';
 
 class NearbyFeatureLayers extends StatelessWidget {
   final Map<String, List<FeatureDetail>> nearbyFeatures;

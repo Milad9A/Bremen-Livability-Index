@@ -1,14 +1,14 @@
+import 'package:bli/theme/app_theme.dart';
+import 'package:bli/viewmodels/map_viewmodel.dart';
+import 'package:bli/widgets/address_search.dart';
+import 'package:bli/widgets/floating_search_bar.dart';
+import 'package:bli/widgets/glass_container.dart';
+import 'package:bli/widgets/loading_overlay.dart';
+import 'package:bli/widgets/nearby_feature_layers.dart';
+import 'package:bli/widgets/score_card.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_map/flutter_map.dart';
-import '../viewmodels/map_viewmodel.dart';
-import '../widgets/score_card.dart';
-import '../widgets/address_search.dart';
-import '../widgets/nearby_feature_layers.dart';
-import '../widgets/glass_container.dart';
-import '../widgets/floating_search_bar.dart';
-import '../widgets/loading_overlay.dart';
-import '../theme/app_theme.dart';
+import 'package:provider/provider.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});

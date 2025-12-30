@@ -1,10 +1,11 @@
+import 'dart:async';
+
+import 'package:bli/services/api_service.dart';
+import 'package:bli/theme/app_theme.dart';
+import 'package:bli/widgets/glass_container.dart';
+import 'package:bli/widgets/search_results_list.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
-import '../services/api_service.dart';
-import 'dart:async';
-import 'glass_container.dart';
-import 'search_results_list.dart';
-import '../theme/app_theme.dart';
 
 class AddressSearchWidget extends StatefulWidget {
   final Function(LatLng, String) onLocationSelected;

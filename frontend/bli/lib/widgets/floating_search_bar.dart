@@ -1,5 +1,5 @@
+import 'package:bli/widgets/glass_container.dart';
 import 'package:flutter/material.dart';
-import 'glass_container.dart';
 
 class FloatingSearchBar extends StatelessWidget {
   final VoidCallback onTap;

@@ -1,9 +1,10 @@
 import 'dart:async';
+
+import 'package:bli/models/location_marker.dart';
+import 'package:bli/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import '../services/api_service.dart';
-import '../models/location_marker.dart';
 
 class MapViewModel extends ChangeNotifier {
   final ApiService _apiService = ApiService();

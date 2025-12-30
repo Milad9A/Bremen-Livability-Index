@@ -1,6 +1,6 @@
+import 'package:bli/screens/map_screen.dart';
+import 'package:bli/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'screens/map_screen.dart';
-import 'theme/app_theme.dart';
 
 void main() {
   runApp(const BremenLivabilityApp());

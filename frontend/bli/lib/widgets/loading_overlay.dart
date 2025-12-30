@@ -1,6 +1,6 @@
+import 'package:bli/theme/app_theme.dart';
+import 'package:bli/widgets/glass_container.dart';
 import 'package:flutter/material.dart';
-import 'glass_container.dart';
-import '../theme/app_theme.dart';
 
 class LoadingOverlay extends StatelessWidget {
   final bool showSlowLoadingMessage;
