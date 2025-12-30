@@ -365,6 +365,8 @@ frontend/bli/lib/
 │   └── map_screen.dart          # Main map view
 ├── services/
 │   └── api_service.dart         # Backend API client
+├── viewmodels/
+│   └── map_viewmodel.dart       # Map logic & state (MVVM)
 └── widgets/
     ├── address_search.dart      # Search logic wrapper
     ├── search_results_list.dart # Reusable search results list
@@ -412,6 +414,22 @@ class ApiService {
     return LivabilityScore.fromJson(jsonDecode(response.body));
   }
 }
+
+  }
+}
+
+### State Management (MVVM)
+
+The application uses the **Model-View-ViewModel (MVVM)** pattern with the `provider` package.
+
+- **View (`MapScreen`)**: Stateless widget. Responsibilities:
+  - Layout and UI rendering
+  - Listening to ViewModel changes
+  - Delegating user actions to ViewModel
+- **ViewModel (`MapViewModel`)**: Extends `ChangeNotifier`. Responsibilities:
+  - Holding UI state (`isLoading`, `currentScore`, `selectedMarker`)
+  - Interacting with `ApiService` and `MapController`
+  - Rebuilding the View via `notifyListeners()` when state changes
 
 ### User Interface (Glassmorphism)
 

@@ -28,10 +28,11 @@ RESTful API for livability analysis and geocoding.
 
 | Platform | File | Instructions |
 |----------|------|--------------|
-| **Android** | `BLI-Android-*.apk` | Install APK on device. |
-| **Windows** | `BLI-Windows-*.zip` | Extract and run `bli.exe`. |
-| **macOS** | `BLI-macOS-*.zip` | Extract and run `bli.app`. |
-| **Linux** | `BLI-Linux-*.tar.gz` | Extract and run `./bundle/bli`. |
+| **iOS** | `Runner.app` / Source | Run via Xcode / Flutter |
+| **Android** | `BLI-Android.apk` | Install APK on device. |
+| **Windows** | `BLI-Windows.zip` | Extract and run `bli.exe`. |
+| **macOS** | `BLI-macOS.zip` | Extract and run `bli.app`. |
+| **Linux** | `BLI-Linux.tar.gz` | Extract and run `./bundle/bli`. |
 
 > ⚠️ **Note:** Desktop builds are unsigned. You may need to verify them in your system security settings (e.g., "Open Anyway" in Windows Defender or macOS Gatekeeper).
 
@@ -262,6 +263,7 @@ flutter pub get
 flutter run              # Default device
 flutter run -d chrome    # Web
 flutter run -d emulator-5554  # Android emulator
+flutter run -d "iPhone"  # iOS Device (requires Xcode)
 ```
 
 ### API Configuration

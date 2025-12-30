@@ -194,20 +194,14 @@ jobs:
           echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
           echo "sha_short=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
       
-      - name: Rename artifacts with version
-        working-directory: ./artifacts
-        run: |
-          mv BLI-Android.apk BLI-Android-${{ steps.meta.outputs.date }}.apk
-          mv BLI-Windows.zip BLI-Windows-${{ steps.meta.outputs.date }}.zip
-          mv BLI-Linux.tar.gz BLI-Linux-${{ steps.meta.outputs.date }}.tar.gz
-          mv BLI-macOS.zip BLI-macOS-${{ steps.meta.outputs.date }}.zip
-      
       - name: Delete existing release and tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete latest --cleanup-tag -y || echo "No existing 'latest' release to delete"
-          gh release delete desktop-latest --cleanup-tag -y || echo "No existing 'desktop-latest' release to delete"
+          # Delete the release and the tag
+          gh release delete latest --cleanup-tag -y || echo "Release/Tag delete failed or not found"
+          # Force delete the tag ref via API to be absolutely sure it's gone (updates Source Code zip)
+          gh api -X DELETE repos/${{ github.repository }}/git/refs/tags/latest || echo "Tag ref not found"
         continue-on-error: true
       
       - name: Create Release
@@ -225,19 +219,19 @@ jobs:
             ---
             
             ### 📱 Mobile
-            - **Android**: Download `BLI-Android-*.apk` and install.
+            - **Android**: Download `BLI-Android.apk` and install.
             
             ### 🖥️ Desktop
-            - **Windows**: Extract `BLI-Windows-*.zip`, run `bli.exe`.
-            - **Linux**: Extract `BLI-Linux-*.tar.gz`, run `./bundle/bli`.
-            - **macOS**: Extract `BLI-macOS-*.zip`, run `bli.app`.
+            - **Windows**: Extract `BLI-Windows.zip`, run `bli.exe`.
+            - **Linux**: Extract `BLI-Linux.tar.gz`, run `./bundle/bli`.
+            - **macOS**: Extract `BLI-macOS.zip`, run `bli.app`.
             
             > ⚠️ Note: Desktop apps are unsigned and may require security exceptions to run.
           files: |
-            ./artifacts/BLI-Android-*.apk
-            ./artifacts/BLI-Windows-*.zip
-            ./artifacts/BLI-Linux-*.tar.gz
-            ./artifacts/BLI-macOS-*.zip
+            ./artifacts/BLI-Android.apk
+            ./artifacts/BLI-Windows.zip
+            ./artifacts/BLI-Linux.tar.gz
+            ./artifacts/BLI-macOS.zip
           prerelease: false
           draft: false
         env:
