@@ -188,32 +188,25 @@ jobs:
           path: ./artifacts
           merge-multiple: true # Flattens the structure so all files are in ./artifacts/
       
-      - name: Get date and sha
+      - name: Get date, time, and sha
         id: meta
         run: |
-          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+          echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "time=$(date +'%H:%M:%S')" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date +'%Y%m%d-%H%M%S')" >> $GITHUB_OUTPUT
           echo "sha_short=$(echo ${GITHUB_SHA} | cut -c1-7)" >> $GITHUB_OUTPUT
-      
-      - name: Delete existing release and tag
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Delete the release and the tag
-          gh release delete latest --cleanup-tag -y || echo "Release/Tag delete failed or not found"
-          # Force delete the tag ref via API to be absolutely sure it's gone (updates Source Code zip)
-          gh api -X DELETE repos/${{ github.repository }}/git/refs/tags/latest || echo "Tag ref not found"
-        continue-on-error: true
       
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
-          name: BLI Latest Build
+          tag_name: build-${{ steps.meta.outputs.timestamp }}-${{ steps.meta.outputs.sha_short }}
+          name: BLI Build - ${{ steps.meta.outputs.date }} ${{ steps.meta.outputs.time }} (${{ steps.meta.outputs.sha_short }})
           make_latest: true
           body: |
-            🚀 **Latest Bremen Livability Index Builds**
+            🚀 **Bremen Livability Index Build**
             
             **Build Date**: ${{ steps.meta.outputs.date }}
+            **Build Time**: ${{ steps.meta.outputs.time }}
             **Commit**: ${{ steps.meta.outputs.sha_short }}
             
             ---
