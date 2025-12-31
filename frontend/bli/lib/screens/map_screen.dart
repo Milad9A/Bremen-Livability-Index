@@ -22,8 +22,43 @@ class MapScreen extends StatelessWidget {
   }
 }
 
-class _MapScreenContent extends StatelessWidget {
+class _MapScreenContent extends StatefulWidget {
   const _MapScreenContent();
+
+  @override
+  State<_MapScreenContent> createState() => _MapScreenContentState();
+}
+
+class _MapScreenContentState extends State<_MapScreenContent> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final viewModel = context.read<MapViewModel>();
+      viewModel.onShowMessage = (message) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text(message)),
+                ],
+              ),
+              backgroundColor: AppColors.primaryDark,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 4),
+            ),
+          );
+        }
+      };
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -13,6 +13,21 @@ class MapViewModel extends ChangeNotifier {
   // Bremen center coordinates
   static const LatLng bremenCenter = LatLng(53.0793, 8.8017);
 
+  // Bremen bounding box (approximate city limits)
+  static const double bremenMinLat = 52.96;
+  static const double bremenMaxLat = 53.22;
+  static const double bremenMinLon = 8.48;
+  static const double bremenMaxLon = 9.01;
+
+  void Function(String message)? onShowMessage;
+
+  bool isWithinBremen(LatLng point) {
+    return point.latitude >= bremenMinLat &&
+        point.latitude <= bremenMaxLat &&
+        point.longitude >= bremenMinLon &&
+        point.longitude <= bremenMaxLon;
+  }
+
   // State
   LocationMarker? _selectedMarker;
   LivabilityScore? _currentScore;
@@ -90,6 +105,14 @@ class MapViewModel extends ChangeNotifier {
     if (_showSearch) {
       _showSearch = false;
       notifyListeners();
+      return;
+    }
+
+    // Check if the point is within Bremen's data coverage area
+    if (!isWithinBremen(point)) {
+      onShowMessage?.call(
+        'Data is only available for Bremen. Please select a location within the city.',
+      );
       return;
     }
 
