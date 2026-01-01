@@ -1,4 +1,4 @@
-import 'package:bli/screens/map_screen.dart';
+import 'package:bli/screens/start_screen.dart';
 import 'package:bli/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +14,7 @@ class BremenLivabilityApp extends StatelessWidget {
     return MaterialApp(
       title: 'Bremen Livability Index',
       theme: AppTheme.lightTheme,
-      home: const MapScreen(),
+      home: const StartScreen(),
       debugShowCheckedModeBanner: false,
     );
   }

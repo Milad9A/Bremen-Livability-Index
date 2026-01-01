@@ -4,9 +4,10 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bli/main.dart';
+import 'package:bli/screens/start_screen.dart';
 
 void main() {
-  testWidgets('App launches and displays map screen', (
+  testWidgets('App launches and displays start screen', (
     WidgetTester tester,
   ) async {
     // Build the app and trigger a frame.
@@ -15,7 +16,16 @@ void main() {
     // Pump a few frames to let the app initialize
     await tester.pump();
 
-    // Verify the app renders without crashing - just check MaterialApp exists
+    // Verify the app renders without crashing
     expect(find.byType(BremenLivabilityApp), findsOneWidget);
+
+    // Verify StartScreen is shown
+    expect(find.byType(StartScreen), findsOneWidget);
+
+    // Verify app title is displayed
+    expect(find.text('Bremen Livability Index'), findsOneWidget);
+
+    // Pump all remaining timers to avoid timer pending errors
+    await tester.pumpAndSettle(const Duration(seconds: 5));
   });
 }
