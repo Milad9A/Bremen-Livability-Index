@@ -40,52 +40,16 @@ RESTful API for livability analysis and geocoding.
 
 ## ✨ Features
 
-### 🗺️ Interactive Map
-- **Immersive Design**: Full-screen map with "Liquid Glass" floating controls
-- **Modern UI**: Frosted glass effects using custom `GlassContainer` widgets
-- OpenStreetMap tiles for detailed geography
-- Real-time marker placement
+- 🗺️ **Interactive Map** – Full-screen OpenStreetMap with "Liquid Glass" UI
+- 🚀 **Splash & Start Screen** – Animated launch experience
+- 📍 **Tap-to-Analyze** – Instant livability scoring for any location
+- 🔍 **Address Search** – Find streets, landmarks, or neighborhoods
 
-### 🚀 Splash & Start Screen
-- **Native Splash Screen**: Platform-native splash with app icon on teal background
-- **Animated Start Screen**: Smooth fade-in of title, subtitle, and "Get Started" button
-- **Seamless Transition**: Icon position matches between splash and start screen for fluid UX
+## 📊 Scoring System
 
-### 📍 Location Analysis
-- **Tap-to-Analyze**: Click anywhere on the map for instant scoring
-- **Address Search**: Search for streets, landmarks, or areas (e.g., "Bürgermeister-Smidt-Straße", "Schwachhausen")
-- Instant livability score calculation
-- Detailed breakdown of all 7 factors with visual indicators
+Livability is calculated from **7 spatial factors** (greenery, amenities, transport, healthcare, accidents, industrial areas, roads) using proximity-based analysis. Score range: **0-100**.
 
-##  Scoring System
-
-The livability score is calculated using 7 spatial factors:
-
-| Factor | Type | Weight | Radius | Source |
-|--------|------|--------|--------|--------|
-| 🌳 Greenery | Positive | +25 | 100m | OSM trees, parks |
-| 🏪 Amenities | Positive | +25 | 500m | OSM shops, cafes, schools |
-| 🚍 Public Transport | Positive | +15 | 300m | OSM bus/tram stops |
-| 🏥 Healthcare | Positive | +10 | 500m | OSM hospitals, pharmacies |
-| 🚗 Accidents | Negative | -15 | 150m | Unfallatlas 2024 |
-| 🏭 Industrial Areas | Negative | -15 | 200m | OSM industrial zones |
-| 🛣️ Major Roads | Negative | -10 | 100m | OSM highways |
-
-**Base Score:** 25 points  
-**Total Range:** 0-100
-
-### Data Summary
-
-| Data Type | Count |
-|-----------|-------|
-| Trees | ~26,600 |
-| Parks | ~260 |
-| Amenities | ~1,260 |
-| Public Transport | ~2,500 |
-| Healthcare | ~490 |
-| Industrial Areas | ~390 |
-| Major Roads | ~2,160 |
-| Accidents | ~2,080 |
+> 📖 **Details:** [Scoring Algorithm](TECHNICAL.md#scoring-algorithm) in TECHNICAL.md
 
 ## 🚀 Quick Start
 
@@ -121,138 +85,29 @@ flutter pub get
 flutter run
 ```
 
-## 📡 API Documentation
-
-### Endpoints
+## 📡 API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/` | GET | API info |
-| `/health` | GET | Health check |
 | `/analyze` | POST | Analyze location livability |
-| `/geocode` | POST | Search addresses (OpenStreetMap) |
+| `/geocode` | POST | Search addresses |
+| `/health` | GET | Health check |
 
-### Analyze Location
-
-**Endpoint:** `POST /analyze`
-
-Calculate livability score for a specific coordinate.
-
-```bash
-curl -X POST http://localhost:8000/analyze \
-  -H "Content-Type: application/json" \
-  -d '{"latitude": 53.0793, "longitude": 8.8017}'
-```
-
-**Example Response:**
-```json
-{
-  "score": 59.1,
-  "location": {"latitude": 53.0793, "longitude": 8.8017},
-  "factors": [
-    {"factor": "Greenery", "value": 5.5, "description": "8 trees, 0 parks within 100m", "impact": "positive"},
-    {"factor": "Amenities", "value": 22.7, "description": "78 amenities within 500m", "impact": "positive"},
-    {"factor": "Public Transport", "value": 11.0, "description": "8 stops within 300m", "impact": "positive"},
-    {"factor": "Healthcare", "value": 10.0, "description": "9 facilities within 500m", "impact": "positive"},
-    {"factor": "Traffic Safety", "value": -15.0, "description": "14 accidents within 150m", "impact": "negative"}
-  ],
-  "summary": "Limited greenery. Excellent amenities. Good transit access. Traffic safety concerns"
-}
-```
-
-### Geocode Address
-
-**Endpoint:** `POST /geocode`
-
-Convert an address to geographic coordinates using OpenStreetMap Nominatim.
-
-```bash
-curl -X POST http://localhost:8000/geocode \
-  -H "Content-Type: application/json" \
-  -d '{"query": "Bürgermeister-Smidt-Straße", "limit": 5}'
-```
-
-**Example Response:**
-```json
-{
-  "results": [
-    {
-      "latitude": 53.0810562,
-      "longitude": 8.8049425,
-      "display_name": "Bürgermeister-Smidt-Straße, Bahnhofsvorstadt, Mitte, Bremen, 28195, Deutschland",
-      "type": "secondary"
-    }
-  ],
-  "count": 1
-}
-```
-
-> **Note:** Geocoding uses the free OpenStreetMap Nominatim API with a rate limit of 1 request/second. Queries are automatically prioritized for Bremen, Germany results.
+**Interactive Docs:** [/docs](https://bremen-livability-backend.onrender.com/docs) (Swagger UI)
 
 ## 🏗️ Architecture
 
-- **Backend**: FastAPI (Python) with SQLModel ORM + GeoAlchemy2 for PostGIS
-- **Frontend**: Flutter mobile & web application ("BLI")
-- **Database**: PostgreSQL 15 with PostGIS 3.3
-- **Data Sources**: OpenStreetMap, German Accident Atlas (Unfallatlas)
+**Backend**: FastAPI + PostgreSQL/PostGIS | **Frontend**: Flutter (cross-platform) | **Data**: OpenStreetMap + Unfallatlas
 
-### Project Structure
-
-```
-Project/
-├── backend/
-│   ├── app/                 # Main application code
-│   ├── core/                # Business logic
-│   ├── services/            # External services
-│   ├── scripts/             # Data ingestion & utilities
-│   ├── tests/               # API tests
-│   ├── init_db.sql          # Database schema
-│   └── requirements.txt
-├── frontend/bli/            # Flutter app
-│   ├── lib/                 # Dart source code
-│   ├── test/                # Flutter tests
-│   ├── android/             # Android platform
-│   ├── ios/                 # iOS platform
-│   ├── macos/               # macOS platform
-│   ├── windows/             # Windows platform
-│   ├── linux/               # Linux platform
-│   └── web/                 # Web platform
-├── .github/workflows/       # CI/CD workflows
-├── docker-compose.yml
-├── TECHNICAL.md             # Detailed technical documentation
-└── README.md
-```
-
-> 📖 For in-depth technical details (database schema, scoring algorithm, data pipelines), see [TECHNICAL.md](TECHNICAL.md).
+> 📖 **Details:** [System Architecture](TECHNICAL.md#system-architecture), [Database Design](TECHNICAL.md#database-design), [Backend Implementation](TECHNICAL.md#backend-implementation) in TECHNICAL.md
 
 ## ☁️ Deployment
 
-### Cloud Setup (Free Forever)
+**Cloud Stack (Free Forever)**: [Neon.tech](https://neon.tech) (PostgreSQL) + [Render.com](https://render.com) (Backend & Frontend)
 
-1. **Database**: [Neon.tech](https://neon.tech) (PostgreSQL + PostGIS)
-2. **Backend**: [Render.com](https://render.com) (Python FastAPI Web Service)
-3. **Frontend**: [Render.com](https://render.com) (Static Site)
+Auto-deployment is configured via GitHub Actions and Render webhooks. On push to `master`: backend tests run, containers rebuild, and apps are published to GitHub Releases.
 
-### Deployment Files
-
-| File | Purpose |
-|------|---------|
-| `backend/docker-compose.yml` | **Local Development**: Runs local PostgreSQL/PostGIS database |
-| `backend/Dockerfile` | **Cloud Backend**: Builds the API application container |
-| `backend/render.yaml` | **Backend Config**: Render Web Service + Database connection |
-| `frontend/bli/render.yaml` | **Frontend Config**: Render Static Site (Flutter Web) |
-
-### Automated Deployment
-
-The project uses a complete CI/CD pipeline:
-
-1.  **Backend Deployment**:
-    *   **Render** auto-deploys from `backend/Dockerfile` on push.
-    *   `entrypoint.sh` initializes the DB and ingests data.
-
-2.  **GitHub Actions Pipelines**:
-    *   **Backend CI**: Runs `pytest` on push.
-    *   **App Build & Release**: Runs tests & builds for Android, Windows, Linux, and macOS, then publishes to a single "Latest" release.
+> 📖 **Details:** [Deployment Architecture](TECHNICAL.md#deployment-architecture) in TECHNICAL.md
 
 ## 💻 Flutter Development
 
@@ -281,72 +136,18 @@ The API URL is configured in `lib/services/api_service.dart`.
 1. Open `lib/services/api_service.dart`
 2. Uncomment the localhost line and comment out the Render URL
 
-### Backend Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | `postgresql://postgres:postgres@localhost:5433/bremen_livability` |
-| `PORT` | Server port (Render/Railway) | `8000` |
-| `API_PORT` | Server port (local dev) | `8000` |
-| `CORS_ORIGINS` | Allowed CORS origins (comma-separated or `*`) | `*` |
-| `LOG_LEVEL` | Logging level (DEBUG, INFO, WARNING, ERROR) | `INFO` |
-
-### App Icons
-
-The app icon is generated from `assets/app_icon.png` using `flutter_launcher_icons`.
-
-**To update the icon:**
-```bash
-# Replace assets/app_icon.png, then run:
-dart run flutter_launcher_icons
-```
-
-### Android APK Installation
-
-If you've downloaded the APK from [GitHub Releases](../../releases/tag/latest), follow these steps:
-
-1. **Download the APK** from the [latest release](../../releases/tag/latest)
-2. **Enable installation** on your Android device:
-   - Go to **Settings** → **Security** → Enable **Unknown Sources**
-   - Or on newer Android: **Settings** → **Apps** → **Special Access** → **Install Unknown Apps**
-3. **Install**: Open the downloaded APK file and tap **Install**
-4. **Launch**: Start exploring Bremen's livability!
-
-> The APK is automatically built and updated on every push to the repository via GitHub Actions.
+> 📖 **Details:** [Frontend Implementation](TECHNICAL.md#frontend-implementation) in TECHNICAL.md
 
 
 ## 🧪 Testing
 
-### Backend API Tests
 ```bash
-cd backend
-source venv/bin/activate
-pytest tests/ -v
+# Backend
+cd backend && pytest tests/ -v
+
+# Frontend
+cd frontend/bli && flutter test
 ```
-
-### Flutter Tests
-```bash
-cd frontend/bli
-flutter test              # Run all tests
-flutter test --coverage   # Generate coverage report
-```
-
-**Test Coverage:**
-| File | Tests | Coverage |
-|------|-------|----------|
-| `api_service_test.dart` | 19 | Model parsing, utilities |
-| `score_card_test.dart` | 6 | Widget rendering |
-| `nearby_feature_layers_test.dart` | 8 | Geometry parsing |
-
-### Postman Collection
-
-A Postman collection is included in `backend/Bremen_Livability_Index.postman_collection.json`.
-
-**Features:**
-- **Environment Switching**: Use the `environment_mode` variable to switch between `local` and `deployed`
-  - `deployed`: `https://bremen-livability-backend.onrender.com`
-  - `local`: `http://127.0.0.1:8000`
-- **Pre-configured Requests**: Analyze Location, Geocode Address, Health Check, and more
 
 ## 🔧 Troubleshooting
 
