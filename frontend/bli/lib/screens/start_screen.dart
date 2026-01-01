@@ -75,7 +75,7 @@ class _StartScreenState extends State<StartScreen>
             left: 0,
             right: 0,
             top: 0,
-            bottom: MediaQuery.of(context).size.height * 0.625,
+            bottom: MediaQuery.of(context).size.height * 0.7,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -95,16 +95,15 @@ class _StartScreenState extends State<StartScreen>
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
               ],
             ),
           ),
 
           Center(
             child: Image.asset(
-              'assets/app_icon.png',
-              width: 256,
-              height: 256,
+              'assets/app_icon_no_background.png',
+              width: 128,
+              height: 128,
               fit: BoxFit.contain,
             ),
           ),
@@ -112,7 +111,7 @@ class _StartScreenState extends State<StartScreen>
           Positioned(
             left: 0,
             right: 0,
-            top: MediaQuery.of(context).size.height * 0.65,
+            top: MediaQuery.of(context).size.height * 0.7,
             bottom: 0,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
