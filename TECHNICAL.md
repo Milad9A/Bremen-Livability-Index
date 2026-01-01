@@ -362,6 +362,7 @@ frontend/bli/lib/
 ├── models/
 │   └── livability_score.dart    # Data models
 ├── screens/
+│   ├── start_screen.dart        # Animated start screen
 │   └── map_screen.dart          # Main map view
 ├── services/
 │   └── api_service.dart         # Backend API client
@@ -377,6 +378,30 @@ frontend/bli/lib/
     ├── nearby_feature_layers.dart  # Map markers
     ├── score_card.dart          # Score display
     └── glass_container.dart     # Reusable glass effect widget
+```
+
+### Splash Screen & Start Screen
+
+The app uses a two-stage launch experience:
+
+1. **Native Splash Screen** (`flutter_native_splash` package):
+   - Configured in `pubspec.yaml`
+   - Displays `app_icon.png` centered on teal (`#009688`) background
+   - Platform-native implementation (Android, iOS, Web)
+
+2. **Animated Start Screen** (`screens/start_screen.dart`):
+   - Displays after Flutter engine loads
+   - Icon position matches native splash for seamless transition
+   - Animated elements:
+     - Title slides down from above with fade-in
+     - "Get Started" button fades in
+   - Uses `SingleTickerProviderStateMixin` for efficient animation
+
+```dart
+// Animation timeline
+// 0ms:    Start screen appears (static icon)
+// 250ms:  Text animation begins
+// 1050ms: All animations complete, user can tap "Get Started"
 ```
 
 ### Map Rendering

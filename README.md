@@ -46,6 +46,11 @@ RESTful API for livability analysis and geocoding.
 - OpenStreetMap tiles for detailed geography
 - Real-time marker placement
 
+### 🚀 Splash & Start Screen
+- **Native Splash Screen**: Platform-native splash with app icon on teal background
+- **Animated Start Screen**: Smooth fade-in of title, subtitle, and "Get Started" button
+- **Seamless Transition**: Icon position matches between splash and start screen for fluid UX
+
 ### 📍 Location Analysis
 - **Tap-to-Analyze**: Click anywhere on the map for instant scoring
 - **Address Search**: Search for streets, landmarks, or areas (e.g., "Bürgermeister-Smidt-Straße", "Schwachhausen")
