@@ -102,8 +102,8 @@ class _StartScreenState extends State<StartScreen>
           Center(
             child: Image.asset(
               'assets/app_icon_no_background.png',
-              width: 128,
-              height: 128,
+              width: 136,
+              height: 136,
               fit: BoxFit.contain,
             ),
           ),
