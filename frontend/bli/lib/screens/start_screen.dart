@@ -83,29 +83,15 @@ class _StartScreenState extends State<StartScreen>
                   position: _textSlide,
                   child: FadeTransition(
                     opacity: _textOpacity,
-                    child: Column(
-                      children: [
-                        const Text(
-                          'Bremen Livability Index',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.white,
-                            letterSpacing: 0.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Discover the best places to live',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppColors.white.withValues(alpha: 0.85),
-                            fontWeight: FontWeight.w400,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                    child: const Text(
+                      'Bremen Livability Index',
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.white,
+                        letterSpacing: 0.5,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
