@@ -67,6 +67,7 @@ class _MapScreenContentState extends State<_MapScreenContent> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
+      extendBody: true,
       body: Stack(
         children: [
           FlutterMap(
