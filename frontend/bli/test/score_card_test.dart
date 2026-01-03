@@ -75,11 +75,12 @@ void main() {
         ),
       );
 
-      expect(find.text('Factors:'), findsOneWidget);
+      expect(find.textContaining('Positive Factors'), findsOneWidget);
+      expect(find.textContaining('Negative Factors'), findsOneWidget);
       expect(find.textContaining('Green Spaces'), findsOneWidget);
       expect(find.textContaining('Traffic'), findsOneWidget);
-      expect(find.text('+15.0'), findsOneWidget);
-      expect(find.text('-10.0'), findsOneWidget);
+      expect(find.text('+15.0'), findsWidgets);
+      expect(find.text('-10.0'), findsWidgets);
     });
 
     testWidgets('shows add_circle icon for positive impact', (
@@ -104,7 +105,7 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(Icons.add_circle), findsOneWidget);
+      expect(find.byIcon(Icons.add_circle), findsWidgets);
     });
 
     testWidgets('shows remove_circle icon for negative impact', (
@@ -129,7 +130,7 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(Icons.remove_circle), findsOneWidget);
+      expect(find.byIcon(Icons.remove_circle), findsWidgets);
     });
   });
 
@@ -160,7 +161,7 @@ void main() {
       WidgetTester tester,
     ) async {
       final factor = Factor(
-        factor: 'Noise',
+        factor: 'Noise Sources',
         value: -8.0,
         description: 'Near highway',
         impact: 'negative',
@@ -173,7 +174,7 @@ void main() {
       );
 
       expect(find.text('-8.0'), findsOneWidget);
-      expect(find.byIcon(Icons.remove_circle), findsOneWidget);
+      expect(find.byIcon(Icons.volume_up), findsOneWidget);
     });
   });
 }
