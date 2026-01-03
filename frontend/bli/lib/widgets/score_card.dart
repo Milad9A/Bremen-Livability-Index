@@ -2,13 +2,21 @@ import 'package:bli/services/api_service.dart';
 import 'package:bli/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
-class ScoreCard extends StatelessWidget {
+class ScoreCard extends StatefulWidget {
   final LivabilityScore score;
 
   const ScoreCard({super.key, required this.score});
 
   @override
+  State<ScoreCard> createState() => _ScoreCardState();
+}
+
+class _ScoreCardState extends State<ScoreCard> {
+  bool _isExpanded = true;
+
+  @override
   Widget build(BuildContext context) {
+    final score = widget.score;
     final positiveFactors = score.factors
         .where((f) => f.impact == 'positive')
         .toList();
@@ -28,9 +36,13 @@ class ScoreCard extends StatelessWidget {
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.55,
+          maxHeight: _isExpanded
+              ? MediaQuery.of(context).size.height * 0.55
+              : 80,
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
@@ -56,128 +68,148 @@ class ScoreCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Livability Score',
-                    style: TextStyle(
-                      color: AppColors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '${score.score.toStringAsFixed(1)}/100',
-                    style: const TextStyle(
-                      color: AppColors.white,
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  _ScoreSummaryChip(
-                    icon: Icons.trending_flat,
-                    label: score.baseScore.toStringAsFixed(0),
-                    color: Colors.white.withValues(alpha: 0.15),
-                    tooltip: 'Base Score',
-                  ),
-                  const SizedBox(width: 6),
-                  _ScoreSummaryChip(
-                    icon: Icons.add_circle,
-                    label: '+${positiveTotal.toStringAsFixed(1)}',
-                    color: Colors.white.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(width: 6),
-                  _ScoreSummaryChip(
-                    icon: Icons.remove_circle,
-                    label: '-${negativeTotal.toStringAsFixed(1)}',
-                    color: Colors.black.withValues(alpha: 0.2),
-                  ),
-                  const Spacer(),
-                  Text(
-                    '${score.factors.length} factors',
-                    style: TextStyle(
-                      color: AppColors.white.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                score.summary,
-                style: const TextStyle(
-                  color: AppColors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 12),
-              const Divider(color: Colors.white70, thickness: 1),
-              const SizedBox(height: 8),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (positiveFactors.isNotEmpty) ...[
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.thumb_up,
-                              color: AppColors.white,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Positive Factors (${positiveFactors.length})',
-                              style: const TextStyle(
-                                color: AppColors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+              GestureDetector(
+                onTap: () => setState(() => _isExpanded = !_isExpanded),
+                behavior: HitTestBehavior.opaque,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Livability Score',
+                          style: TextStyle(
+                            color: AppColors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                        const SizedBox(height: 6),
-                        ...positiveFactors.map(
-                          (factor) => ScoreFactorItem(factor: factor),
-                        ),
-                        const SizedBox(height: 12),
-                      ],
-                      if (negativeFactors.isNotEmpty) ...[
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.thumb_down,
-                              color: AppColors.white,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'Negative Factors (${negativeFactors.length})',
-                              style: const TextStyle(
-                                color: AppColors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        ...negativeFactors.map(
-                          (factor) => ScoreFactorItem(factor: factor),
+                        const SizedBox(width: 8),
+                        AnimatedRotation(
+                          turns: _isExpanded ? 0.5 : 0,
+                          duration: const Duration(milliseconds: 300),
+                          child: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: AppColors.white,
+                            size: 24,
+                          ),
                         ),
                       ],
-                    ],
-                  ),
+                    ),
+                    Text(
+                      '${score.score.toStringAsFixed(1)}/100',
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              if (_isExpanded) ...[
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    _ScoreSummaryChip(
+                      icon: Icons.trending_flat,
+                      label: score.baseScore.toStringAsFixed(0),
+                      color: Colors.white.withValues(alpha: 0.15),
+                      tooltip: 'Base Score',
+                    ),
+                    const SizedBox(width: 6),
+                    _ScoreSummaryChip(
+                      icon: Icons.add_circle,
+                      label: '+${positiveTotal.toStringAsFixed(1)}',
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                    const SizedBox(width: 6),
+                    _ScoreSummaryChip(
+                      icon: Icons.remove_circle,
+                      label: '-${negativeTotal.toStringAsFixed(1)}',
+                      color: Colors.black.withValues(alpha: 0.2),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${score.factors.length} factors',
+                      style: TextStyle(
+                        color: AppColors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  score.summary,
+                  style: const TextStyle(
+                    color: AppColors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Divider(color: Colors.white70, thickness: 1),
+                const SizedBox(height: 8),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (positiveFactors.isNotEmpty) ...[
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.thumb_up,
+                                color: AppColors.white,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Positive Factors (${positiveFactors.length})',
+                                style: const TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          ...positiveFactors.map(
+                            (factor) => ScoreFactorItem(factor: factor),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
+                        if (negativeFactors.isNotEmpty) ...[
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.thumb_down,
+                                color: AppColors.white,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Negative Factors (${negativeFactors.length})',
+                                style: const TextStyle(
+                                  color: AppColors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          ...negativeFactors.map(
+                            (factor) => ScoreFactorItem(factor: factor),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -264,6 +296,20 @@ class ScoreFactorItem extends StatelessWidget {
         return Icons.add_road;
       case 'noise sources':
         return Icons.volume_up;
+      case 'railway':
+        return Icons.train;
+      case 'gas station':
+        return Icons.local_gas_station;
+      case 'waste facility':
+        return Icons.delete;
+      case 'power infrastructure':
+        return Icons.electrical_services;
+      case 'large parking':
+        return Icons.local_parking;
+      case 'airport/helipad':
+        return Icons.flight;
+      case 'construction site':
+        return Icons.construction;
       default:
         return factor.impact == 'positive'
             ? Icons.add_circle

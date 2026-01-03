@@ -8,7 +8,7 @@ class TestScoringConstants:
     
     def test_base_score_value(self):
         """Test that base score is set correctly."""
-        assert LivabilityScorer.BASE_SCORE == 55.0
+        assert LivabilityScorer.BASE_SCORE == 40.0
     
     def test_positive_weights_sum(self):
         """Test that positive weights sum to expected total."""
@@ -23,7 +23,7 @@ class TestScoringConstants:
             LivabilityScorer.WEIGHT_PEDESTRIAN_INFRA +
             LivabilityScorer.WEIGHT_CULTURAL
         )
-        assert positive_sum == 75.0
+        assert positive_sum == 60.0
     
     def test_penalty_weights_sum(self):
         """Test that penalty weights sum to expected total (50 points)."""
@@ -40,7 +40,7 @@ class TestScoringConstants:
             LivabilityScorer.PENALTY_AIRPORT +
             LivabilityScorer.PENALTY_CONSTRUCTION
         )
-        assert penalty_sum == 50.0
+        assert penalty_sum == 57.0
 
 
 class TestGreeneryScore:
@@ -55,28 +55,28 @@ class TestGreeneryScore:
         """Test score with only trees."""
         score = LivabilityScorer.calculate_greenery_score(10, 0)
         assert score > 0.0
-        assert score <= 11.0  # Max tree score
+        assert score <= 9.0  # Max tree score
     
     def test_only_parks(self):
         """Test score with only parks."""
         score = LivabilityScorer.calculate_greenery_score(0, 2)
-        assert score == 7.0  # 2 parks * 3.5 points each
+        assert score == 5.0  # 2 parks * 2.5 points each
     
     def test_combined_greenery(self):
         """Test score with both trees and parks."""
         score = LivabilityScorer.calculate_greenery_score(50, 2)
-        assert score > 7.0  # More than just parks
-        assert score <= 18.0  # Max combined
+        assert score > 5.0  # More than just parks
+        assert score <= 14.0  # Max combined
     
     def test_many_trees_caps_at_max(self):
         """Test that many trees cap at maximum tree score."""
         score = LivabilityScorer.calculate_greenery_score(1000, 0)
-        assert score == 11.0  # Max tree score
+        assert score == 9.0  # Max tree score
     
     def test_many_parks_caps_at_max(self):
         """Test that many parks cap at maximum park score."""
         score = LivabilityScorer.calculate_greenery_score(0, 10)
-        assert score == 7.0  # Max park score (min of 7.0)
+        assert score == 5.0  # Max park score (min of 5.0)
 
 
 class TestAmenitiesScore:
@@ -91,7 +91,7 @@ class TestAmenitiesScore:
         """Test score with single amenity."""
         score = LivabilityScorer.calculate_amenities_score(1)
         assert score > 0.0
-        assert score < 12.0
+        assert score < 10.0
     
     def test_multiple_amenities(self):
         """Test score with multiple amenities."""
@@ -101,7 +101,7 @@ class TestAmenitiesScore:
     def test_many_amenities_caps_at_max(self):
         """Test that many amenities cap at maximum."""
         score = LivabilityScorer.calculate_amenities_score(1000)
-        assert score == 12.0
+        assert score == 10.0
 
 
 class TestPublicTransportScore:
@@ -116,7 +116,7 @@ class TestPublicTransportScore:
         """Test score with one stop."""
         score = LivabilityScorer.calculate_public_transport_score(1)
         assert score > 0.0
-        assert score < 10.0
+        assert score < 8.0
     
     def test_multiple_stops(self):
         """Test that more stops give higher scores."""
@@ -127,7 +127,7 @@ class TestPublicTransportScore:
     def test_many_stops_caps_at_max(self):
         """Test that many stops cap at maximum."""
         score = LivabilityScorer.calculate_public_transport_score(100)
-        assert score == 10.0
+        assert score == 8.0
 
 
 class TestHealthcareScore:
@@ -141,12 +141,12 @@ class TestHealthcareScore:
     def test_one_facility(self):
         """Test score with one facility."""
         score = LivabilityScorer.calculate_healthcare_score(1)
-        assert score == 3.75
+        assert score == 2.5
     
     def test_two_facilities_max(self):
-        """Test that two facilities reach max score."""
+        """Test that two facilities give 5.0 score."""
         score = LivabilityScorer.calculate_healthcare_score(2)
-        assert score == 7.0
+        assert score == 5.0
 
 
 class TestBikeInfrastructureScore:
@@ -161,7 +161,7 @@ class TestBikeInfrastructureScore:
         """Test score with some bike infrastructure."""
         score = LivabilityScorer.calculate_bike_infrastructure_score(5)
         assert score > 0.0
-        assert score <= 8.0
+        assert score <= 6.0
 
 
 class TestEducationScore:
@@ -175,12 +175,12 @@ class TestEducationScore:
     def test_one_school(self):
         """Test score with one school."""
         score = LivabilityScorer.calculate_education_score(1)
-        assert score == 3.0
+        assert score == 1.5
     
-    def test_two_schools_max(self):
-        """Test that two schools reach max score."""
+    def test_two_schools(self):
+        """Test score with two schools."""
         score = LivabilityScorer.calculate_education_score(2)
-        assert score == 6.0
+        assert score == 3.0
 
 
 class TestSportsLeisureScore:
@@ -195,7 +195,7 @@ class TestSportsLeisureScore:
         """Test score with some sports facilities."""
         score = LivabilityScorer.calculate_sports_leisure_score(3)
         assert score > 0.0
-        assert score <= 5.0
+        assert score <= 4.0
 
 
 class TestPedestrianInfraScore:
@@ -210,7 +210,7 @@ class TestPedestrianInfraScore:
         """Test score with some pedestrian infrastructure."""
         score = LivabilityScorer.calculate_pedestrian_infra_score(5)
         assert score > 0.0
-        assert score <= 4.0
+        assert score <= 3.0
 
 
 class TestCulturalScore:
@@ -243,12 +243,12 @@ class TestAccidentPenalty:
     def test_one_accident(self):
         """Test penalty with one accident."""
         penalty = LivabilityScorer.calculate_accident_penalty(1)
-        assert penalty == 1.75
+        assert penalty == 2.0
     
     def test_many_accidents_caps(self):
         """Test that penalty caps at maximum."""
         penalty = LivabilityScorer.calculate_accident_penalty(10)
-        assert penalty == 7.0
+        assert penalty == 8.0
 
 
 class TestIndustrialPenalty:
@@ -262,7 +262,7 @@ class TestIndustrialPenalty:
     def test_near_industrial(self):
         """Test penalty when near industrial area."""
         penalty = LivabilityScorer.calculate_industrial_penalty(True)
-        assert penalty == 8.0
+        assert penalty == 10.0
 
 
 class TestMajorRoadsPenalty:
@@ -276,7 +276,7 @@ class TestMajorRoadsPenalty:
     def test_near_major_road(self):
         """Test penalty when near major road."""
         penalty = LivabilityScorer.calculate_major_roads_penalty(True)
-        assert penalty == 5.0
+        assert penalty == 6.0
 
 
 class TestNoisePenalty:
@@ -290,12 +290,12 @@ class TestNoisePenalty:
     def test_some_noise(self):
         """Test penalty with some noise sources."""
         penalty = LivabilityScorer.calculate_noise_penalty(2)
-        assert penalty == 3.5
+        assert penalty == 4.0
     
     def test_many_noise_caps(self):
         """Test that penalty caps at maximum."""
         penalty = LivabilityScorer.calculate_noise_penalty(10)
-        assert penalty == 5.0
+        assert penalty == 6.0
 
 
 class TestRailwayPenalty:
@@ -309,7 +309,7 @@ class TestRailwayPenalty:
     def test_near_railway(self):
         """Test penalty when near railway."""
         penalty = LivabilityScorer.calculate_railway_penalty(True)
-        assert penalty == 4.0
+        assert penalty == 5.0
 
 
 class TestGasStationPenalty:
@@ -379,7 +379,7 @@ class TestAirportPenalty:
     def test_near_airport(self):
         """Test penalty when near airport."""
         penalty = LivabilityScorer.calculate_airport_penalty(True)
-        assert penalty == 6.0
+        assert penalty == 7.0
 
 
 class TestConstructionPenalty:
@@ -420,7 +420,7 @@ class TestCalculateScore:
             amenity_count=0,
             accident_count=0
         )
-        assert result["base_score"] == 55.0
+        assert result["base_score"] == 40.0
     
     def test_empty_location_gets_base_score(self):
         """Test that a location with nothing gets base score."""
@@ -430,7 +430,7 @@ class TestCalculateScore:
             amenity_count=0,
             accident_count=0
         )
-        assert result["score"] == 55.0
+        assert result["score"] == 40.0
     
     def test_good_location_high_score(self):
         """Test that a location with many positive features scores high."""
@@ -450,7 +450,7 @@ class TestCalculateScore:
             cultural_count=2,
             noise_count=0
         )
-        assert result["score"] > 90.0
+        assert result["score"] > 75.0
     
     def test_bad_location_low_score(self):
         """Test that a location with penalties scores low."""

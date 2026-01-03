@@ -209,6 +209,13 @@ class NearbyFeatureLayers extends StatelessWidget {
         }
         return Icons.directions_bus;
       case 'healthcare':
+        if (subtype != null) {
+          if (subtype.contains('hospital')) return Icons.local_hospital;
+          if (subtype.contains('pharmacy')) return Icons.local_pharmacy;
+          if (subtype.contains('doctors') || subtype.contains('clinic')) {
+            return Icons.medical_services;
+          }
+        }
         return Icons.local_hospital;
       case 'accidents':
       case 'accident':
@@ -252,21 +259,24 @@ class NearbyFeatureLayers extends StatelessWidget {
       case 'cultural_venues':
       case 'cultural_venue':
         if (subtype != null) {
-          if (subtype.contains('museum') || subtype.contains('gallery')) {
-            return Icons.museum;
-          }
+          if (subtype.contains('museum')) return Icons.museum;
+          if (subtype.contains('gallery')) return Icons.museum;
           if (subtype.contains('theatre')) return Icons.theater_comedy;
           if (subtype.contains('cinema')) return Icons.movie;
+          if (subtype.contains('artwork')) return Icons.brush;
+          if (subtype.contains('arts_centre')) return Icons.palette;
+          if (subtype.contains('community_centre')) return Icons.groups;
         }
-        return Icons.palette;
+        return Icons.location_city;
       case 'noise_sources':
       case 'noise_source':
         if (subtype != null) {
-          if (subtype.contains('nightclub') ||
-              subtype.contains('bar') ||
-              subtype.contains('pub')) {
-            return Icons.nightlife;
+          if (subtype.contains('nightclub')) return Icons.nightlife;
+          if (subtype.contains('bar') || subtype.contains('pub')) {
+            return Icons.local_bar;
           }
+          if (subtype.contains('fast_food')) return Icons.fastfood;
+          if (subtype.contains('car_repair')) return Icons.car_repair;
         }
         return Icons.volume_up;
       default:
