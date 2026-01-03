@@ -287,6 +287,7 @@ async def analyze_location(
         
         return LivabilityScoreResponse(
             score=result["score"],
+            base_score=result["base_score"],
             location={"latitude": lat, "longitude": lon},
             factors=result["factors"],
             nearby_features=nearby_features,

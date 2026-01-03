@@ -4,8 +4,9 @@
   # Bremen Livability Index (BLI)
 </div>
 
-[![Backend CI](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-ci.yml)
+[![Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/tests.yml)
 [![Build and Release Apps](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/build-release.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/build-release.yml)
+[![codecov](https://codecov.io/gh/Milad9A/Bremen-Livability-Index/graph/badge.svg)](https://codecov.io/gh/Milad9A/Bremen-Livability-Index)
 
 A comprehensive geospatial platform featuring a **Flutter mobile & web application** and a **Python FastAPI backend**. It calculates Quality of Life scores for any location in Bremen, Germany, in real-time.
 
@@ -109,7 +110,7 @@ flutter run
 
 **Cloud Stack (Free Forever)**: [Neon.tech](https://neon.tech) (PostgreSQL) + [Render.com](https://render.com) (Backend & Frontend)
 
-Auto-deployment is configured via GitHub Actions and Render webhooks. On push to `master`: backend tests run, containers rebuild, and apps are published to GitHub Releases.
+Auto-deployment is configured via GitHub Actions and Render webhooks. On push to `master`: tests run (backend + frontend), containers rebuild, and apps are published to GitHub Releases only after all tests pass.
 
 > 📖 **Details:** [Deployment Architecture](TECHNICAL.md#deployment-architecture) in TECHNICAL.md
 
@@ -145,13 +146,36 @@ The API URL is configured in `lib/services/api_service.dart`.
 
 ## 🧪 Testing
 
-```bash
-# Backend
-cd backend && pytest tests/ -v
+### Run Tests
 
-# Frontend
-cd frontend/bli && flutter test
+```bash
+# Backend (Python)
+cd backend
+source venv/bin/activate
+pytest tests/ -v
+
+# Backend with coverage
+pytest tests/ --cov --cov-report=html
+open htmlcov/index.html
+
+# Frontend (Flutter)
+cd frontend/bli
+flutter test
+
+# Frontend with coverage
+flutter test --coverage
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
 ```
+
+### Test Coverage
+
+| Component | Tests | Coverage |
+|-----------|-------|----------|
+| **Backend** | 11 | ~93% |
+| **Frontend** | 70 | ~52% |
+
+Coverage reports are automatically uploaded to [Codecov](https://codecov.io/gh/Milad9A/Bremen-Livability-Index) on every push.
 
 ## � Data Sources & Resources
 

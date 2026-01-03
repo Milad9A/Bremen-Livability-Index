@@ -82,7 +82,7 @@ class ScoreCard extends StatelessWidget {
                 children: [
                   _ScoreSummaryChip(
                     icon: Icons.trending_flat,
-                    label: '${score.baseScore.toStringAsFixed(0)}',
+                    label: score.baseScore.toStringAsFixed(0),
                     color: Colors.white.withValues(alpha: 0.15),
                     tooltip: 'Base Score',
                   ),

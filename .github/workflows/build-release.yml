@@ -1,13 +1,13 @@
 name: Build and Release Apps
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Tests"]
+    types:
+      - completed
     branches:
       - master
       - main
-    paths:
-      - 'frontend/bli/**'
-      - '.github/workflows/build-release.yml'
   workflow_dispatch:
 
 permissions:
@@ -15,9 +15,21 @@ permissions:
 
 jobs:
   # -----------------------------------------------------------------
+  # Check if tests passed
+  # -----------------------------------------------------------------
+  check-tests:
+    name: Verify Tests Passed
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Tests passed
+        run: echo "Tests passed, proceeding with build..."
+
+  # -----------------------------------------------------------------
   # Android Build Job
   # -----------------------------------------------------------------
   build-android:
+    needs: check-tests
     name: Build Android
     runs-on: ubuntu-latest
     steps:
@@ -39,10 +51,6 @@ jobs:
         working-directory: frontend/bli
         run: flutter pub get
       
-      - name: Run Tests
-        working-directory: frontend/bli
-        run: flutter test
-      
       - name: Build APK
         working-directory: frontend/bli
         run: flutter build apk --release
@@ -63,6 +71,7 @@ jobs:
   # -----------------------------------------------------------------
   build-windows:
     name: Build Windows
+    needs: check-tests
     runs-on: windows-latest
     steps:
       - name: Checkout code
@@ -76,10 +85,6 @@ jobs:
       - name: Install dependencies
         working-directory: frontend/bli
         run: flutter pub get
-      
-      - name: Run Tests
-        working-directory: frontend/bli
-        run: flutter test
       
       - name: Build Windows
         working-directory: frontend/bli
@@ -100,6 +105,7 @@ jobs:
   # -----------------------------------------------------------------
   build-linux:
     name: Build Linux
+    needs: check-tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -118,10 +124,6 @@ jobs:
       - name: Install dependencies
         working-directory: frontend/bli
         run: flutter pub get
-      
-      - name: Run Tests
-        working-directory: frontend/bli
-        run: flutter test
       
       - name: Build Linux
         working-directory: frontend/bli
@@ -142,6 +144,7 @@ jobs:
   # -----------------------------------------------------------------
   build-macos:
     name: Build macOS
+    needs: check-tests
     runs-on: macos-latest
     steps:
       - name: Checkout code
@@ -155,10 +158,6 @@ jobs:
       - name: Install dependencies
         working-directory: frontend/bli
         run: flutter pub get
-      
-      - name: Run Tests
-        working-directory: frontend/bli
-        run: flutter test
       
       - name: Build macOS
         working-directory: frontend/bli

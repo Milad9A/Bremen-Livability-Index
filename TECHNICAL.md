@@ -584,15 +584,37 @@ source venv/bin/activate
 pytest tests/ -v
 ```
 
+**Run with coverage:**
+```bash
+pytest tests/ --cov --cov-report=html --cov-report=term
+```
+
+Coverage configuration is in `backend/pyproject.toml`:
+- **Source directories:** `app/`, `core/`, `services/`
+- **Minimum threshold:** 50%
+- **HTML report:** `backend/htmlcov/`
+
+| Module | Coverage |
+|--------|----------|
+| `app/models.py` | 100% |
+| `app/db_models.py` | 100% |
+| `core/scoring.py` | ~93% |
+| `services/geocode.py` | ~90% |
+| `app/main.py` | ~89% |
+| **Overall** | **~93%** |
+
 ### Flutter Tests
 
 Located in `frontend/bli/test/`:
 
 ```
 test/
-├── api_service_test.dart        # Unit tests for models
-├── score_card_test.dart         # Widget tests
-└── nearby_feature_layers_test.dart  # Geometry parsing tests
+├── api_service_test.dart           # API and model unit tests
+├── score_card_test.dart            # ScoreCard widget tests
+├── nearby_feature_layers_test.dart # Geometry parsing tests
+├── widget_test.dart                # Basic widget tests
+├── map_viewmodel_test.dart         # ViewModel unit tests
+└── map_screen_test.dart            # MapScreen widget tests
 ```
 
 **Run tests:**
@@ -600,6 +622,33 @@ test/
 cd frontend/bli
 flutter test
 ```
+
+**Run with coverage:**
+```bash
+flutter test --coverage
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
+```
+
+| Module | Coverage |
+|--------|----------|
+| `widgets/score_card.dart` | 100% |
+| `models/location_marker.dart` | 100% |
+| `screens/map_screen.dart` | ~69% |
+| `services/api_service.dart` | ~69% |
+| `viewmodels/map_viewmodel.dart` | ~36% |
+| **Overall** | **~52%** |
+
+### CI/CD Coverage
+
+Test coverage is automatically collected on every push via GitHub Actions and uploaded to [Codecov](https://codecov.io/gh/Milad9A/Bremen-Livability-Index).
+
+The unified test workflow (`.github/workflows/tests.yml`) runs:
+1. **Backend tests** with `pytest-cov` → uploads `coverage.xml`
+2. **Frontend tests** with `flutter test --coverage` → uploads `lcov.info`
+
+Build releases only proceed if all tests pass (via `workflow_run` trigger in `build-release.yml`).
+
 ---
 
 ## Deployment Architecture
@@ -645,10 +694,10 @@ flutter test
 ### Auto-Deployment Flow
 
 1. **Push to `master`** triggers:
-   - GitHub Actions runs backend tests (`backend-ci.yml`)
+   - GitHub Actions runs unified tests (`tests.yml`) for both backend and frontend
    - Render rebuilds backend from `Dockerfile`
    - Render rebuilds frontend static site
-   - GitHub Actions runs Flutter tests, then builds all apps (Android, Windows, Linux, macOS) in `build-release.yml`
+   - After tests pass, GitHub Actions builds all apps (Android, Windows, Linux, macOS) in `build-release.yml`
 
 2. **First Deploy**: `entrypoint.sh` runs:
    ```bash
