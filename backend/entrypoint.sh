@@ -7,18 +7,60 @@ echo "🚀 Starting Deployment Setup..."
 echo "Initializing Database Schema..."
 python -m scripts.initialize_db
 
-# 2. Check if trees table is empty
-# If empty, run ingestion. If populated, skip to save time.
-# This prevents re-ingesting 30k trees on every deploy.
-ROW_COUNT=$(python -c "import psycopg2, os; conn = psycopg2.connect(os.environ['DATABASE_URL']); cur = conn.cursor(); cur.execute('SELECT count(*) FROM gis_data.trees'); print(cur.fetchone()[0])")
+# 2. Check if any required tables are empty
+# If any are empty, run full ingestion. Otherwise skip to save time.
+NEEDS_INGEST=$(python - <<'PYCODE'
+import os, psycopg2
 
-echo "Found $ROW_COUNT trees in database."
+tables = [
+    "gis_data.trees",
+    "gis_data.parks",
+    "gis_data.amenities",
+    "gis_data.public_transport",
+    "gis_data.healthcare",
+    "gis_data.industrial_areas",
+    "gis_data.major_roads",
+    "gis_data.bike_infrastructure",
+    "gis_data.education",
+    "gis_data.sports_leisure",
+    "gis_data.pedestrian_infra",
+    "gis_data.cultural_venues",
+    "gis_data.noise_sources",
+    "gis_data.accidents",
+    "gis_data.railways",
+    "gis_data.gas_stations",
+    "gis_data.waste_facilities",
+    "gis_data.power_infrastructure",
+    "gis_data.parking_lots",
+    "gis_data.airports",
+    "gis_data.construction_sites",
+]
 
-if [ "$ROW_COUNT" -eq "0" ]; then
-    echo "📦 Database tables empty. Running full data ingestion..."
+conn = psycopg2.connect(os.environ["DATABASE_URL"])
+cur = conn.cursor()
+empty_tables = []
+for tbl in tables:
+    cur.execute(f"SELECT count(*) FROM {tbl}")
+    count = cur.fetchone()[0]
+    if count == 0:
+        empty_tables.append(tbl)
+
+conn.close()
+
+if empty_tables:
+    print("yes")
+    print(", ".join(empty_tables))
+else:
+    print("no")
+PYCODE
+)
+
+if [ "$(echo "$NEEDS_INGEST" | head -n1)" = "yes" ]; then
+    echo "📦 Detected empty tables: $(echo "$NEEDS_INGEST" | tail -n1)"
+    echo "Running full data ingestion..."
     python -m scripts.ingest_all_data
 else
-    echo "✅ Database populated. Skipping heavy ingestion."
+    echo "✅ All required tables have data. Skipping heavy ingestion."
     echo "   (To force re-ingest, run 'python -m scripts.ingest_all_data' in Shell)"
 fi
 

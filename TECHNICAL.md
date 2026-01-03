@@ -742,11 +742,16 @@ Render deployments only proceed after relevant CI checks pass.
    # 1. Initialize database schema (safe to run repeatedly - uses IF NOT EXISTS)
    python -m scripts.initialize_db
    
-   # 2. Check if data already exists (avoids re-ingesting 150k+ records)
-   if trees table is empty:
-       python -m scripts.ingest_all_data  # Full OSM + Unfallatlas ingestion
+   # 2. Check if any required tables are empty (avoids re-ingesting 150k+ records)
+   if ANY of these tables are empty:
+     gis_data.trees, parks, amenities, public_transport, healthcare,
+     industrial_areas, major_roads, bike_infrastructure, education,
+     sports_leisure, pedestrian_infra, cultural_venues, noise_sources,
+     accidents, railways, gas_stations, waste_facilities,
+     power_infrastructure, parking_lots, airports, construction_sites
+     → run python -m scripts.ingest_all_data (full OSM + Unfallatlas ingestion)
    else:
-       skip ingestion  # Data persists in Neon.tech across deploys
+     skip ingestion (data persists in Neon.tech across deploys)
    
    # 3. Start server
    uvicorn app.main:app --host 0.0.0.0 --port $PORT
@@ -754,7 +759,7 @@ Render deployments only proceed after relevant CI checks pass.
    
    **Key Points:**
    - Database schema is idempotent (`CREATE TABLE IF NOT EXISTS`)
-   - Data ingestion only runs on first deploy or after database reset
+   - Data ingestion only runs on first deploy, after database reset, or when any required table is empty
    - Neon.tech database persists data across Render deploys
    - Subsequent deploys take ~10 seconds (schema check + server start)
 
