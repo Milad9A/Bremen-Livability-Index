@@ -652,11 +652,17 @@ open coverage/html/index.html
 
 Test coverage is automatically collected on every push via GitHub Actions and uploaded to [Codecov](https://codecov.io/gh/Milad9A/Bremen-Livability-Index).
 
-The unified test workflow (`.github/workflows/tests.yml`) runs:
+**Workflow files:**
+- `.github/workflows/backend-tests.yml` - Runs on `backend/**` changes
+- `.github/workflows/frontend-tests.yml` - Runs on `frontend/**` changes
+- `.github/workflows/build-release.yml` - Builds apps after Frontend Tests pass
+
+**Coverage collection:**
 1. **Backend tests** with `pytest-cov` → uploads `coverage.xml`
 2. **Frontend tests** with `flutter test --coverage` → uploads `lcov.info`
 
-Build releases only proceed if all tests pass (via `workflow_run` trigger in `build-release.yml`).
+Build releases only proceed if Frontend Tests pass (via `workflow_run` trigger in `build-release.yml`).
+Render deployments only proceed after relevant CI checks pass.
 
 ---
 
@@ -702,13 +708,22 @@ Build releases only proceed if all tests pass (via `workflow_run` trigger in `bu
 
 ### Auto-Deployment Flow
 
-1. **Push to `master`** triggers:
-   - GitHub Actions runs unified tests (`tests.yml`) for both backend and frontend
-   - Render rebuilds backend from `Dockerfile`
-   - Render rebuilds frontend static site
-   - After tests pass, GitHub Actions builds all apps (Android, Windows, Linux, macOS) in `build-release.yml`
+1. **Push to `master`** triggers path-filtered workflows:
+   - **Backend changes** (`backend/**`): Runs `backend-tests.yml`
+   - **Frontend changes** (`frontend/**`): Runs `frontend-tests.yml`
+   - Skipped workflows count as "passed" for Render
 
-2. **First Deploy**: `entrypoint.sh` runs:
+2. **Render deploys after CI checks pass:**
+   - Both services configured with "After CI Checks Pass"
+   - Backend deploys only after Backend Tests ✅
+   - Frontend deploys only after Frontend Tests ✅
+
+3. **Build and Release** (frontend changes only):
+   - Triggered by `workflow_run` after Frontend Tests pass
+   - Builds Android, Windows, Linux, macOS apps
+   - Creates GitHub Release with all artifacts
+
+4. **First Deploy**: `entrypoint.sh` runs:
    ```bash
    # Initialize database schema
    psql $DATABASE_URL -f init_db.sql

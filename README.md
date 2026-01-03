@@ -111,7 +111,11 @@ flutter run
 
 **Cloud Stack (Free Forever)**: [Neon.tech](https://neon.tech) (PostgreSQL) + [Render.com](https://render.com) (Backend & Frontend)
 
-Auto-deployment is configured via GitHub Actions and Render webhooks. On push to `master`: tests run (backend + frontend), containers rebuild, and apps are published to GitHub Releases only after all tests pass.
+**CI/CD Pipeline:**
+- **Backend changes** → Backend Tests run → Render deploys backend after tests pass
+- **Frontend changes** → Frontend Tests run → Render deploys frontend after tests pass → Build workflow creates app releases
+
+Render is configured with "After CI Checks Pass" to ensure only tested code reaches production.
 
 > 📖 **Details:** [Deployment Architecture](TECHNICAL.md#deployment-architecture) in TECHNICAL.md
 
