@@ -83,7 +83,8 @@ class TestAnalyzeEndpoint:
         # Check core feature categories exist (always present)
         core_categories = ["trees", "parks", "amenities", "accidents", 
                           "public_transport", "healthcare", "bike_infrastructure",
-                          "education", "sports_leisure", "cultural_venues"]
+                          "education", "sports_leisure", "pedestrian_infrastructure",
+                          "cultural_venues"]
         for category in core_categories:
             assert category in data["nearby_features"]
     

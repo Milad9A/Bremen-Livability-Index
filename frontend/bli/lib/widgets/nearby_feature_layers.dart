@@ -136,9 +136,8 @@ class NearbyFeatureLayers extends StatelessWidget {
         return Colors.purple;
       case 'sports_leisure':
         return Colors.amber;
-      case 'water_bodies':
-      case 'water_body':
-        return Colors.blueAccent;
+      case 'pedestrian_infrastructure':
+        return Colors.lime;
       case 'cultural_venues':
       case 'cultural_venue':
         return Colors.pink;
@@ -241,9 +240,15 @@ class NearbyFeatureLayers extends StatelessWidget {
           if (subtype.contains('fitness')) return Icons.fitness_center;
         }
         return Icons.sports_soccer;
-      case 'water_bodies':
-      case 'water_body':
-        return Icons.water;
+      case 'pedestrian_infrastructure':
+        if (subtype != null) {
+          if (subtype.contains('crossing')) {
+            return Icons.transfer_within_a_station;
+          }
+          if (subtype.contains('pedestrian')) return Icons.directions_walk;
+          if (subtype.contains('footway')) return Icons.hiking;
+        }
+        return Icons.accessibility_new;
       case 'cultural_venues':
       case 'cultural_venue':
         if (subtype != null) {

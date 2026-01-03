@@ -18,7 +18,7 @@ void main() {
     // bike_infrastructure -> Colors.cyan
     // education -> Colors.purple
     // sports_leisure -> Colors.amber
-    // water_bodies -> Colors.blueAccent
+    // pedestrian_infrastructure -> Colors.lime
     // cultural_venues -> Colors.pink
     //
     // Negative factors:
@@ -216,22 +216,18 @@ void main() {
       expect(feature.subtype, 'swimming_pool');
     });
 
-    test('water_body with river subtype', () {
+    test('pedestrian_infrastructure with crossing subtype', () {
       final feature = FeatureDetail(
-        type: 'water_body',
-        subtype: 'river',
-        distance: 150.0,
+        type: 'pedestrian_infrastructure',
+        subtype: 'crossing',
+        distance: 50.0,
         geometry: {
-          'type': 'LineString',
-          'coordinates': [
-            [8.80, 53.07],
-            [8.81, 53.08],
-            [8.82, 53.09],
-          ],
+          'type': 'Point',
+          'coordinates': [8.80, 53.07],
         },
       );
 
-      expect(feature.subtype, 'river');
+      expect(feature.subtype, 'crossing');
     });
 
     test('cultural_venue with museum subtype', () {

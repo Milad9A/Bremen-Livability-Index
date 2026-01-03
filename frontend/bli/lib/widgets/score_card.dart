@@ -238,8 +238,8 @@ class ScoreFactorItem extends StatelessWidget {
         return Icons.school;
       case 'sports & leisure':
         return Icons.sports_soccer;
-      case 'water bodies':
-        return Icons.water;
+      case 'pedestrian infrastructure':
+        return Icons.accessibility_new;
       case 'cultural venues':
         return Icons.palette;
       case 'traffic safety':

@@ -49,7 +49,7 @@ RESTful API for livability analysis and geocoding.
 
 Livability is calculated from **13 spatial factors** using proximity-based analysis. Score range: **0-100**.
 
-**Positive Factors:** Greenery (trees & parks), Amenities, Public Transport, Healthcare, Bike Infrastructure, Education, Sports & Leisure, Water Bodies, Cultural Venues
+**Positive Factors:** Greenery (trees & parks), Amenities, Public Transport, Healthcare, Bike Infrastructure, Education, Sports & Leisure, Pedestrian Infrastructure, Cultural Venues
 
 **Negative Factors:** Traffic Accidents, Industrial Areas, Major Roads, Noise Sources
 
@@ -153,6 +153,25 @@ cd backend && pytest tests/ -v
 cd frontend/bli && flutter test
 ```
 
+## � Data Sources & Resources
+
+### Primary Data Sources
+
+| Source | Description | License |
+|--------|-------------|---------|
+| [OpenStreetMap](https://www.openstreetmap.org) | Trees, parks, amenities, transport, healthcare, cycling, pedestrian infrastructure, education, sports, cultural venues | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) |
+| [Unfallatlas](https://unfallatlas.statistikportal.de) | German traffic accident data (2019-2023) | [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0) |
+
+### Useful Tools
+
+| Tool | URL | Purpose |
+|------|-----|---------|
+| Overpass Turbo | [overpass-turbo.eu](https://overpass-turbo.eu) | Test OSM queries interactively |
+| TagInfo | [taginfo.openstreetmap.org](https://taginfo.openstreetmap.org) | Explore OSM tag usage statistics |
+| Geoportal Bremen | [geoportal.bremen.de](https://www.geoportal.bremen.de) | Official Bremen geodata |
+
+> 📖 **Full Details:** [External Resources & References](TECHNICAL.md#external-resources--references) in TECHNICAL.md
+
 ## 🔧 Troubleshooting
 
 | Issue | Solution |
@@ -164,9 +183,11 @@ cd frontend/bli && flutter test
 
 ## 📄 License
 
-University project for educational purposes.
+University project for educational purposes.  
+OpenStreetMap data: [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) | Unfallatlas data: [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0)
 
 ## 🙏 Acknowledgments
 
-- OpenStreetMap contributors
-- German Accident Atlas (Statistisches Bundesamt)
+- [OpenStreetMap](https://www.openstreetmap.org) contributors
+- [German Accident Atlas](https://unfallatlas.statistikportal.de) (Statistisches Bundesamt)
+- [Overpass API](https://overpass-api.de) maintainers

@@ -60,7 +60,7 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 │  gis_data.amenities             │  gis_data.industrial_areas    │
 │  gis_data.accidents             │  gis_data.major_roads         │
 │  gis_data.bike_infrastructure   │  gis_data.education           │
-│  gis_data.sports_leisure        │  gis_data.water_bodies        │
+│  gis_data.sports_leisure        │  gis_data.pedestrian_infra    │
 │  gis_data.cultural_venues       │  gis_data.noise_sources       │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -114,12 +114,12 @@ All spatial tables are stored in the `gis_data` schema with the following design
 └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
 
 ┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
-│     education       │     │   sports_leisure    │     │    water_bodies     │
+│     education       │     │   sports_leisure    │     │ pedestrian_infra    │
 ├─────────────────────┤     ├─────────────────────┤     ├─────────────────────┤
 │ id: SERIAL PK       │     │ id: SERIAL PK       │     │ id: SERIAL PK       │
 │ osm_id: BIGINT      │     │ osm_id: BIGINT      │     │ osm_id: BIGINT      │
 │ name: TEXT          │     │ name: TEXT          │     │ name: TEXT          │
-│ education_type: TEXT│     │ leisure_type: TEXT  │     │ water_type: TEXT    │
+│ education_type: TEXT│     │ leisure_type: TEXT  │     │ infra_type: TEXT    │
 │ geometry: POINT     │     │ geometry: POINT     │     │ geometry: GEOMETRY  │
 │ created_at: TS      │     │ created_at: TS      │     │ created_at: TS      │
 └─────────────────────┘     └─────────────────────┘     └─────────────────────┘
@@ -259,21 +259,52 @@ async def analyze_location(
 
 ## Data Ingestion Pipeline
 
-### Data Sources
+### Data Sources Overview
 
-| Source | Type | Data |
-|--------|------|------|
-| **OpenStreetMap** | Overpass API | Trees, parks, amenities, transport, healthcare, industrial, roads, bike infrastructure, education, sports/leisure, water bodies, cultural venues, noise sources |
-| **Unfallatlas** | CSV Download | Traffic accidents |
+| Source | Type | License | Data Categories |
+|--------|------|---------|-----------------|
+| **OpenStreetMap** | Overpass API | ODbL 1.0 | 12 feature categories (see below) |
+| **Unfallatlas** | CSV Download | dl-de/by-2-0 | Traffic accidents (2019-2023) |
+
+### OpenStreetMap Data Categories
+
+The following table details all OSM features collected, their tags, and typical counts for Bremen:
+
+| Category | OSM Tags | Description | Typical Count |
+|----------|----------|-------------|---------------|
+| **Trees** | `natural=tree` | Individual street and park trees | ~45,000 |
+| **Parks** | `leisure=park` | Public parks and green spaces | ~300 |
+| **Amenities** | `amenity=supermarket\|cafe\|restaurant\|bank\|post_office\|bakery\|butcher` | Daily-use facilities | ~2,000 |
+| **Public Transport** | `highway=bus_stop`, `railway=tram_stop` | Bus and tram stops | ~1,200 |
+| **Healthcare** | `amenity=hospital\|pharmacy\|doctors\|clinic` | Medical facilities | ~400 |
+| **Industrial Areas** | `landuse=industrial` | Industrial zones (polygons) | ~150 |
+| **Major Roads** | `highway=motorway\|trunk\|primary` | High-traffic roads | ~200 |
+| **Bike Infrastructure** | `highway=cycleway`, `cycleway=*`, `amenity=bicycle_parking\|bicycle_rental` | Cycling facilities | ~3,000 |
+| **Education** | `amenity=school\|university\|college\|kindergarten\|library` | Educational institutions | ~350 |
+| **Sports & Leisure** | `leisure=sports_centre\|swimming_pool\|playground\|pitch\|fitness_centre` | Recreational facilities | ~600 |
+| **Pedestrian Infrastructure** | `highway=crossing\|pedestrian\|footway`, `crossing=*` | Crosswalks, pedestrian streets | ~8,000 |
+| **Cultural Venues** | `tourism=museum\|gallery`, `amenity=theatre\|cinema\|arts_centre\|community_centre` | Cultural facilities | ~100 |
+| **Noise Sources** | `amenity=nightclub\|bar\|pub\|fast_food\|car_repair` | Potential noise generators | ~200 |
+
+### Bremen Bounding Box
+
+All spatial queries are constrained to Bremen's administrative boundaries:
+
+```python
+BREMEN_BBOX = {
+    "south": 53.0,   # Minimum latitude
+    "west": 8.5,     # Minimum longitude  
+    "north": 53.2,   # Maximum latitude
+    "east": 9.0      # Maximum longitude
+}
+# Area: ~420 km² covering Bremen and Bremerhaven
+```
 
 ### OpenStreetMap Ingestion
 
 Uses the Overpass API to query OSM data within Bremen's bounding box:
 
 ```python
-# Bremen bounding box
-BREMEN_BBOX = {"south": 53.0, "west": 8.5, "north": 53.2, "east": 9.0}
-
 # Example Overpass query for trees
 query = f"""
 [out:json][timeout:60];
@@ -284,7 +315,7 @@ out center;
 """
 ```
 
-**Retry Logic**: The Overpass API has rate limits, so the ingestion script includes exponential backoff:
+**Rate Limiting & Retry Logic**: The Overpass API has rate limits (max 2 requests/sec, 10,000 elements/request), so the ingestion script includes exponential backoff:
 
 ```python
 def query_with_retry(api, query, max_retries=5):
@@ -295,6 +326,11 @@ def query_with_retry(api, query, max_retries=5):
             wait_time = (2 ** attempt) + random.uniform(0, 1)
             time.sleep(wait_time)
 ```
+
+**Geometry Handling**:
+- **Points**: Trees, amenities, transport stops → stored as `GEOGRAPHY(POINT, 4326)`
+- **Lines**: Roads, cycleways, footways → stored as `GEOGRAPHY(LINESTRING, 4326)`
+- **Polygons**: Parks, industrial areas → stored as `GEOGRAPHY(POLYGON, 4326)`
 
 ### Unfallatlas Ingestion
 
@@ -320,27 +356,57 @@ elif category == 3: severity = "minor"
 
 ```
 Final Score = BASE_SCORE + Positive_Factors - Negative_Factors
-            = 15 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Water + Cultural)
+            = 25 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
                  - (Accidents + Industrial + Roads + Noise)
+
+Theoretical Range: 25 + 75 - 30 = [0, 100]
 ```
 
 ### Factor Weights & Radii
 
 | Factor | Type | Max Points | Radius | Calculation |
 |--------|------|------------|--------|-------------|
-| **Greenery** | Positive | 20 | 100m | `min(10, log1p(trees) * 2) + min(10, parks * 3.5)` |
-| **Amenities** | Positive | 15 | 500m | `min(15, log1p(count) * 3) + bonus_if_10+` |
-| **Transport** | Positive | 12 | 300m | `min(12, log1p(stops) * 4)` |
-| **Healthcare** | Positive | 8 | 500m | `min(8, facilities * 2.5)` |
-| **Bike Infrastructure** | Positive | 10 | 200m | `min(10, log1p(count) * 3)` |
-| **Education** | Positive | 8 | 800m | `min(8, facilities * 2)` |
-| **Sports & Leisure** | Positive | 7 | 500m | `min(7, log1p(count) * 2.5)` |
-| **Water Bodies** | Positive | 5 | 300m | Binary: `5 if near else 0` |
-| **Cultural Venues** | Positive | 5 | 1000m | `min(5, count * 1.5)` |
-| **Accidents** | Negative | -12 | 150m | `min(12, count * 2.5)` |
-| **Industrial** | Negative | -12 | 200m | Binary: `12 if near else 0` |
-| **Major Roads** | Negative | -8 | 100m | Binary: `8 if near else 0` |
-| **Noise Sources** | Negative | -8 | 100m | `min(8, count * 2)` |
+| **Greenery** | Positive | 18 | 150m | `min(10, log1p(trees) * 2.5) + min(8, parks * 4)` |
+| **Amenities** | Positive | 12 | 500m | `min(12, log1p(count) * 4)` |
+| **Transport** | Positive | 10 | 400m | `min(10, log1p(stops) * 5.5)` |
+| **Healthcare** | Positive | 7 | 600m | `min(7, facilities * 3.5)` |
+| **Bike Infrastructure** | Positive | 8 | 250m | `min(8, log1p(count) * 3.5)` |
+| **Education** | Positive | 7 | 800m | `min(7, facilities * 2.5)` |
+| **Sports & Leisure** | Positive | 5 | 600m | `min(5, log1p(count) * 2.5)` |
+| **Pedestrian Infrastructure** | Positive | 4 | 250m | `min(4, log1p(count) * 1.8)` |
+| **Cultural Venues** | Positive | 4 | 1000m | `min(4, count * 2)` |
+| **Accidents** | Negative | -8 | 100m | `min(8, count * 2)` |
+| **Industrial** | Negative | -10 | 150m | Binary: `10 if near else 0` |
+| **Major Roads** | Negative | -6 | 50m | Binary: `6 if near else 0` |
+| **Noise Sources** | Negative | -6 | 75m | `min(6, count * 2)` |
+
+### Factor Explanations
+
+Each metric captures a specific aspect of neighborhood livability:
+
+#### Positive Factors
+
+| Factor | Why It Matters | What We Measure |
+|--------|----------------|-----------------|
+| **Trees** | Urban trees improve air quality, reduce heat islands, provide shade, and enhance mental well-being. Studies show proximity to green elements reduces stress and increases property values. | Individual street and park trees within 100m radius |
+| **Parks** | Access to green spaces promotes physical activity, social interaction, and provides refuge from urban density. WHO recommends living within 300m of green space. | Public parks and green areas within 300m radius |
+| **Public Transport** | Good transit access reduces car dependency, lowers household transport costs, and improves mobility for non-drivers (elderly, youth, disabled). | Bus stops and tram stops within 400m walking distance |
+| **Amenities** | Daily-use facilities reduce travel needs, support local economy, and create vibrant neighborhoods. Walkable amenities are a key indicator of "15-minute city" design. | Supermarkets, cafes, restaurants, bakeries, banks, post offices within 500m |
+| **Healthcare** | Proximity to medical services is critical for emergencies and routine care. Especially important for elderly residents and families with children. | Hospitals, clinics, doctors' offices, pharmacies within 500m |
+| **Bike Infrastructure** | Dedicated cycling facilities encourage sustainable transport, improve safety, and indicate progressive urban planning. Correlates with lower car dependency. | Cycleways, bike lanes, bicycle parking, bike rental stations within 200m |
+| **Education** | Schools and libraries serve as community anchors. Proximity reduces commute stress for families and indicates family-friendly neighborhoods. | Schools, universities, kindergartens, libraries within 800m |
+| **Sports & Leisure** | Recreational facilities promote active lifestyles and community building. Playgrounds indicate child-friendliness; gyms and pools serve adult fitness needs. | Sports centers, swimming pools, playgrounds, fitness centers, sports pitches within 500m |
+| **Pedestrian Infrastructure** | Crosswalks, pedestrian zones, and footways indicate walkability and pedestrian safety. Well-designed pedestrian areas reduce accidents and encourage walking. | Pedestrian crossings, pedestrian streets, dedicated footways within 200m |
+| **Cultural Venues** | Museums, theaters, and community centers enrich quality of life, provide entertainment, and create cultural identity. Indicates neighborhood vibrancy. | Museums, galleries, theaters, cinemas, arts centers, community centers within 1km |
+
+#### Negative Factors
+
+| Factor | Why It Matters | What We Measure |
+|--------|----------------|-----------------|
+| **Traffic Accidents** | Historical accident data reveals dangerous intersections and streets. High accident density indicates safety risks for pedestrians, cyclists, and drivers. | Police-reported accidents (2019-2023) within 150m, weighted by severity |
+| **Industrial Areas** | Industrial zones generate noise, air pollution, heavy traffic, and visual blight. Residential proximity to industry correlates with lower health outcomes. | Industrial land use zones within 200m (binary detection) |
+| **Major Roads** | Highways and primary roads produce constant noise, air pollution (particulates, NOx), and create pedestrian barriers. Living near major roads linked to respiratory issues. | Motorways, trunk roads, primary roads within 100m (binary detection) |
+| **Noise Sources** | Nightclubs, bars, and car repair shops generate noise pollution that disrupts sleep and reduces quality of life, especially during evening hours. | Nightclubs, bars, pubs, fast food outlets, car repair shops within 100m |
 
 ### Logarithmic Scaling
 
@@ -627,3 +693,71 @@ engine = create_engine(
     pool_pre_ping=True  # Verify connections before use
 )
 ```
+
+---
+
+## External Resources & References
+
+### OpenStreetMap Resources
+
+| Resource | URL | Purpose |
+|----------|-----|---------|
+| **Overpass API** | [overpass-api.de](https://overpass-api.de) | Primary data query endpoint |
+| **Overpass Turbo** | [overpass-turbo.eu](https://overpass-turbo.eu) | Interactive query testing tool |
+| **OSM Wiki** | [wiki.openstreetmap.org/wiki/Map_features](https://wiki.openstreetmap.org/wiki/Map_features) | Tag documentation |
+| **TagInfo** | [taginfo.openstreetmap.org](https://taginfo.openstreetmap.org) | Tag usage statistics |
+
+### Traffic Accident Data
+
+| Resource | URL | Purpose |
+|----------|-----|---------|
+| **Unfallatlas** | [unfallatlas.statistikportal.de](https://unfallatlas.statistikportal.de) | Official German accident statistics portal |
+| **Download Portal** | [unfallatlas.statistikportal.de/_opendata](https://unfallatlas.statistikportal.de/_opendata2024.html) | CSV/GeoJSON data downloads |
+| **License Info** | dl-de/by-2-0 | [datenlizenz-deutschland.de](https://www.govdata.de/dl-de/by-2-0) |
+
+**Data Fields Used**:
+- `XGCSWGS84`, `YGCSWGS84`: WGS84 coordinates
+- `UKATEGORIE`: Accident severity (1=fatal, 2=serious injury, 3=minor injury)
+- `UJAHR`: Year (2019-2023)
+- `ULAND`: State code (filter: 04 = Bremen)
+
+### Framework & Library Documentation
+
+| Technology | Documentation | Version Used |
+|------------|---------------|--------------|
+| **FastAPI** | [fastapi.tiangolo.com](https://fastapi.tiangolo.com) | 0.115.x |
+| **SQLModel** | [sqlmodel.tiangolo.com](https://sqlmodel.tiangolo.com) | 0.0.x |
+| **GeoAlchemy2** | [geoalchemy-2.readthedocs.io](https://geoalchemy-2.readthedocs.io) | 0.15.x |
+| **PostGIS** | [postgis.net/documentation](https://postgis.net/documentation) | 3.4 |
+| **Flutter** | [flutter.dev/docs](https://flutter.dev/docs) | 3.x |
+| **flutter_map** | [fleaflet.dev](https://fleaflet.dev) | 7.x |
+| **Overpy** | [pypi.org/project/overpy](https://pypi.org/project/overpy/) | 0.7 |
+
+### Spatial Function Reference
+
+Key PostGIS functions used in the scoring algorithm:
+
+| Function | Purpose | Example |
+|----------|---------|---------|
+| `ST_SetSRID(ST_MakePoint())` | Create point geometry | `ST_SetSRID(ST_MakePoint(8.8, 53.0), 4326)` |
+| `ST_DWithin()` | Find features within distance | `ST_DWithin(geom, point, 300)` |
+| `ST_Distance()` | Calculate distance in meters | `ST_Distance(geom::geography, point::geography)` |
+| `ST_Intersects()` | Check geometry intersection | `ST_Intersects(polygon, point)` |
+| `ST_AsGeoJSON()` | Convert to GeoJSON | `ST_AsGeoJSON(geom)` |
+
+### Bremen-Specific Resources
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **Geoportal Bremen** | [geoportal.bremen.de](https://www.geoportal.bremen.de) | Official Bremen geodata portal |
+| **OpenData Bremen** | [daten.bremen.de](https://daten.bremen.de) | Bremen open data catalog |
+| **Bremen OSM Community** | [wiki.openstreetmap.org/wiki/Bremen](https://wiki.openstreetmap.org/wiki/Bremen) | Local mapping guidelines |
+
+---
+
+## License
+
+This project is developed as part of the Geodatenverarbeitung course at the University of Bremen. 
+OpenStreetMap data is licensed under [ODbL 1.0](https://opendatacommons.org/licenses/odbl/). 
+Unfallatlas data is licensed under [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0).
+

@@ -16,7 +16,7 @@ from app.db_models import (
     Tree, Park, Amenity, Accident, PublicTransport, 
     Healthcare, IndustrialArea, MajorRoad,
     BikeInfrastructure, Education, SportsLeisure,
-    WaterBody, CulturalVenue, NoiseSource
+    PedestrianInfrastructure, CulturalVenue, NoiseSource
 )
 from core.scoring import LivabilityScorer
 from core.database import get_session, check_database_connection
@@ -240,14 +240,13 @@ async def analyze_location(
         nearby_features["sports_leisure"] = sports_leisure
         sports_leisure_count = len(sports_leisure)
         
-        # Water bodies within 300m
-        water_bodies = fetch_nearby_features(
-            session, WaterBody, point, 300, "water_body",
-            type_field="water_type"
+        # Pedestrian infrastructure within 200m
+        pedestrian = fetch_nearby_features(
+            session, PedestrianInfrastructure, point, 200, "pedestrian_infrastructure",
+            type_field="infra_type"
         )
-        near_water = len(water_bodies) > 0
-        if near_water:
-            nearby_features["water_bodies"] = water_bodies
+        nearby_features["pedestrian_infrastructure"] = pedestrian
+        pedestrian_infra_count = len(pedestrian)
         
         # Cultural venues within 1000m
         cultural = fetch_nearby_features(
@@ -279,7 +278,7 @@ async def analyze_location(
             bike_infrastructure_count=bike_infrastructure_count,
             education_count=education_count,
             sports_leisure_count=sports_leisure_count,
-            near_water=near_water,
+            pedestrian_infra_count=pedestrian_infra_count,
             cultural_count=cultural_count,
             noise_count=noise_count
         )

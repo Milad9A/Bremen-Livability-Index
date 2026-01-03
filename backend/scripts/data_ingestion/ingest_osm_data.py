@@ -75,9 +75,9 @@ def ingest_parks(api, conn):
     print(f"✅ Inserted {count} parks")
 
 def ingest_amenities(api, conn):
-    """Ingest amenity data."""
+    """Ingest amenity data (daily-use facilities, excludes school/pharmacy which are in Education/Healthcare)."""
     print("Fetching amenities...")
-    query = f'[out:json][timeout:300];node[amenity~"^(supermarket|school|cafe|restaurant|pharmacy|bank|post_office)$"]({get_bbox_str()});out body;'
+    query = f'[out:json][timeout:300];node[amenity~"^(supermarket|cafe|restaurant|bank|post_office|bakery|butcher)$"]({get_bbox_str()});out body;'
     result = query_with_retry(api, query)
     
     cursor = conn.cursor()
@@ -310,44 +310,43 @@ def ingest_sports_leisure(api, conn):
     print(f"✅ Inserted {count} sports/leisure facilities")
 
 
-def ingest_water_bodies(api, conn):
-    """Ingest water bodies (positive factor for aesthetics)."""
-    print("Fetching water bodies...")
-    query = f'[out:json][timeout:300];(way[natural=water]({get_bbox_str()});way[waterway~"^(river|stream|canal)$"]({get_bbox_str()});relation[natural=water]({get_bbox_str()}););out body;>;out skel qt;'
+def ingest_pedestrian_infrastructure(api, conn):
+    """Ingest pedestrian infrastructure (positive factor for walkability)."""
+    print("Fetching pedestrian infrastructure...")
+    # Query for crossings, pedestrian streets, footways, and pedestrian areas
+    query = f'[out:json][timeout:300];(node[highway=crossing]({get_bbox_str()});way[highway=pedestrian]({get_bbox_str()});way[highway=footway]({get_bbox_str()});way[footway=crossing]({get_bbox_str()});node[crossing]({get_bbox_str()}););out body;>;out skel qt;'
     result = query_with_retry(api, query)
     
     cursor = conn.cursor()
-    cursor.execute("TRUNCATE TABLE gis_data.water_bodies CASCADE;")
+    cursor.execute("TRUNCATE TABLE gis_data.pedestrian_infrastructure CASCADE;")
     
     count = 0
+    for node in result.nodes:
+        if node.lat and node.lon:
+            infra_type = node.tags.get("highway", node.tags.get("crossing", "crossing"))
+            cursor.execute("""
+                INSERT INTO gis_data.pedestrian_infrastructure (osm_id, name, infra_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), infra_type, node.lon, node.lat))
+            count += 1
+    
     for way in result.ways:
         if len(way.nodes) >= 2:
+            infra_type = way.tags.get("highway", way.tags.get("footway", "pedestrian"))
             coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
-            water_type = way.tags.get("natural", way.tags.get("waterway", "water"))
-            
-            # Check if it's a closed polygon or a line
-            is_closed = (way.nodes[0].lon == way.nodes[-1].lon and 
-                        way.nodes[0].lat == way.nodes[-1].lat)
-            
-            if is_closed and len(way.nodes) >= 4:
-                geom_type = "POLYGON"
-                geom_str = f"POLYGON(({coords}))"
-            else:
-                geom_type = "LINESTRING"
-                geom_str = f"LINESTRING({coords})"
-            
+            geom_str = f"LINESTRING({coords})"
             try:
                 cursor.execute("""
-                    INSERT INTO gis_data.water_bodies (osm_id, name, water_type, geometry)
+                    INSERT INTO gis_data.pedestrian_infrastructure (osm_id, name, infra_type, geometry)
                     VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326)::geography)
-                """, (way.id, way.tags.get("name", ""), water_type, geom_str))
+                """, (way.id, way.tags.get("name", ""), infra_type, geom_str))
                 count += 1
             except:
                 continue
     
     conn.commit()
     cursor.close()
-    print(f"✅ Inserted {count} water bodies")
+    print(f"✅ Inserted {count} pedestrian infrastructure features")
 
 
 def ingest_cultural_venues(api, conn):
@@ -447,7 +446,7 @@ def main():
         ingest_sports_leisure(api, conn)
         time.sleep(3)
         
-        ingest_water_bodies(api, conn)
+        ingest_pedestrian_infrastructure(api, conn)
         time.sleep(3)
         
         ingest_cultural_venues(api, conn)

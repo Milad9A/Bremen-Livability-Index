@@ -224,15 +224,15 @@ class SportsLeisure(GISBase, table=True):
     )
 
 
-class WaterBody(GISBase, table=True):
-    """Water bodies table - rivers, lakes, streams."""
-    __tablename__ = "water_bodies"
+class PedestrianInfrastructure(GISBase, table=True):
+    """Pedestrian infrastructure table - crossings, pedestrian streets, sidewalks."""
+    __tablename__ = "pedestrian_infrastructure"
     __table_args__ = {"schema": "gis_data"}
     
     id: Optional[int] = Field(default=None, primary_key=True)
     osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
     name: Optional[str] = Field(default=None, sa_column=Column(Text))
-    water_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    infra_type: Optional[str] = Field(default=None, sa_column=Column(Text))
     geometry: Any = Field(
         default=None,
         sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
