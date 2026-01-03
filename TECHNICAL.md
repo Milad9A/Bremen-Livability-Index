@@ -726,32 +726,37 @@ Render deployments only proceed after relevant CI checks pass.
 
 ### Auto-Deployment Flow
 
-1. **Push to `master`** triggers path-filtered workflows:
-   - **Backend changes** (`backend/**`): Runs `backend-tests.yml`
-   - **Frontend changes** (`frontend/**`): Runs `frontend-tests.yml`
-   - Skipped workflows count as "passed" for Render
+1. **Push to `master`** triggers:
+   - **GitHub Actions**: Path-filtered test workflows run in parallel
+     - `backend/**` changes → `backend-tests.yml`
+     - `frontend/**` changes → `frontend-tests.yml`
+   - **Render**: Deploys immediately on commit ("On Commit" trigger)
 
-2. **Render deploys after CI checks pass:**
-   - Both services configured with "After CI Checks Pass"
-   - Backend deploys only after Backend Tests ✅
-   - Frontend deploys only after Frontend Tests ✅
-
-3. **Build and Release** (frontend changes only):
+2. **Build and Release** (frontend changes only):
    - Triggered by `workflow_run` after Frontend Tests pass
    - Builds Android, Windows, Linux, macOS apps
    - Creates GitHub Release with all artifacts
 
-4. **First Deploy**: `entrypoint.sh` runs:
+3. **Render Deployment Process** (`entrypoint.sh`):
    ```bash
-   # Initialize database schema
-   psql $DATABASE_URL -f init_db.sql
+   # 1. Initialize database schema (safe to run repeatedly - uses IF NOT EXISTS)
+   python -m scripts.initialize_db
    
-   # Ingest all data
-   python -m scripts.ingest_all_data
+   # 2. Check if data already exists (avoids re-ingesting 150k+ records)
+   if trees table is empty:
+       python -m scripts.ingest_all_data  # Full OSM + Unfallatlas ingestion
+   else:
+       skip ingestion  # Data persists in Neon.tech across deploys
    
-   # Start server
+   # 3. Start server
    uvicorn app.main:app --host 0.0.0.0 --port $PORT
    ```
+   
+   **Key Points:**
+   - Database schema is idempotent (`CREATE TABLE IF NOT EXISTS`)
+   - Data ingestion only runs on first deploy or after database reset
+   - Neon.tech database persists data across Render deploys
+   - Subsequent deploys take ~10 seconds (schema check + server start)
 
 ### Environment Variables
 
@@ -761,6 +766,18 @@ Render deployments only proceed after relevant CI checks pass.
 | `PORT` | Server port (set by Render) | `8000` |
 | `CORS_ORIGINS` | Allowed CORS origins | `*` or `https://example.com` |
 | `LOG_LEVEL` | Logging verbosity | `INFO` |
+
+### Testing in Production
+
+GitHub Actions runs tests on every push, independent of Render deployment:
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `backend-tests.yml` | `backend/**` changes | Runs pytest against test database |
+| `frontend-tests.yml` | `frontend/**` changes | Runs Flutter tests |
+| `build-release.yml` | After frontend tests pass | Builds app releases |
+
+Tests run in isolated environments with their own databases (GitHub Actions PostgreSQL service). Production data in Neon.tech is never affected by tests.
 
 ---
 
