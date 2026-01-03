@@ -78,7 +78,7 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 | **ORM** | SQLModel + GeoAlchemy2 | Type-safe database access with PostGIS support |
 | **Database** | PostgreSQL 16 + PostGIS 3.4 | Spatial database for geographic queries |
 | **Geocoding** | OpenStreetMap Nominatim | Address-to-coordinate conversion |
-| **Map Tiles** | OpenStreetMap | Base map layer |
+| **Map Tiles** | CartoDB Voyager | Base map layer (clean, no POI icons) |
 
 ---
 
@@ -361,41 +361,41 @@ elif category == 3: severity = "minor"
 
 ```
 Final Score = BASE_SCORE + Positive_Factors - Negative_Factors
-            = 55 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
+            = 40 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
                  - (Accidents + Industrial + Roads + Noise + Railway + GasStation + Waste + Power + Parking + Airport + Construction)
 
-Theoretical Range: 55 + 75 - 50 = [0, 100] (clamped)
+Theoretical Range: 40 + 60 - 57 = [0, 100] (clamped)
 ```
 
-The base score of **55** provides a balanced starting point where most locations begin at average, with 9 positive factors (max +75) and 11 negative factors (max -50) influencing the final score. The UI displays this calculation breakdown as:
+The base score of **40** provides a balanced starting point where most locations begin below average, encouraging exploration of high-quality areas. The 9 positive factors (max +60) and 11 negative factors (max -57) influence the final score. The UI displays this calculation breakdown as:
 
 ```
-[Base: 55] [+Positive Total] [-Negative Total] = Final Score
+[Base: 40] [+Positive Total] [-Negative Total] = Final Score
 ```
 
 ### Factor Weights & Radii
 
 | Factor | Type | Max Points | Radius | Calculation |
 |--------|------|------------|--------|-------------|
-| **Greenery** | Positive | 18 | 175m | `min(11, log1p(trees) * 2.75) + min(7, parks * 3.5)` |
-| **Amenities** | Positive | 12 | 550m | `min(12, log1p(count) * 4.2)` |
-| **Transport** | Positive | 10 | 450m | `min(10, log1p(stops) * 5.75)` |
-| **Healthcare** | Positive | 7 | 700m | `min(7, facilities * 3.75)` |
-| **Bike Infrastructure** | Positive | 8 | 275m | `min(8, log1p(count) * 3.75)` |
-| **Education** | Positive | 7 | 900m | `min(7, facilities * 3)` |
-| **Sports & Leisure** | Positive | 5 | 700m | `min(5, log1p(count) * 2.75)` |
-| **Pedestrian Infrastructure** | Positive | 4 | 275m | `min(4, log1p(count) * 2)` |
+| **Greenery** | Positive | 14 | 175m | `min(9, log1p(trees) * 2.0) + min(5, parks * 2.5)` |
+| **Amenities** | Positive | 10 | 550m | `min(10, log1p(count) * 2.8)` |
+| **Transport** | Positive | 8 | 450m | `min(8, log1p(stops) * 3.5)` |
+| **Healthcare** | Positive | 6 | 700m | `min(6, facilities * 2.5)` |
+| **Bike Infrastructure** | Positive | 6 | 275m | `min(6, log1p(count) * 2.5)` |
+| **Education** | Positive | 5 | 900m | `min(5, facilities * 1.5)` |
+| **Sports & Leisure** | Positive | 4 | 700m | `min(4, log1p(count) * 1.8)` |
+| **Pedestrian Infrastructure** | Positive | 3 | 275m | `min(3, log1p(count) * 1.2)` |
 | **Cultural Venues** | Positive | 4 | 1100m | `min(4, count * 2)` |
-| **Accidents** | Negative | -7 | 90m | `min(7, count * 1.75)` |
-| **Industrial** | Negative | -8 | 125m | Binary: `8 if near else 0` |
-| **Major Roads** | Negative | -5 | 40m | Binary: `5 if near else 0` |
-| **Noise Sources** | Negative | -5 | 60m | `min(5, count * 1.75)` |
-| **Railways** | Negative | -4 | 75m | Binary: `4 if near else 0` |
+| **Accidents** | Negative | -8 | 90m | `min(8, count * 2)` |
+| **Industrial** | Negative | -10 | 125m | Binary: `10 if near else 0` |
+| **Major Roads** | Negative | -6 | 40m | Binary: `6 if near else 0` |
+| **Noise Sources** | Negative | -6 | 60m | `min(6, count * 2)` |
+| **Railways** | Negative | -5 | 75m | Binary: `5 if near else 0` |
 | **Gas Stations** | Negative | -3 | 50m | Binary: `3 if near else 0` |
 | **Waste Facilities** | Negative | -5 | 200m | Binary: `5 if near else 0` |
 | **Power Infrastructure** | Negative | -3 | 50m | Binary: `3 if near else 0` |
 | **Large Parking Lots** | Negative | -2 | 30m | Binary: `2 if near else 0` |
-| **Airports/Helipads** | Negative | -6 | 500m | Binary: `6 if near else 0` |
+| **Airports/Helipads** | Negative | -7 | 500m | Binary: `7 if near else 0` |
 | **Construction Sites** | Negative | -2 | 100m | Binary: `2 if near else 0` |
 
 ### Factor Explanations
@@ -444,13 +444,13 @@ For count-based factors, logarithmic scaling (`log1p`) prevents diminishing retu
 #   - Additional items have decreasing marginal value
 #   - Prevents score manipulation by dense areas
 
-tree_score = min(11.0, math.log1p(tree_count) * 2.75)
+tree_score = min(9.0, math.log1p(tree_count) * 2.0)
 ```
 
 **Example**: 
-- 5 trees → `log1p(5) * 2.75 = 4.9 points`
-- 50 trees → `log1p(50) * 2.75 = 10.8 points`
-- 500 trees → `log1p(500) * 2.75 = 11.0 points` (capped)
+- 5 trees → `log1p(5) * 2.0 = 3.6 points`
+- 50 trees → `log1p(50) * 2.0 = 7.8 points`
+- 500 trees → `log1p(500) * 2.0 = 9.0 points` (capped)
 
 ### Score Ranges
 
@@ -518,7 +518,7 @@ The app uses a two-stage launch experience:
 
 ### Map Rendering
 
-Uses `flutter_map` package with OpenStreetMap tiles:
+Uses `flutter_map` package with CartoDB Voyager tiles (clean style without POI icons):
 
 ```dart
 FlutterMap(
@@ -530,7 +530,8 @@ FlutterMap(
   ),
   children: [
     TileLayer(
-      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+      subdomains: ['a', 'b', 'c', 'd'],
     ),
     // Feature markers layer
     MarkerLayer(markers: _nearbyMarkers),

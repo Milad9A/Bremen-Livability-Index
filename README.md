@@ -44,7 +44,7 @@ RESTful API for livability analysis and geocoding.
 
 ## ✨ Features
 
-- 🗺️ **Interactive Map** – Full-screen OpenStreetMap with "Liquid Glass" UI
+- 🗺️ **Interactive Map** – Full-screen map (CartoDB) with "Liquid Glass" UI
 - 🚀 **Splash & Start Screen** – Animated launch experience
 - 📍 **Tap-to-Analyze** – Instant livability scoring for any location
 - 🔍 **Address Search** – Find streets, landmarks, or neighborhoods
