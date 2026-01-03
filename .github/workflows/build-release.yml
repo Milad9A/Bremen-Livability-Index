@@ -47,6 +47,7 @@ jobs:
         with:
           flutter-version: '3.38.4'
           channel: 'stable'
+          cache: true
       
       - name: Install dependencies
         working-directory: frontend/bli
@@ -83,6 +84,7 @@ jobs:
         with:
           flutter-version: '3.38.4'
           channel: 'stable'
+          cache: true
       
       - name: Install dependencies
         working-directory: frontend/bli
@@ -123,6 +125,7 @@ jobs:
         with:
           flutter-version: '3.38.4'
           channel: 'stable'
+          cache: true
       
       - name: Install dependencies
         working-directory: frontend/bli
@@ -158,6 +161,7 @@ jobs:
         with:
           flutter-version: '3.38.4'
           channel: 'stable'
+          cache: true
       
       - name: Install dependencies
         working-directory: frontend/bli
