@@ -165,3 +165,117 @@ class MajorRoad(GISBase, table=True):
         default=None,
         sa_column=Column(TIMESTAMP, default=datetime.utcnow)
     )
+
+
+class BikeInfrastructure(GISBase, table=True):
+    """Bike infrastructure table - bike lanes, paths, and parking."""
+    __tablename__ = "bike_infrastructure"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    infra_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class Education(GISBase, table=True):
+    """Education facilities table - schools, universities, kindergartens."""
+    __tablename__ = "education"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    education_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="POINT", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class SportsLeisure(GISBase, table=True):
+    """Sports and leisure facilities table."""
+    __tablename__ = "sports_leisure"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    leisure_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="POINT", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class WaterBody(GISBase, table=True):
+    """Water bodies table - rivers, lakes, streams."""
+    __tablename__ = "water_bodies"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    water_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class CulturalVenue(GISBase, table=True):
+    """Cultural venues table - museums, theatres, cinemas."""
+    __tablename__ = "cultural_venues"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    venue_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="POINT", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class NoiseSource(GISBase, table=True):
+    """Noise sources table - nightclubs, bars, etc."""
+    __tablename__ = "noise_sources"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    noise_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="POINT", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )

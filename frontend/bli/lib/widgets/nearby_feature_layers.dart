@@ -130,6 +130,21 @@ class NearbyFeatureLayers extends StatelessWidget {
       case 'major_roads':
       case 'major_road':
         return AppColors.black.withValues(alpha: 0.54);
+      case 'bike_infrastructure':
+        return Colors.cyan;
+      case 'education':
+        return Colors.purple;
+      case 'sports_leisure':
+        return Colors.amber;
+      case 'water_bodies':
+      case 'water_body':
+        return Colors.blueAccent;
+      case 'cultural_venues':
+      case 'cultural_venue':
+        return Colors.pink;
+      case 'noise_sources':
+      case 'noise_source':
+        return Colors.deepOrange;
       default:
         return AppColors.greyLight;
     }
@@ -204,6 +219,51 @@ class NearbyFeatureLayers extends StatelessWidget {
       case 'major_roads':
       case 'major_road':
         return Icons.add_road;
+      case 'bike_infrastructure':
+        if (subtype != null) {
+          if (subtype.contains('parking')) return Icons.local_parking;
+          if (subtype.contains('rental')) return Icons.pedal_bike;
+        }
+        return Icons.directions_bike;
+      case 'education':
+        if (subtype != null) {
+          if (subtype.contains('university') || subtype.contains('college')) {
+            return Icons.account_balance;
+          }
+          if (subtype.contains('kindergarten')) return Icons.child_care;
+          if (subtype.contains('library')) return Icons.local_library;
+        }
+        return Icons.school;
+      case 'sports_leisure':
+        if (subtype != null) {
+          if (subtype.contains('swimming')) return Icons.pool;
+          if (subtype.contains('playground')) return Icons.toys;
+          if (subtype.contains('fitness')) return Icons.fitness_center;
+        }
+        return Icons.sports_soccer;
+      case 'water_bodies':
+      case 'water_body':
+        return Icons.water;
+      case 'cultural_venues':
+      case 'cultural_venue':
+        if (subtype != null) {
+          if (subtype.contains('museum') || subtype.contains('gallery')) {
+            return Icons.museum;
+          }
+          if (subtype.contains('theatre')) return Icons.theater_comedy;
+          if (subtype.contains('cinema')) return Icons.movie;
+        }
+        return Icons.palette;
+      case 'noise_sources':
+      case 'noise_source':
+        if (subtype != null) {
+          if (subtype.contains('nightclub') ||
+              subtype.contains('bar') ||
+              subtype.contains('pub')) {
+            return Icons.nightlife;
+          }
+        }
+        return Icons.volume_up;
       default:
         return Icons.place;
     }

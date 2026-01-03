@@ -189,6 +189,228 @@ def ingest_major_roads(api, conn):
     cursor.close()
     print(f"✅ Inserted {count} major roads")
 
+
+def ingest_bike_infrastructure(api, conn):
+    """Ingest bike infrastructure (positive factor)."""
+    print("Fetching bike infrastructure...")
+    # Bike lanes and cycle paths
+    query = f'[out:json][timeout:300];(way[highway=cycleway]({get_bbox_str()});way[cycleway~"."]({get_bbox_str()});node[amenity=bicycle_parking]({get_bbox_str()});node[amenity=bicycle_rental]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.bike_infrastructure CASCADE;")
+    
+    count = 0
+    # Insert bike paths (ways)
+    for way in result.ways:
+        if len(way.nodes) >= 2:
+            coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
+            bike_type = "cycleway" if way.tags.get("highway") == "cycleway" else "bike_lane"
+            try:
+                cursor.execute("""
+                    INSERT INTO gis_data.bike_infrastructure (osm_id, name, infra_type, geometry)
+                    VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), bike_type, f"LINESTRING({coords})"))
+                count += 1
+            except:
+                continue
+    
+    # Insert bike parking/rental (nodes)
+    for node in result.nodes:
+        if node.lat and node.lon:
+            infra_type = node.tags.get("amenity", "bicycle_parking")
+            cursor.execute("""
+                INSERT INTO gis_data.bike_infrastructure (osm_id, name, infra_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), infra_type, node.lon, node.lat))
+            count += 1
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} bike infrastructure elements")
+
+
+def ingest_education(api, conn):
+    """Ingest education facilities (positive factor)."""
+    print("Fetching education facilities...")
+    query = f'[out:json][timeout:300];(node[amenity~"^(school|university|college|kindergarten|library)$"]({get_bbox_str()});way[amenity~"^(school|university|college|kindergarten|library)$"]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.education CASCADE;")
+    
+    count = 0
+    for node in result.nodes:
+        if node.lat and node.lon:
+            cursor.execute("""
+                INSERT INTO gis_data.education (osm_id, name, education_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), node.tags.get("amenity", ""), node.lon, node.lat))
+            count += 1
+    
+    # Also get centroids of ways (buildings)
+    for way in result.ways:
+        if len(way.nodes) >= 3:
+            # Calculate centroid
+            lats = [n.lat for n in way.nodes if n.lat]
+            lons = [n.lon for n in way.nodes if n.lon]
+            if lats and lons:
+                centroid_lat = sum(lats) / len(lats)
+                centroid_lon = sum(lons) / len(lons)
+                cursor.execute("""
+                    INSERT INTO gis_data.education (osm_id, name, education_type, geometry)
+                    VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), way.tags.get("amenity", ""), centroid_lon, centroid_lat))
+                count += 1
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} education facilities")
+
+
+def ingest_sports_leisure(api, conn):
+    """Ingest sports and leisure facilities (positive factor)."""
+    print("Fetching sports and leisure facilities...")
+    query = f'[out:json][timeout:300];(node[leisure~"^(sports_centre|swimming_pool|playground|fitness_centre|pitch)$"]({get_bbox_str()});node[sport]({get_bbox_str()});way[leisure~"^(sports_centre|swimming_pool|playground|fitness_centre|pitch)$"]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.sports_leisure CASCADE;")
+    
+    count = 0
+    seen_ids = set()
+    
+    for node in result.nodes:
+        if node.lat and node.lon and node.id not in seen_ids:
+            seen_ids.add(node.id)
+            leisure_type = node.tags.get("leisure", node.tags.get("sport", "sports"))
+            cursor.execute("""
+                INSERT INTO gis_data.sports_leisure (osm_id, name, leisure_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), leisure_type, node.lon, node.lat))
+            count += 1
+    
+    for way in result.ways:
+        if len(way.nodes) >= 3 and way.id not in seen_ids:
+            seen_ids.add(way.id)
+            lats = [n.lat for n in way.nodes if n.lat]
+            lons = [n.lon for n in way.nodes if n.lon]
+            if lats and lons:
+                centroid_lat = sum(lats) / len(lats)
+                centroid_lon = sum(lons) / len(lons)
+                leisure_type = way.tags.get("leisure", way.tags.get("sport", "sports"))
+                cursor.execute("""
+                    INSERT INTO gis_data.sports_leisure (osm_id, name, leisure_type, geometry)
+                    VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), leisure_type, centroid_lon, centroid_lat))
+                count += 1
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} sports/leisure facilities")
+
+
+def ingest_water_bodies(api, conn):
+    """Ingest water bodies (positive factor for aesthetics)."""
+    print("Fetching water bodies...")
+    query = f'[out:json][timeout:300];(way[natural=water]({get_bbox_str()});way[waterway~"^(river|stream|canal)$"]({get_bbox_str()});relation[natural=water]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.water_bodies CASCADE;")
+    
+    count = 0
+    for way in result.ways:
+        if len(way.nodes) >= 2:
+            coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
+            water_type = way.tags.get("natural", way.tags.get("waterway", "water"))
+            
+            # Check if it's a closed polygon or a line
+            is_closed = (way.nodes[0].lon == way.nodes[-1].lon and 
+                        way.nodes[0].lat == way.nodes[-1].lat)
+            
+            if is_closed and len(way.nodes) >= 4:
+                geom_type = "POLYGON"
+                geom_str = f"POLYGON(({coords}))"
+            else:
+                geom_type = "LINESTRING"
+                geom_str = f"LINESTRING({coords})"
+            
+            try:
+                cursor.execute("""
+                    INSERT INTO gis_data.water_bodies (osm_id, name, water_type, geometry)
+                    VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), water_type, geom_str))
+                count += 1
+            except:
+                continue
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} water bodies")
+
+
+def ingest_cultural_venues(api, conn):
+    """Ingest cultural venues (positive factor)."""
+    print("Fetching cultural venues...")
+    query = f'[out:json][timeout:300];(node[tourism~"^(museum|gallery|artwork)$"]({get_bbox_str()});node[amenity~"^(theatre|cinema|arts_centre|community_centre)$"]({get_bbox_str()});way[tourism~"^(museum|gallery)$"]({get_bbox_str()});way[amenity~"^(theatre|cinema|arts_centre|community_centre)$"]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.cultural_venues CASCADE;")
+    
+    count = 0
+    for node in result.nodes:
+        if node.lat and node.lon:
+            venue_type = node.tags.get("tourism", node.tags.get("amenity", "cultural"))
+            cursor.execute("""
+                INSERT INTO gis_data.cultural_venues (osm_id, name, venue_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), venue_type, node.lon, node.lat))
+            count += 1
+    
+    for way in result.ways:
+        if len(way.nodes) >= 3:
+            lats = [n.lat for n in way.nodes if n.lat]
+            lons = [n.lon for n in way.nodes if n.lon]
+            if lats and lons:
+                centroid_lat = sum(lats) / len(lats)
+                centroid_lon = sum(lons) / len(lons)
+                venue_type = way.tags.get("tourism", way.tags.get("amenity", "cultural"))
+                cursor.execute("""
+                    INSERT INTO gis_data.cultural_venues (osm_id, name, venue_type, geometry)
+                    VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), venue_type, centroid_lon, centroid_lat))
+                count += 1
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} cultural venues")
+
+
+def ingest_noise_sources(api, conn):
+    """Ingest potential noise sources (negative factor)."""
+    print("Fetching noise sources...")
+    query = f'[out:json][timeout:300];(node[amenity~"^(nightclub|bar|pub|fast_food)$"]({get_bbox_str()});node[shop=car_repair]({get_bbox_str()}););out body;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.noise_sources CASCADE;")
+    
+    count = 0
+    for node in result.nodes:
+        if node.lat and node.lon:
+            noise_type = node.tags.get("amenity", node.tags.get("shop", "noise_source"))
+            cursor.execute("""
+                INSERT INTO gis_data.noise_sources (osm_id, name, noise_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), noise_type, node.lon, node.lat))
+            count += 1
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} noise sources")
+
 def main():
     """Main ingestion function."""
     api = overpy.Overpass()
@@ -214,6 +436,24 @@ def main():
         time.sleep(3)
         
         ingest_major_roads(api, conn)
+        time.sleep(3)
+        
+        ingest_bike_infrastructure(api, conn)
+        time.sleep(3)
+        
+        ingest_education(api, conn)
+        time.sleep(3)
+        
+        ingest_sports_leisure(api, conn)
+        time.sleep(3)
+        
+        ingest_water_bodies(api, conn)
+        time.sleep(3)
+        
+        ingest_cultural_venues(api, conn)
+        time.sleep(3)
+        
+        ingest_noise_sources(api, conn)
         
         print("OSM data ingestion completed successfully")
     except Exception as e:

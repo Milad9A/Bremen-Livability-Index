@@ -9,14 +9,23 @@ void main() {
   group('NearbyFeatureLayers helper methods', () {
     // The private methods _getColorForType and _getIconForType are tested
     // indirectly by documenting expected behavior:
+    // Positive factors:
     // trees -> Colors.green
     // parks -> Colors.lightGreen
     // amenities -> Colors.blue
     // public_transport -> Colors.indigo
     // healthcare -> Colors.red
+    // bike_infrastructure -> Colors.cyan
+    // education -> Colors.purple
+    // sports_leisure -> Colors.amber
+    // water_bodies -> Colors.blueAccent
+    // cultural_venues -> Colors.pink
+    //
+    // Negative factors:
     // accidents -> Colors.orange
     // industrial -> Colors.grey
     // major_roads -> Colors.black54
+    // noise_sources -> Colors.deepOrange
 
     test('color and icon mapping documentation', () {
       // This test documents the expected mappings
@@ -159,6 +168,98 @@ void main() {
       );
 
       expect(feature.subtype, 'bus_stop');
+    });
+
+    test('bike_infrastructure with cycleway subtype', () {
+      final feature = FeatureDetail(
+        type: 'bike_infrastructure',
+        subtype: 'cycleway',
+        distance: 50.0,
+        geometry: {
+          'type': 'LineString',
+          'coordinates': [
+            [8.80, 53.07],
+            [8.81, 53.08],
+          ],
+        },
+      );
+
+      expect(feature.subtype, 'cycleway');
+      expect(feature.type, 'bike_infrastructure');
+    });
+
+    test('education with university subtype', () {
+      final feature = FeatureDetail(
+        type: 'education',
+        subtype: 'university',
+        distance: 400.0,
+        geometry: {
+          'type': 'Point',
+          'coordinates': [8.8, 53.0],
+        },
+      );
+
+      expect(feature.subtype, 'university');
+    });
+
+    test('sports_leisure with swimming pool subtype', () {
+      final feature = FeatureDetail(
+        type: 'sports_leisure',
+        subtype: 'swimming_pool',
+        distance: 300.0,
+        geometry: {
+          'type': 'Point',
+          'coordinates': [8.8, 53.0],
+        },
+      );
+
+      expect(feature.subtype, 'swimming_pool');
+    });
+
+    test('water_body with river subtype', () {
+      final feature = FeatureDetail(
+        type: 'water_body',
+        subtype: 'river',
+        distance: 150.0,
+        geometry: {
+          'type': 'LineString',
+          'coordinates': [
+            [8.80, 53.07],
+            [8.81, 53.08],
+            [8.82, 53.09],
+          ],
+        },
+      );
+
+      expect(feature.subtype, 'river');
+    });
+
+    test('cultural_venue with museum subtype', () {
+      final feature = FeatureDetail(
+        type: 'cultural_venue',
+        subtype: 'museum',
+        distance: 500.0,
+        geometry: {
+          'type': 'Point',
+          'coordinates': [8.8, 53.0],
+        },
+      );
+
+      expect(feature.subtype, 'museum');
+    });
+
+    test('noise_source with nightclub subtype', () {
+      final feature = FeatureDetail(
+        type: 'noise_source',
+        subtype: 'nightclub',
+        distance: 80.0,
+        geometry: {
+          'type': 'Point',
+          'coordinates': [8.8, 53.0],
+        },
+      );
+
+      expect(feature.subtype, 'nightclub');
     });
   });
 }

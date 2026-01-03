@@ -47,7 +47,11 @@ RESTful API for livability analysis and geocoding.
 
 ## 📊 Scoring System
 
-Livability is calculated from **7 spatial factors** (greenery, amenities, transport, healthcare, accidents, industrial areas, roads) using proximity-based analysis. Score range: **0-100**.
+Livability is calculated from **13 spatial factors** using proximity-based analysis. Score range: **0-100**.
+
+**Positive Factors:** Greenery (trees & parks), Amenities, Public Transport, Healthcare, Bike Infrastructure, Education, Sports & Leisure, Water Bodies, Cultural Venues
+
+**Negative Factors:** Traffic Accidents, Industrial Areas, Major Roads, Noise Sources
 
 > 📖 **Details:** [Scoring Algorithm](TECHNICAL.md#scoring-algorithm) in TECHNICAL.md
 

@@ -14,7 +14,9 @@ from app.models import (
 )
 from app.db_models import (
     Tree, Park, Amenity, Accident, PublicTransport, 
-    Healthcare, IndustrialArea, MajorRoad
+    Healthcare, IndustrialArea, MajorRoad,
+    BikeInfrastructure, Education, SportsLeisure,
+    WaterBody, CulturalVenue, NoiseSource
 )
 from core.scoring import LivabilityScorer
 from core.database import get_session, check_database_connection
@@ -214,6 +216,56 @@ async def analyze_location(
         if near_major_road:
             nearby_features["major_roads"] = roads
         
+        # Bike infrastructure within 200m
+        bike_infra = fetch_nearby_features(
+            session, BikeInfrastructure, point, 200, "bike_infrastructure",
+            type_field="infra_type"
+        )
+        nearby_features["bike_infrastructure"] = bike_infra
+        bike_infrastructure_count = len(bike_infra)
+        
+        # Education facilities within 800m
+        education = fetch_nearby_features(
+            session, Education, point, 800, "education",
+            type_field="education_type"
+        )
+        nearby_features["education"] = education
+        education_count = len(education)
+        
+        # Sports and leisure within 500m
+        sports_leisure = fetch_nearby_features(
+            session, SportsLeisure, point, 500, "sports_leisure",
+            type_field="leisure_type"
+        )
+        nearby_features["sports_leisure"] = sports_leisure
+        sports_leisure_count = len(sports_leisure)
+        
+        # Water bodies within 300m
+        water_bodies = fetch_nearby_features(
+            session, WaterBody, point, 300, "water_body",
+            type_field="water_type"
+        )
+        near_water = len(water_bodies) > 0
+        if near_water:
+            nearby_features["water_bodies"] = water_bodies
+        
+        # Cultural venues within 1000m
+        cultural = fetch_nearby_features(
+            session, CulturalVenue, point, 1000, "cultural_venue",
+            type_field="venue_type"
+        )
+        nearby_features["cultural_venues"] = cultural
+        cultural_count = len(cultural)
+        
+        # Noise sources within 100m
+        noise = fetch_nearby_features(
+            session, NoiseSource, point, 100, "noise_source",
+            type_field="noise_type"
+        )
+        noise_count = len(noise)
+        if noise_count > 0:
+            nearby_features["noise_sources"] = noise
+        
         # Calculate score
         result = LivabilityScorer.calculate_score(
             tree_count=tree_count,
@@ -223,7 +275,13 @@ async def analyze_location(
             public_transport_count=transport_count,
             healthcare_count=healthcare_count,
             near_industrial=near_industrial,
-            near_major_road=near_major_road
+            near_major_road=near_major_road,
+            bike_infrastructure_count=bike_infrastructure_count,
+            education_count=education_count,
+            sports_leisure_count=sports_leisure_count,
+            near_water=near_water,
+            cultural_count=cultural_count,
+            noise_count=noise_count
         )
         
         logger.info(f"Analyzed ({lat}, {lon}) -> Score: {result['score']}")

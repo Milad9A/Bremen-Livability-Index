@@ -55,10 +55,13 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 │                  POSTGRESQL + POSTGIS                           │
 │                    (Neon.tech)                                  │
 ├─────────────────────────────────────────────────────────────────┤
-│  gis_data.trees          │  gis_data.public_transport           │
-│  gis_data.parks          │  gis_data.healthcare                 │
-│  gis_data.amenities      │  gis_data.industrial_areas           │
-│  gis_data.accidents      │  gis_data.major_roads                │
+│  gis_data.trees                 │  gis_data.public_transport    │
+│  gis_data.parks                 │  gis_data.healthcare          │
+│  gis_data.amenities             │  gis_data.industrial_areas    │
+│  gis_data.accidents             │  gis_data.major_roads         │
+│  gis_data.bike_infrastructure   │  gis_data.education           │
+│  gis_data.sports_leisure        │  gis_data.water_bodies        │
+│  gis_data.cultural_venues       │  gis_data.noise_sources       │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -88,48 +91,60 @@ All spatial tables are stored in the `gis_data` schema with the following design
 ### Entity-Relationship Diagram
 
 ```
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│      trees          │     │       parks         │     │     amenities       │
+├─────────────────────┤     ├─────────────────────┤     ├─────────────────────┤
+│ id: SERIAL PK       │     │ id: SERIAL PK       │     │ id: SERIAL PK       │
+│ osm_id: BIGINT      │     │ osm_id: BIGINT      │     │ osm_id: BIGINT      │
+│ name: TEXT          │     │ name: TEXT          │     │ name: TEXT          │
+│ geometry: POINT     │     │ geometry: POLYGON   │     │ amenity_type: TEXT  │
+│ created_at: TS      │     │ created_at: TS      │     │ geometry: POINT     │
+└─────────────────────┘     └─────────────────────┘     │ created_at: TS      │
+                                                        └─────────────────────┘
+
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│  public_transport   │     │     healthcare      │     │ bike_infrastructure │
+├─────────────────────┤     ├─────────────────────┤     ├─────────────────────┤
+│ id: SERIAL PK       │     │ id: SERIAL PK       │     │ id: SERIAL PK       │
+│ osm_id: BIGINT      │     │ osm_id: BIGINT      │     │ osm_id: BIGINT      │
+│ name: TEXT          │     │ name: TEXT          │     │ name: TEXT          │
+│ transport_type: TEXT│     │ healthcare_type:TEXT│     │ infra_type: TEXT    │
+│ geometry: POINT     │     │ geometry: POINT     │     │ geometry: GEOMETRY  │
+│ created_at: TS      │     │ created_at: TS      │     │ created_at: TS      │
+└─────────────────────┘     └─────────────────────┘     └─────────────────────┘
+
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│     education       │     │   sports_leisure    │     │    water_bodies     │
+├─────────────────────┤     ├─────────────────────┤     ├─────────────────────┤
+│ id: SERIAL PK       │     │ id: SERIAL PK       │     │ id: SERIAL PK       │
+│ osm_id: BIGINT      │     │ osm_id: BIGINT      │     │ osm_id: BIGINT      │
+│ name: TEXT          │     │ name: TEXT          │     │ name: TEXT          │
+│ education_type: TEXT│     │ leisure_type: TEXT  │     │ water_type: TEXT    │
+│ geometry: POINT     │     │ geometry: POINT     │     │ geometry: GEOMETRY  │
+│ created_at: TS      │     │ created_at: TS      │     │ created_at: TS      │
+└─────────────────────┘     └─────────────────────┘     └─────────────────────┘
+
+┌─────────────────────┐     ┌─────────────────────┐     ┌─────────────────────┐
+│  cultural_venues    │     │     accidents       │     │  industrial_areas   │
+├─────────────────────┤     ├─────────────────────┤     ├─────────────────────┤
+│ id: SERIAL PK       │     │ id: SERIAL PK       │     │ id: SERIAL PK       │
+│ osm_id: BIGINT      │     │ accident_id: TEXT   │     │ osm_id: BIGINT      │
+│ name: TEXT          │     │ severity: TEXT      │     │ name: TEXT          │
+│ venue_type: TEXT    │     │ date: DATE          │     │ geometry: GEOMETRY  │
+│ geometry: POINT     │     │ geometry: POINT     │     │ created_at: TS      │
+│ created_at: TS      │     │ created_at: TS      │     └─────────────────────┘
+└─────────────────────┘     └─────────────────────┘
+
 ┌─────────────────────┐     ┌─────────────────────┐
-│      trees          │     │       parks         │
+│    major_roads      │     │   noise_sources     │
 ├─────────────────────┤     ├─────────────────────┤
 │ id: SERIAL PK       │     │ id: SERIAL PK       │
 │ osm_id: BIGINT      │     │ osm_id: BIGINT      │
 │ name: TEXT          │     │ name: TEXT          │
-│ geometry: POINT     │     │ geometry: POLYGON   │
+│ road_type: TEXT     │     │ noise_type: TEXT    │
+│ geometry: GEOMETRY  │     │ geometry: POINT     │
 │ created_at: TS      │     │ created_at: TS      │
 └─────────────────────┘     └─────────────────────┘
-
-┌─────────────────────┐     ┌─────────────────────┐
-│     amenities       │     │     accidents       │
-├─────────────────────┤     ├─────────────────────┤
-│ id: SERIAL PK       │     │ id: SERIAL PK       │
-│ osm_id: BIGINT      │     │ accident_id: TEXT   │
-│ name: TEXT          │     │ severity: TEXT      │
-│ amenity_type: TEXT  │     │ date: DATE          │
-│ geometry: POINT     │     │ geometry: POINT     │
-│ created_at: TS      │     │ created_at: TS      │
-└─────────────────────┘     └─────────────────────┘
-
-┌─────────────────────┐     ┌─────────────────────┐
-│  public_transport   │     │     healthcare      │
-├─────────────────────┤     ├─────────────────────┤
-│ id: SERIAL PK       │     │ id: SERIAL PK       │
-│ osm_id: BIGINT      │     │ osm_id: BIGINT      │
-│ name: TEXT          │     │ name: TEXT          │
-│ transport_type: TEXT│     │ healthcare_type:TEXT│
-│ geometry: POINT     │     │ geometry: POINT     │
-│ created_at: TS      │     │ created_at: TS      │
-└─────────────────────┘     └─────────────────────┘
-
-┌─────────────────────┐     ┌─────────────────────┐
-│  industrial_areas   │     │    major_roads      │
-├─────────────────────┤     ├─────────────────────┤
-│ id: SERIAL PK       │     │ id: SERIAL PK       │
-│ osm_id: BIGINT      │     │ osm_id: BIGINT      │
-│ name: TEXT          │     │ name: TEXT          │
-│ geometry: GEOMETRY  │     │ road_type: TEXT     │
-│ created_at: TS      │     │ geometry: GEOMETRY  │
-└─────────────────────┘     │ created_at: TS      │
-                            └─────────────────────┘
 ```
 
 ### Spatial Indexes
@@ -246,10 +261,10 @@ async def analyze_location(
 
 ### Data Sources
 
-| Source | Type | Data | Note |
-|--------|------|------|------|
-| **OpenStreetMap** | Overpass API | Trees, parks, amenities, transport, healthcare, industrial, roads | Fetched on deployment |
-| **Unfallatlas** | CSV Download | Traffic accidents | 2024 data (published yearly by Statistisches Bundesamt) |
+| Source | Type | Data |
+|--------|------|------|
+| **OpenStreetMap** | Overpass API | Trees, parks, amenities, transport, healthcare, industrial, roads, bike infrastructure, education, sports/leisure, water bodies, cultural venues, noise sources |
+| **Unfallatlas** | CSV Download | Traffic accidents |
 
 ### OpenStreetMap Ingestion
 
@@ -305,21 +320,27 @@ elif category == 3: severity = "minor"
 
 ```
 Final Score = BASE_SCORE + Positive_Factors - Negative_Factors
-            = 25 + (Greenery + Amenities + Transport + Healthcare)
-                 - (Accidents + Industrial + Roads)
+            = 15 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Water + Cultural)
+                 - (Accidents + Industrial + Roads + Noise)
 ```
 
 ### Factor Weights & Radii
 
 | Factor | Type | Max Points | Radius | Calculation |
 |--------|------|------------|--------|-------------|
-| **Greenery** | Positive | 25 | 100m | `min(12.5, log1p(trees) * 2.5) + min(12.5, parks * 4)` |
-| **Amenities** | Positive | 25 | 500m | `min(25, log1p(count) * 4.5) + bonus_if_10+` |
-| **Transport** | Positive | 15 | 300m | `min(15, log1p(stops) * 5)` |
-| **Healthcare** | Positive | 10 | 500m | `min(10, facilities * 3)` |
-| **Accidents** | Negative | -15 | 150m | `min(15, count * 3)` |
-| **Industrial** | Negative | -15 | 200m | Binary: `15 if near else 0` |
-| **Major Roads** | Negative | -10 | 100m | Binary: `10 if near else 0` |
+| **Greenery** | Positive | 20 | 100m | `min(10, log1p(trees) * 2) + min(10, parks * 3.5)` |
+| **Amenities** | Positive | 15 | 500m | `min(15, log1p(count) * 3) + bonus_if_10+` |
+| **Transport** | Positive | 12 | 300m | `min(12, log1p(stops) * 4)` |
+| **Healthcare** | Positive | 8 | 500m | `min(8, facilities * 2.5)` |
+| **Bike Infrastructure** | Positive | 10 | 200m | `min(10, log1p(count) * 3)` |
+| **Education** | Positive | 8 | 800m | `min(8, facilities * 2)` |
+| **Sports & Leisure** | Positive | 7 | 500m | `min(7, log1p(count) * 2.5)` |
+| **Water Bodies** | Positive | 5 | 300m | Binary: `5 if near else 0` |
+| **Cultural Venues** | Positive | 5 | 1000m | `min(5, count * 1.5)` |
+| **Accidents** | Negative | -12 | 150m | `min(12, count * 2.5)` |
+| **Industrial** | Negative | -12 | 200m | Binary: `12 if near else 0` |
+| **Major Roads** | Negative | -8 | 100m | Binary: `8 if near else 0` |
+| **Noise Sources** | Negative | -8 | 100m | `min(8, count * 2)` |
 
 ### Logarithmic Scaling
 
@@ -332,13 +353,13 @@ For count-based factors, logarithmic scaling (`log1p`) prevents diminishing retu
 #   - Additional items have decreasing marginal value
 #   - Prevents score manipulation by dense areas
 
-tree_score = min(12.5, math.log1p(tree_count) * 2.5)
+tree_score = min(10.0, math.log1p(tree_count) * 2.0)
 ```
 
 **Example**: 
-- 5 trees → `log1p(5) * 2.5 = 4.5 points`
-- 50 trees → `log1p(50) * 2.5 = 9.8 points`
-- 500 trees → `log1p(500) * 2.5 = 12.5 points` (capped)
+- 5 trees → `log1p(5) * 2.0 = 3.6 points`
+- 50 trees → `log1p(50) * 2.0 = 7.9 points`
+- 500 trees → `log1p(500) * 2.0 = 10.0 points` (capped)
 
 ### Score Ranges
 

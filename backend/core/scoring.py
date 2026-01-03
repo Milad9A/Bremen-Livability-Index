@@ -7,19 +7,25 @@ import math
 class LivabilityScorer:
     """Calculate livability score based on spatial factors."""
     
-    # Positive factor weights
-    WEIGHT_GREENERY = 25.0
-    WEIGHT_AMENITIES = 25.0
-    WEIGHT_PUBLIC_TRANSPORT = 15.0
-    WEIGHT_HEALTHCARE = 10.0
+    # Positive factor weights (total: 85 max)
+    WEIGHT_GREENERY = 20.0
+    WEIGHT_AMENITIES = 15.0
+    WEIGHT_PUBLIC_TRANSPORT = 12.0
+    WEIGHT_HEALTHCARE = 8.0
+    WEIGHT_BIKE_INFRASTRUCTURE = 10.0
+    WEIGHT_EDUCATION = 8.0
+    WEIGHT_SPORTS_LEISURE = 7.0
+    WEIGHT_WATER_BODIES = 5.0
+    WEIGHT_CULTURAL = 5.0
     
-    # Negative factor weights (penalties)
-    PENALTY_ACCIDENTS = 15.0
-    PENALTY_INDUSTRIAL = 15.0
-    PENALTY_MAJOR_ROADS = 10.0
+    # Negative factor weights (penalties, total: 50 max)
+    PENALTY_ACCIDENTS = 12.0
+    PENALTY_INDUSTRIAL = 12.0
+    PENALTY_MAJOR_ROADS = 8.0
+    PENALTY_NOISE = 8.0
     
     # Base score
-    BASE_SCORE = 25.0
+    BASE_SCORE = 15.0
     
     # Distance thresholds (in meters)
     GREENERY_RADIUS = 100
@@ -29,54 +35,100 @@ class LivabilityScorer:
     ACCIDENT_RADIUS = 150
     INDUSTRIAL_RADIUS = 200
     MAJOR_ROADS_RADIUS = 100
+    BIKE_INFRASTRUCTURE_RADIUS = 200
+    EDUCATION_RADIUS = 800
+    SPORTS_LEISURE_RADIUS = 500
+    WATER_BODIES_RADIUS = 300
+    CULTURAL_RADIUS = 1000
+    NOISE_RADIUS = 100
     
     @staticmethod
     def calculate_greenery_score(tree_count: int, park_count: int) -> float:
-        """Calculate greenery score (0-25)."""
-        tree_score = min(12.5, math.log1p(tree_count) * 2.5)
-        park_score = min(12.5, park_count * 4.0)
+        """Calculate greenery score (0-20)."""
+        tree_score = min(10.0, math.log1p(tree_count) * 2.0)
+        park_score = min(10.0, park_count * 3.5)
         return tree_score + park_score
     
     @staticmethod
     def calculate_amenities_score(amenity_count: int) -> float:
-        """Calculate amenities score (0-25)."""
+        """Calculate amenities score (0-15)."""
         if amenity_count == 0:
             return 0.0
-        score = min(25.0, math.log1p(amenity_count) * 4.5)
+        score = min(15.0, math.log1p(amenity_count) * 3.0)
         if amenity_count >= 10:
-            score = min(25.0, score + 3.0)
+            score = min(15.0, score + 2.0)
         return score
     
     @staticmethod
     def calculate_public_transport_score(stop_count: int) -> float:
-        """Calculate public transport score (0-15)."""
+        """Calculate public transport score (0-12)."""
         if stop_count == 0:
             return 0.0
-        return min(15.0, math.log1p(stop_count) * 5.0)
+        return min(12.0, math.log1p(stop_count) * 4.0)
     
     @staticmethod
     def calculate_healthcare_score(facility_count: int) -> float:
-        """Calculate healthcare score (0-10)."""
+        """Calculate healthcare score (0-8)."""
         if facility_count == 0:
             return 0.0
-        return min(10.0, facility_count * 3.0)
+        return min(8.0, facility_count * 2.5)
+    
+    @staticmethod
+    def calculate_bike_infrastructure_score(bike_count: int) -> float:
+        """Calculate bike infrastructure score (0-10)."""
+        if bike_count == 0:
+            return 0.0
+        return min(10.0, math.log1p(bike_count) * 3.0)
+    
+    @staticmethod
+    def calculate_education_score(education_count: int) -> float:
+        """Calculate education facilities score (0-8)."""
+        if education_count == 0:
+            return 0.0
+        return min(8.0, education_count * 2.0)
+    
+    @staticmethod
+    def calculate_sports_leisure_score(sports_count: int) -> float:
+        """Calculate sports and leisure score (0-7)."""
+        if sports_count == 0:
+            return 0.0
+        return min(7.0, math.log1p(sports_count) * 2.5)
+    
+    @staticmethod
+    def calculate_water_bodies_score(near_water: bool) -> float:
+        """Calculate water bodies score (0-5)."""
+        return 5.0 if near_water else 0.0
+    
+    @staticmethod
+    def calculate_cultural_score(cultural_count: int) -> float:
+        """Calculate cultural venues score (0-5)."""
+        if cultural_count == 0:
+            return 0.0
+        return min(5.0, cultural_count * 1.5)
     
     @staticmethod
     def calculate_accident_penalty(accident_count: int) -> float:
-        """Calculate accident penalty (0-15)."""
+        """Calculate accident penalty (0-12)."""
         if accident_count == 0:
             return 0.0
-        return min(15.0, accident_count * 3.0)
+        return min(12.0, accident_count * 2.5)
     
     @staticmethod
     def calculate_industrial_penalty(in_industrial_area: bool) -> float:
-        """Calculate industrial area penalty (0-15)."""
-        return 15.0 if in_industrial_area else 0.0
+        """Calculate industrial area penalty (0-12)."""
+        return 12.0 if in_industrial_area else 0.0
     
     @staticmethod
     def calculate_major_roads_penalty(near_major_road: bool) -> float:
-        """Calculate major roads penalty (0-10)."""
-        return 10.0 if near_major_road else 0.0
+        """Calculate major roads penalty (0-8)."""
+        return 8.0 if near_major_road else 0.0
+    
+    @staticmethod
+    def calculate_noise_penalty(noise_count: int) -> float:
+        """Calculate noise sources penalty (0-8)."""
+        if noise_count == 0:
+            return 0.0
+        return min(8.0, noise_count * 2.0)
     
     @classmethod
     def calculate_score(
@@ -88,7 +140,13 @@ class LivabilityScorer:
         public_transport_count: int = 0,
         healthcare_count: int = 0,
         near_industrial: bool = False,
-        near_major_road: bool = False
+        near_major_road: bool = False,
+        bike_infrastructure_count: int = 0,
+        education_count: int = 0,
+        sports_leisure_count: int = 0,
+        near_water: bool = False,
+        cultural_count: int = 0,
+        noise_count: int = 0
     ) -> Dict:
         """Calculate overall livability score."""
         
@@ -97,15 +155,21 @@ class LivabilityScorer:
         amenities = cls.calculate_amenities_score(amenity_count)
         transport = cls.calculate_public_transport_score(public_transport_count)
         healthcare = cls.calculate_healthcare_score(healthcare_count)
+        bike_infra = cls.calculate_bike_infrastructure_score(bike_infrastructure_count)
+        education = cls.calculate_education_score(education_count)
+        sports = cls.calculate_sports_leisure_score(sports_leisure_count)
+        water = cls.calculate_water_bodies_score(near_water)
+        cultural = cls.calculate_cultural_score(cultural_count)
         
         # Negative factors
         accident_penalty = cls.calculate_accident_penalty(accident_count)
         industrial_penalty = cls.calculate_industrial_penalty(near_industrial)
         roads_penalty = cls.calculate_major_roads_penalty(near_major_road)
+        noise_penalty = cls.calculate_noise_penalty(noise_count)
         
         # Final score
-        positive = greenery + amenities + transport + healthcare
-        negative = accident_penalty + industrial_penalty + roads_penalty
+        positive = greenery + amenities + transport + healthcare + bike_infra + education + sports + water + cultural
+        negative = accident_penalty + industrial_penalty + roads_penalty + noise_penalty
         final_score = max(0.0, min(100.0, cls.BASE_SCORE + positive - negative))
         
         # Build factors list
@@ -141,6 +205,46 @@ class LivabilityScorer:
                 impact="positive"
             ))
         
+        if bike_infrastructure_count > 0:
+            factors.append(FactorBreakdown(
+                factor="Bike Infrastructure",
+                value=bike_infra,
+                description=f"{bike_infrastructure_count} bike facilities within 200m",
+                impact="positive"
+            ))
+        
+        if education_count > 0:
+            factors.append(FactorBreakdown(
+                factor="Education",
+                value=education,
+                description=f"{education_count} schools/universities within 800m",
+                impact="positive"
+            ))
+        
+        if sports_leisure_count > 0:
+            factors.append(FactorBreakdown(
+                factor="Sports & Leisure",
+                value=sports,
+                description=f"{sports_leisure_count} sports facilities within 500m",
+                impact="positive"
+            ))
+        
+        if near_water:
+            factors.append(FactorBreakdown(
+                factor="Water Bodies",
+                value=water,
+                description="Near river, lake, or canal within 300m",
+                impact="positive"
+            ))
+        
+        if cultural_count > 0:
+            factors.append(FactorBreakdown(
+                factor="Cultural Venues",
+                value=cultural,
+                description=f"{cultural_count} cultural venues within 1km",
+                impact="positive"
+            ))
+        
         if accident_count > 0:
             factors.append(FactorBreakdown(
                 factor="Traffic Safety",
@@ -165,20 +269,37 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
+        if noise_count > 0:
+            factors.append(FactorBreakdown(
+                factor="Noise Sources",
+                value=-noise_penalty,
+                description=f"{noise_count} noise sources within 100m",
+                impact="negative"
+            ))
+        
         # Generate summary
         summary_parts = []
-        if greenery >= 15:
+        if greenery >= 12:
             summary_parts.append("Great greenery")
-        elif greenery < 8:
+        elif greenery < 6:
             summary_parts.append("Limited greenery")
         
-        if amenities >= 15:
+        if amenities >= 10:
             summary_parts.append("Excellent amenities")
-        elif amenities < 8:
+        elif amenities < 5:
             summary_parts.append("Limited amenities")
         
         if transport >= 8:
             summary_parts.append("Good transit access")
+        
+        if bike_infra >= 6:
+            summary_parts.append("Good cycling infrastructure")
+        
+        if near_water:
+            summary_parts.append("Near water")
+        
+        if cultural_count >= 2:
+            summary_parts.append("Cultural area")
         
         if near_industrial:
             summary_parts.append("Industrial area nearby")
@@ -186,8 +307,11 @@ class LivabilityScorer:
         if near_major_road:
             summary_parts.append("Near major road")
         
-        if accident_penalty > 5:
+        if accident_penalty > 4:
             summary_parts.append("Traffic safety concerns")
+        
+        if noise_penalty > 4:
+            summary_parts.append("Potential noise issues")
         
         summary = ". ".join(summary_parts) if summary_parts else "Average livability"
         
