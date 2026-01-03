@@ -16,7 +16,9 @@ from app.db_models import (
     Tree, Park, Amenity, Accident, PublicTransport, 
     Healthcare, IndustrialArea, MajorRoad,
     BikeInfrastructure, Education, SportsLeisure,
-    PedestrianInfrastructure, CulturalVenue, NoiseSource
+    PedestrianInfrastructure, CulturalVenue, NoiseSource,
+    Railway, GasStation, WasteFacility, PowerInfrastructure,
+    ParkingLot, Airport, ConstructionSite
 )
 from core.scoring import LivabilityScorer
 from core.database import get_session, check_database_connection
@@ -265,6 +267,67 @@ async def analyze_location(
         if noise_count > 0:
             nearby_features["noise_sources"] = noise
         
+        # Railways within 75m
+        railways = fetch_nearby_features(
+            session, Railway, point, 75, "railway",
+            type_field="railway_type"
+        )
+        near_railway = len(railways) > 0
+        if near_railway:
+            nearby_features["railways"] = railways
+        
+        # Gas stations within 50m
+        gas_stations = fetch_nearby_features(
+            session, GasStation, point, 50, "gas_station"
+        )
+        near_gas_station = len(gas_stations) > 0
+        if near_gas_station:
+            nearby_features["gas_stations"] = gas_stations
+        
+        # Waste facilities within 200m
+        waste = fetch_nearby_features(
+            session, WasteFacility, point, 200, "waste_facility",
+            type_field="waste_type"
+        )
+        near_waste = len(waste) > 0
+        if near_waste:
+            nearby_features["waste_facilities"] = waste
+        
+        # Power infrastructure within 50m
+        power = fetch_nearby_features(
+            session, PowerInfrastructure, point, 50, "power_infrastructure",
+            type_field="power_type"
+        )
+        near_power = len(power) > 0
+        if near_power:
+            nearby_features["power_infrastructure"] = power
+        
+        # Large parking lots within 30m
+        parking = fetch_nearby_features(
+            session, ParkingLot, point, 30, "parking_lot",
+            type_field="parking_type"
+        )
+        near_parking = len(parking) > 0
+        if near_parking:
+            nearby_features["parking_lots"] = parking
+        
+        # Airports/helipads within 500m
+        airports = fetch_nearby_features(
+            session, Airport, point, 500, "airport",
+            type_field="airport_type"
+        )
+        near_airport = len(airports) > 0
+        if near_airport:
+            nearby_features["airports"] = airports
+        
+        # Construction sites within 100m
+        construction = fetch_nearby_features(
+            session, ConstructionSite, point, 100, "construction_site"
+        )
+        near_construction = len(construction) > 0
+        if near_construction:
+            nearby_features["construction_sites"] = construction
+        
         # Calculate score
         result = LivabilityScorer.calculate_score(
             tree_count=tree_count,
@@ -280,7 +343,14 @@ async def analyze_location(
             sports_leisure_count=sports_leisure_count,
             pedestrian_infra_count=pedestrian_infra_count,
             cultural_count=cultural_count,
-            noise_count=noise_count
+            noise_count=noise_count,
+            near_railway=near_railway,
+            near_gas_station=near_gas_station,
+            near_waste=near_waste,
+            near_power=near_power,
+            near_parking=near_parking,
+            near_airport=near_airport,
+            near_construction=near_construction
         )
         
         logger.info(f"Analyzed ({lat}, {lon}) -> Score: {result['score']}")

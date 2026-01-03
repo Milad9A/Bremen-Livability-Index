@@ -410,6 +410,233 @@ def ingest_noise_sources(api, conn):
     cursor.close()
     print(f"✅ Inserted {count} noise sources")
 
+
+def ingest_railways(api, conn):
+    """Ingest railway lines (negative factor - noise, vibration)."""
+    print("Fetching railways...")
+    query = f'[out:json][timeout:300];way[railway~"^(rail|subway|tram|light_rail)$"]({get_bbox_str()});out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.railways CASCADE;")
+    
+    count = 0
+    for way in result.ways:
+        if len(way.nodes) >= 2:
+            coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
+            try:
+                cursor.execute("""
+                    INSERT INTO gis_data.railways (osm_id, name, railway_type, geometry)
+                    VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), way.tags.get("railway", "rail"), f"LINESTRING({coords})"))
+                count += 1
+            except:
+                continue
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} railways")
+
+
+def ingest_gas_stations(api, conn):
+    """Ingest gas stations (negative factor - air pollution, fire risk)."""
+    print("Fetching gas stations...")
+    query = f'[out:json][timeout:300];node[amenity=fuel]({get_bbox_str()});out body;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.gas_stations CASCADE;")
+    
+    for node in result.nodes:
+        if node.lat and node.lon:
+            cursor.execute("""
+                INSERT INTO gis_data.gas_stations (osm_id, name, geometry)
+                VALUES (%s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), node.lon, node.lat))
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {len(result.nodes)} gas stations")
+
+
+def ingest_waste_facilities(api, conn):
+    """Ingest waste facilities (negative factor - odor, traffic)."""
+    print("Fetching waste facilities...")
+    query = f'[out:json][timeout:300];(way[landuse=landfill]({get_bbox_str()});node[amenity=recycling]({get_bbox_str()});node[amenity=waste_transfer_station]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.waste_facilities CASCADE;")
+    
+    count = 0
+    # Process nodes
+    for node in result.nodes:
+        if node.lat and node.lon:
+            waste_type = node.tags.get("amenity", "waste")
+            cursor.execute("""
+                INSERT INTO gis_data.waste_facilities (osm_id, name, waste_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), waste_type, node.lon, node.lat))
+            count += 1
+    
+    # Process ways (landfills)
+    for way in result.ways:
+        if len(way.nodes) >= 3:
+            coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
+            if way.nodes[0].lon != way.nodes[-1].lon or way.nodes[0].lat != way.nodes[-1].lat:
+                coords += f", {way.nodes[0].lon} {way.nodes[0].lat}"
+            try:
+                cursor.execute("""
+                    INSERT INTO gis_data.waste_facilities (osm_id, name, waste_type, geometry)
+                    VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), "landfill", f"POLYGON(({coords}))"))
+                count += 1
+            except:
+                continue
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} waste facilities")
+
+
+def ingest_power_infrastructure(api, conn):
+    """Ingest power infrastructure (negative factor - EMF, visual)."""
+    print("Fetching power infrastructure...")
+    query = f'[out:json][timeout:300];(way[power=line]({get_bbox_str()});node[power=substation]({get_bbox_str()});way[power=substation]({get_bbox_str()});node[power=plant]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.power_infrastructure CASCADE;")
+    
+    count = 0
+    # Process nodes
+    for node in result.nodes:
+        if node.lat and node.lon:
+            power_type = node.tags.get("power", "power")
+            cursor.execute("""
+                INSERT INTO gis_data.power_infrastructure (osm_id, name, power_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), power_type, node.lon, node.lat))
+            count += 1
+    
+    # Process ways (power lines)
+    for way in result.ways:
+        if len(way.nodes) >= 2:
+            coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
+            power_type = way.tags.get("power", "line")
+            try:
+                cursor.execute("""
+                    INSERT INTO gis_data.power_infrastructure (osm_id, name, power_type, geometry)
+                    VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), power_type, f"LINESTRING({coords})"))
+                count += 1
+            except:
+                continue
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} power infrastructure")
+
+
+def ingest_parking_lots(api, conn):
+    """Ingest surface parking lots (negative factor - heat islands, pedestrian-unfriendly)."""
+    print("Fetching parking lots...")
+    query = f'[out:json][timeout:300];(way[amenity=parking][parking=surface]({get_bbox_str()});way[amenity=parking][!parking]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.parking_lots CASCADE;")
+    
+    count = 0
+    for way in result.ways:
+        if len(way.nodes) >= 3:
+            coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
+            if way.nodes[0].lon != way.nodes[-1].lon or way.nodes[0].lat != way.nodes[-1].lat:
+                coords += f", {way.nodes[0].lon} {way.nodes[0].lat}"
+            parking_type = way.tags.get("parking", "surface")
+            try:
+                cursor.execute("""
+                    INSERT INTO gis_data.parking_lots (osm_id, name, parking_type, geometry)
+                    VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), parking_type, f"POLYGON(({coords}))"))
+                count += 1
+            except:
+                continue
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} parking lots")
+
+
+def ingest_airports(api, conn):
+    """Ingest airports and helipads (negative factor - extreme noise)."""
+    print("Fetching airports/helipads...")
+    query = f'[out:json][timeout:300];(way[aeroway=aerodrome]({get_bbox_str()});node[aeroway=helipad]({get_bbox_str()});way[aeroway=helipad]({get_bbox_str()}););out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.airports CASCADE;")
+    
+    count = 0
+    # Process nodes (helipads)
+    for node in result.nodes:
+        if node.lat and node.lon:
+            cursor.execute("""
+                INSERT INTO gis_data.airports (osm_id, name, airport_type, geometry)
+                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+            """, (node.id, node.tags.get("name", ""), "helipad", node.lon, node.lat))
+            count += 1
+    
+    # Process ways
+    for way in result.ways:
+        if len(way.nodes) >= 3:
+            coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
+            if way.nodes[0].lon != way.nodes[-1].lon or way.nodes[0].lat != way.nodes[-1].lat:
+                coords += f", {way.nodes[0].lon} {way.nodes[0].lat}"
+            airport_type = way.tags.get("aeroway", "aerodrome")
+            try:
+                cursor.execute("""
+                    INSERT INTO gis_data.airports (osm_id, name, airport_type, geometry)
+                    VALUES (%s, %s, %s, ST_GeomFromText(%s, 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), airport_type, f"POLYGON(({coords}))"))
+                count += 1
+            except:
+                continue
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} airports/helipads")
+
+
+def ingest_construction_sites(api, conn):
+    """Ingest construction sites (negative factor - noise, dust)."""
+    print("Fetching construction sites...")
+    query = f'[out:json][timeout:300];way[landuse=construction]({get_bbox_str()});out body;>;out skel qt;'
+    result = query_with_retry(api, query)
+    
+    cursor = conn.cursor()
+    cursor.execute("TRUNCATE TABLE gis_data.construction_sites CASCADE;")
+    
+    count = 0
+    for way in result.ways:
+        if len(way.nodes) >= 3:
+            coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
+            if way.nodes[0].lon != way.nodes[-1].lon or way.nodes[0].lat != way.nodes[-1].lat:
+                coords += f", {way.nodes[0].lon} {way.nodes[0].lat}"
+            try:
+                cursor.execute("""
+                    INSERT INTO gis_data.construction_sites (osm_id, name, geometry)
+                    VALUES (%s, %s, ST_GeomFromText(%s, 4326)::geography)
+                """, (way.id, way.tags.get("name", ""), f"POLYGON(({coords}))"))
+                count += 1
+            except:
+                continue
+    
+    conn.commit()
+    cursor.close()
+    print(f"✅ Inserted {count} construction sites")
+
+
 def main():
     """Main ingestion function."""
     api = overpy.Overpass()
@@ -453,6 +680,27 @@ def main():
         time.sleep(3)
         
         ingest_noise_sources(api, conn)
+        time.sleep(3)
+        
+        ingest_railways(api, conn)
+        time.sleep(3)
+        
+        ingest_gas_stations(api, conn)
+        time.sleep(3)
+        
+        ingest_waste_facilities(api, conn)
+        time.sleep(3)
+        
+        ingest_power_infrastructure(api, conn)
+        time.sleep(3)
+        
+        ingest_parking_lots(api, conn)
+        time.sleep(3)
+        
+        ingest_airports(api, conn)
+        time.sleep(3)
+        
+        ingest_construction_sites(api, conn)
         
         print("OSM data ingestion completed successfully")
     except Exception as e:

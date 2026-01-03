@@ -64,7 +64,7 @@ void main() {
         const MaterialApp(
           home: Scaffold(
             body: GlassContainer(
-              padding: const EdgeInsets.all(32.0),
+              padding: EdgeInsets.all(32.0),
               child: Text('Test'),
             ),
           ),

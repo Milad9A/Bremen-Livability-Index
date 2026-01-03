@@ -279,3 +279,134 @@ class NoiseSource(GISBase, table=True):
         default=None,
         sa_column=Column(TIMESTAMP, default=datetime.utcnow)
     )
+
+
+class Railway(GISBase, table=True):
+    """Railways table - rail, subway, tram lines."""
+    __tablename__ = "railways"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    railway_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class GasStation(GISBase, table=True):
+    """Gas stations table."""
+    __tablename__ = "gas_stations"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="POINT", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class WasteFacility(GISBase, table=True):
+    """Waste facilities table - landfills, recycling centers."""
+    __tablename__ = "waste_facilities"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    waste_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class PowerInfrastructure(GISBase, table=True):
+    """Power infrastructure table - power lines, substations."""
+    __tablename__ = "power_infrastructure"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    power_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class ParkingLot(GISBase, table=True):
+    """Parking lots table - surface parking areas."""
+    __tablename__ = "parking_lots"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    parking_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class Airport(GISBase, table=True):
+    """Airports and helipads table."""
+    __tablename__ = "airports"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    airport_type: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+
+
+class ConstructionSite(GISBase, table=True):
+    """Construction sites table."""
+    __tablename__ = "construction_sites"
+    __table_args__ = {"schema": "gis_data"}
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(default=None, sa_column=Column(BigInteger))
+    name: Optional[str] = Field(default=None, sa_column=Column(Text))
+    geometry: Any = Field(
+        default=None,
+        sa_column=Column(Geography(geometry_type="GEOMETRY", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        default=None,
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )

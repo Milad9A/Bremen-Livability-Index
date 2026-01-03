@@ -62,6 +62,10 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 │  gis_data.bike_infrastructure   │  gis_data.education           │
 │  gis_data.sports_leisure        │  gis_data.pedestrian_infra    │
 │  gis_data.cultural_venues       │  gis_data.noise_sources       │
+│  gis_data.railways              │  gis_data.gas_stations        │
+│  gis_data.waste_facilities      │  gis_data.power_infrastructure│
+│  gis_data.parking_lots          │  gis_data.airports            │
+│  gis_data.construction_sites    │                               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -357,16 +361,16 @@ elif category == 3: severity = "minor"
 
 ```
 Final Score = BASE_SCORE + Positive_Factors - Negative_Factors
-            = 45 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
-                 - (Accidents + Industrial + Roads + Noise)
+            = 55 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
+                 - (Accidents + Industrial + Roads + Noise + Railway + GasStation + Waste + Power + Parking + Airport + Construction)
 
-Theoretical Range: 45 + 75 - 25 = [0, 100] (clamped)
+Theoretical Range: 55 + 75 - 50 = [0, 100] (clamped)
 ```
 
-The base score of **45** provides a balanced starting point where most locations begin slightly below average, making positive features more impactful and rewarding. The UI displays this calculation breakdown as:
+The base score of **55** provides a balanced starting point where most locations begin at average, with 9 positive factors (max +75) and 11 negative factors (max -50) influencing the final score. The UI displays this calculation breakdown as:
 
 ```
-[Base: 45] [+Positive Total] [-Negative Total] = Final Score
+[Base: 55] [+Positive Total] [-Negative Total] = Final Score
 ```
 
 ### Factor Weights & Radii
@@ -386,6 +390,13 @@ The base score of **45** provides a balanced starting point where most locations
 | **Industrial** | Negative | -8 | 125m | Binary: `8 if near else 0` |
 | **Major Roads** | Negative | -5 | 40m | Binary: `5 if near else 0` |
 | **Noise Sources** | Negative | -5 | 60m | `min(5, count * 1.75)` |
+| **Railways** | Negative | -4 | 75m | Binary: `4 if near else 0` |
+| **Gas Stations** | Negative | -3 | 50m | Binary: `3 if near else 0` |
+| **Waste Facilities** | Negative | -5 | 200m | Binary: `5 if near else 0` |
+| **Power Infrastructure** | Negative | -3 | 50m | Binary: `3 if near else 0` |
+| **Large Parking Lots** | Negative | -2 | 30m | Binary: `2 if near else 0` |
+| **Airports/Helipads** | Negative | -6 | 500m | Binary: `6 if near else 0` |
+| **Construction Sites** | Negative | -2 | 100m | Binary: `2 if near else 0` |
 
 ### Factor Explanations
 
@@ -414,6 +425,13 @@ Each metric captures a specific aspect of neighborhood livability:
 | **Industrial Areas** | Industrial zones generate noise, air pollution, heavy traffic, and visual blight. Residential proximity to industry correlates with lower health outcomes. | Industrial land use zones within 125m (binary detection) |
 | **Major Roads** | Highways and primary roads produce constant noise, air pollution (particulates, NOx), and create pedestrian barriers. Living near major roads linked to respiratory issues. | Motorways, trunk roads, primary roads within 40m (binary detection) |
 | **Noise Sources** | Nightclubs, bars, and car repair shops generate noise pollution that disrupts sleep and reduces quality of life, especially during evening hours. | Nightclubs, bars, pubs, fast food outlets, car repair shops within 60m |
+| **Railways** | Active railway lines generate noise from passing trains and vibration. Level crossings create barriers and safety concerns for pedestrians. | Railway tracks and stations within 75m (binary detection) |
+| **Gas Stations** | Petrol/gas stations produce fuel odors, attract vehicle traffic, and pose fire/explosion risks. Underground tanks may contaminate groundwater. | Fuel stations within 50m (binary detection) |
+| **Waste Facilities** | Recycling centers, landfills, and waste processing sites generate odors, attract pests, and increase truck traffic. Visual blight reduces neighborhood appeal. | Recycling centers, landfills, waste processing within 200m (binary detection) |
+| **Power Infrastructure** | High-voltage power lines and substations raise concerns about electromagnetic fields. Substations generate noise and visual impact. | Power lines, substations, transformers within 50m (binary detection) |
+| **Large Parking Lots** | Surface parking lots create urban heat islands, generate traffic, and are visually unappealing. They indicate car-centric rather than pedestrian-friendly design. | Large parking facilities within 30m (binary detection) |
+| **Airports/Helipads** | Aircraft noise significantly impacts quality of life. Airports generate air pollution and constant traffic from departing/arriving passengers. | Airports, heliports, aerodromes within 500m (binary detection) |
+| **Construction Sites** | Active construction creates noise, dust, and traffic disruption. While temporary, they significantly impact short-term livability. | Active construction areas within 100m (binary detection) |
 
 ### Logarithmic Scaling
 

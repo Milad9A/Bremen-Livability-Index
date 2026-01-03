@@ -11,6 +11,8 @@
 
 A comprehensive geospatial platform featuring a **Flutter mobile & web application** and a **Python FastAPI backend**. It calculates Quality of Life scores for any location in Bremen, Germany, in real-time.
 
+> 📖 **For in-depth technical details, see [TECHNICAL.md](TECHNICAL.md)** – covering system architecture, database design, scoring algorithm, and deployment.
+
 ## 🌐 Live Applications
 
 Access the Bremen Livability Index on multiple platforms:
@@ -49,11 +51,11 @@ RESTful API for livability analysis and geocoding.
 
 ## 📊 Scoring System
 
-Livability is calculated from **13 spatial factors** using proximity-based analysis. Score range: **0-100**.
+Livability is calculated from **20 spatial factors** using proximity-based analysis. Score range: **0-100**.
 
-**Positive Factors:** Greenery (trees & parks), Amenities, Public Transport, Healthcare, Bike Infrastructure, Education, Sports & Leisure, Pedestrian Infrastructure, Cultural Venues
+**Positive Factors (9):** Greenery (trees & parks), Amenities, Public Transport, Healthcare, Bike Infrastructure, Education, Sports & Leisure, Pedestrian Infrastructure, Cultural Venues
 
-**Negative Factors:** Traffic Accidents, Industrial Areas, Major Roads, Noise Sources
+**Negative Factors (11):** Traffic Accidents, Industrial Areas, Major Roads, Noise Sources, Railways, Gas Stations, Waste Facilities, Power Infrastructure, Large Parking Lots, Airports/Helipads, Construction Sites
 
 > 📖 **Details:** [Scoring Algorithm](TECHNICAL.md#scoring-algorithm) in TECHNICAL.md
 
@@ -72,19 +74,24 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Ingest Data
+### 3. Initialize Database Schema
+```bash
+python -m scripts.initialize_db
+```
+
+### 4. Ingest Data
 ```bash
 python -m scripts.ingest_all_data
 ```
 
-### 4. Start Server
+### 5. Start Server
 ```bash
 ./start_server.sh
 ```
 
 API: `http://localhost:8000` | Docs: `http://localhost:8000/docs`
 
-### 5. Run Flutter App
+### 6. Run Flutter App
 ```bash
 cd frontend/bli
 flutter pub get
@@ -183,6 +190,3 @@ Coverage reports are automatically uploaded to [Codecov](https://codecov.io/gh/M
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE).
-
-**Data licenses:**  
-OpenStreetMap data: [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) | Unfallatlas data: [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0)

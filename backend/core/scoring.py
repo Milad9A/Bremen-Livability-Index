@@ -18,14 +18,21 @@ class LivabilityScorer:
     WEIGHT_PEDESTRIAN_INFRA = 4.0
     WEIGHT_CULTURAL = 4.0
     
-    # Negative factor weights (total: 25 max)
+    # Negative factor weights (total: 45 max)
     PENALTY_ACCIDENTS = 7.0
     PENALTY_INDUSTRIAL = 8.0
     PENALTY_MAJOR_ROADS = 5.0
     PENALTY_NOISE = 5.0
+    PENALTY_RAILWAY = 4.0
+    PENALTY_GAS_STATION = 3.0
+    PENALTY_WASTE = 5.0
+    PENALTY_POWER = 3.0
+    PENALTY_PARKING = 2.0
+    PENALTY_AIRPORT = 6.0
+    PENALTY_CONSTRUCTION = 2.0
     
     # Base score
-    BASE_SCORE = 45.0
+    BASE_SCORE = 55.0
     
     # Distance thresholds (in meters) 
     GREENERY_RADIUS = 175       
@@ -40,7 +47,14 @@ class LivabilityScorer:
     SPORTS_LEISURE_RADIUS = 700 
     PEDESTRIAN_INFRA_RADIUS = 275  
     CULTURAL_RADIUS = 1100      
-    NOISE_RADIUS = 60           
+    NOISE_RADIUS = 60
+    RAILWAY_RADIUS = 75
+    GAS_STATION_RADIUS = 50
+    WASTE_RADIUS = 200
+    POWER_RADIUS = 50
+    PARKING_RADIUS = 30
+    AIRPORT_RADIUS = 500
+    CONSTRUCTION_RADIUS = 100
     
     @staticmethod
     def calculate_greenery_score(tree_count: int, park_count: int) -> float:
@@ -130,6 +144,41 @@ class LivabilityScorer:
             return 0.0
         return min(5.0, noise_count * 1.75)
     
+    @staticmethod
+    def calculate_railway_penalty(near_railway: bool) -> float:
+        """Calculate railway proximity penalty (0-4)."""
+        return 4.0 if near_railway else 0.0
+    
+    @staticmethod
+    def calculate_gas_station_penalty(near_gas_station: bool) -> float:
+        """Calculate gas station proximity penalty (0-3)."""
+        return 3.0 if near_gas_station else 0.0
+    
+    @staticmethod
+    def calculate_waste_penalty(near_waste: bool) -> float:
+        """Calculate waste facility proximity penalty (0-5)."""
+        return 5.0 if near_waste else 0.0
+    
+    @staticmethod
+    def calculate_power_penalty(near_power: bool) -> float:
+        """Calculate power infrastructure proximity penalty (0-3)."""
+        return 3.0 if near_power else 0.0
+    
+    @staticmethod
+    def calculate_parking_penalty(near_parking: bool) -> float:
+        """Calculate parking lot proximity penalty (0-2)."""
+        return 2.0 if near_parking else 0.0
+    
+    @staticmethod
+    def calculate_airport_penalty(near_airport: bool) -> float:
+        """Calculate airport/helipad proximity penalty (0-6)."""
+        return 6.0 if near_airport else 0.0
+    
+    @staticmethod
+    def calculate_construction_penalty(near_construction: bool) -> float:
+        """Calculate construction site proximity penalty (0-2)."""
+        return 2.0 if near_construction else 0.0
+    
     @classmethod
     def calculate_score(
         cls,
@@ -146,7 +195,14 @@ class LivabilityScorer:
         sports_leisure_count: int = 0,
         pedestrian_infra_count: int = 0,
         cultural_count: int = 0,
-        noise_count: int = 0
+        noise_count: int = 0,
+        near_railway: bool = False,
+        near_gas_station: bool = False,
+        near_waste: bool = False,
+        near_power: bool = False,
+        near_parking: bool = False,
+        near_airport: bool = False,
+        near_construction: bool = False
     ) -> Dict:
         """Calculate overall livability score."""
         
@@ -166,10 +222,19 @@ class LivabilityScorer:
         industrial_penalty = cls.calculate_industrial_penalty(near_industrial)
         roads_penalty = cls.calculate_major_roads_penalty(near_major_road)
         noise_penalty = cls.calculate_noise_penalty(noise_count)
+        railway_penalty = cls.calculate_railway_penalty(near_railway)
+        gas_station_penalty = cls.calculate_gas_station_penalty(near_gas_station)
+        waste_penalty = cls.calculate_waste_penalty(near_waste)
+        power_penalty = cls.calculate_power_penalty(near_power)
+        parking_penalty = cls.calculate_parking_penalty(near_parking)
+        airport_penalty = cls.calculate_airport_penalty(near_airport)
+        construction_penalty = cls.calculate_construction_penalty(near_construction)
         
         # Final score
         positive = greenery + amenities + transport + healthcare + bike_infra + education + sports + pedestrian + cultural
-        negative = accident_penalty + industrial_penalty + roads_penalty + noise_penalty
+        negative = (accident_penalty + industrial_penalty + roads_penalty + noise_penalty +
+                   railway_penalty + gas_station_penalty + waste_penalty + power_penalty +
+                   parking_penalty + airport_penalty + construction_penalty)
         final_score = max(0.0, min(100.0, cls.BASE_SCORE + positive - negative))
         
         # Build factors list
@@ -277,6 +342,62 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
+        if near_railway:
+            factors.append(FactorBreakdown(
+                factor="Railway",
+                value=-railway_penalty,
+                description="Near railway line",
+                impact="negative"
+            ))
+        
+        if near_gas_station:
+            factors.append(FactorBreakdown(
+                factor="Gas Station",
+                value=-gas_station_penalty,
+                description="Near gas/petrol station",
+                impact="negative"
+            ))
+        
+        if near_waste:
+            factors.append(FactorBreakdown(
+                factor="Waste Facility",
+                value=-waste_penalty,
+                description="Near waste/recycling facility",
+                impact="negative"
+            ))
+        
+        if near_power:
+            factors.append(FactorBreakdown(
+                factor="Power Infrastructure",
+                value=-power_penalty,
+                description="Near power lines/substation",
+                impact="negative"
+            ))
+        
+        if near_parking:
+            factors.append(FactorBreakdown(
+                factor="Large Parking",
+                value=-parking_penalty,
+                description="Near large parking lot",
+                impact="negative"
+            ))
+        
+        if near_airport:
+            factors.append(FactorBreakdown(
+                factor="Airport/Helipad",
+                value=-airport_penalty,
+                description="Near airport or helipad",
+                impact="negative"
+            ))
+        
+        if near_construction:
+            factors.append(FactorBreakdown(
+                factor="Construction Site",
+                value=-construction_penalty,
+                description="Near active construction",
+                impact="negative"
+            ))
+        
         # Generate summary
         summary_parts = []
         if greenery >= 12:
@@ -312,6 +433,15 @@ class LivabilityScorer:
         
         if noise_penalty > 4:
             summary_parts.append("Potential noise issues")
+        
+        if near_railway:
+            summary_parts.append("Near railway")
+        
+        if near_airport:
+            summary_parts.append("Near airport/helipad")
+        
+        if near_waste:
+            summary_parts.append("Near waste facility")
         
         summary = ". ".join(summary_parts) if summary_parts else "Average livability"
         

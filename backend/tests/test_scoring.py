@@ -8,7 +8,7 @@ class TestScoringConstants:
     
     def test_base_score_value(self):
         """Test that base score is set correctly."""
-        assert LivabilityScorer.BASE_SCORE == 45.0
+        assert LivabilityScorer.BASE_SCORE == 55.0
     
     def test_positive_weights_sum(self):
         """Test that positive weights sum to expected total."""
@@ -26,14 +26,21 @@ class TestScoringConstants:
         assert positive_sum == 75.0
     
     def test_penalty_weights_sum(self):
-        """Test that penalty weights sum to expected total."""
+        """Test that penalty weights sum to expected total (50 points)."""
         penalty_sum = (
             LivabilityScorer.PENALTY_ACCIDENTS +
             LivabilityScorer.PENALTY_INDUSTRIAL +
             LivabilityScorer.PENALTY_MAJOR_ROADS +
-            LivabilityScorer.PENALTY_NOISE
+            LivabilityScorer.PENALTY_NOISE +
+            LivabilityScorer.PENALTY_RAILWAY +
+            LivabilityScorer.PENALTY_GAS_STATION +
+            LivabilityScorer.PENALTY_WASTE +
+            LivabilityScorer.PENALTY_POWER +
+            LivabilityScorer.PENALTY_PARKING +
+            LivabilityScorer.PENALTY_AIRPORT +
+            LivabilityScorer.PENALTY_CONSTRUCTION
         )
-        assert penalty_sum == 25.0
+        assert penalty_sum == 50.0
 
 
 class TestGreeneryScore:
@@ -291,6 +298,104 @@ class TestNoisePenalty:
         assert penalty == 5.0
 
 
+class TestRailwayPenalty:
+    """Tests for railway penalty calculation."""
+    
+    def test_not_near_railway(self):
+        """Test no penalty when not near railway."""
+        penalty = LivabilityScorer.calculate_railway_penalty(False)
+        assert penalty == 0.0
+    
+    def test_near_railway(self):
+        """Test penalty when near railway."""
+        penalty = LivabilityScorer.calculate_railway_penalty(True)
+        assert penalty == 4.0
+
+
+class TestGasStationPenalty:
+    """Tests for gas station penalty calculation."""
+    
+    def test_not_near_gas_station(self):
+        """Test no penalty when not near gas station."""
+        penalty = LivabilityScorer.calculate_gas_station_penalty(False)
+        assert penalty == 0.0
+    
+    def test_near_gas_station(self):
+        """Test penalty when near gas station."""
+        penalty = LivabilityScorer.calculate_gas_station_penalty(True)
+        assert penalty == 3.0
+
+
+class TestWastePenalty:
+    """Tests for waste facility penalty calculation."""
+    
+    def test_not_near_waste(self):
+        """Test no penalty when not near waste facility."""
+        penalty = LivabilityScorer.calculate_waste_penalty(False)
+        assert penalty == 0.0
+    
+    def test_near_waste(self):
+        """Test penalty when near waste facility."""
+        penalty = LivabilityScorer.calculate_waste_penalty(True)
+        assert penalty == 5.0
+
+
+class TestPowerPenalty:
+    """Tests for power infrastructure penalty calculation."""
+    
+    def test_not_near_power(self):
+        """Test no penalty when not near power infrastructure."""
+        penalty = LivabilityScorer.calculate_power_penalty(False)
+        assert penalty == 0.0
+    
+    def test_near_power(self):
+        """Test penalty when near power infrastructure."""
+        penalty = LivabilityScorer.calculate_power_penalty(True)
+        assert penalty == 3.0
+
+
+class TestParkingPenalty:
+    """Tests for parking lot penalty calculation."""
+    
+    def test_not_near_parking(self):
+        """Test no penalty when not near large parking."""
+        penalty = LivabilityScorer.calculate_parking_penalty(False)
+        assert penalty == 0.0
+    
+    def test_near_parking(self):
+        """Test penalty when near large parking."""
+        penalty = LivabilityScorer.calculate_parking_penalty(True)
+        assert penalty == 2.0
+
+
+class TestAirportPenalty:
+    """Tests for airport/helipad penalty calculation."""
+    
+    def test_not_near_airport(self):
+        """Test no penalty when not near airport."""
+        penalty = LivabilityScorer.calculate_airport_penalty(False)
+        assert penalty == 0.0
+    
+    def test_near_airport(self):
+        """Test penalty when near airport."""
+        penalty = LivabilityScorer.calculate_airport_penalty(True)
+        assert penalty == 6.0
+
+
+class TestConstructionPenalty:
+    """Tests for construction site penalty calculation."""
+    
+    def test_not_near_construction(self):
+        """Test no penalty when not near construction."""
+        penalty = LivabilityScorer.calculate_construction_penalty(False)
+        assert penalty == 0.0
+    
+    def test_near_construction(self):
+        """Test penalty when near construction."""
+        penalty = LivabilityScorer.calculate_construction_penalty(True)
+        assert penalty == 2.0
+
+
 class TestCalculateScore:
     """Tests for the main calculate_score method."""
     
@@ -315,7 +420,7 @@ class TestCalculateScore:
             amenity_count=0,
             accident_count=0
         )
-        assert result["base_score"] == 45.0
+        assert result["base_score"] == 55.0
     
     def test_empty_location_gets_base_score(self):
         """Test that a location with nothing gets base score."""
@@ -325,7 +430,7 @@ class TestCalculateScore:
             amenity_count=0,
             accident_count=0
         )
-        assert result["score"] == 45.0
+        assert result["score"] == 55.0
     
     def test_good_location_high_score(self):
         """Test that a location with many positive features scores high."""
@@ -363,13 +468,20 @@ class TestCalculateScore:
             sports_leisure_count=0,
             pedestrian_infra_count=0,
             cultural_count=0,
-            noise_count=5
+            noise_count=5,
+            near_railway=True,
+            near_gas_station=True,
+            near_waste=True,
+            near_power=True,
+            near_parking=True,
+            near_airport=True,
+            near_construction=True
         )
-        assert result["score"] < 40.0
+        assert result["score"] < 30.0  # Very low with all penalties
     
     def test_score_bounded_0_to_100(self):
         """Test that score is always between 0 and 100."""
-        # Test with extreme negative values
+        # Test with extreme negative values - all penalties applied
         result_low = LivabilityScorer.calculate_score(
             tree_count=0,
             park_count=0,
@@ -377,7 +489,14 @@ class TestCalculateScore:
             accident_count=100,
             near_industrial=True,
             near_major_road=True,
-            noise_count=100
+            noise_count=100,
+            near_railway=True,
+            near_gas_station=True,
+            near_waste=True,
+            near_power=True,
+            near_parking=True,
+            near_airport=True,
+            near_construction=True
         )
         assert result_low["score"] >= 0.0
         
@@ -426,10 +545,17 @@ class TestCalculateScore:
             park_count=0,
             amenity_count=0,
             accident_count=5,
-            near_industrial=True
+            near_industrial=True,
+            near_railway=True,
+            near_airport=True
         )
+        negative_factor_names = [
+            "Traffic Safety", "Industrial Area", "Major Road", "Noise Sources",
+            "Railway", "Gas Station", "Waste Facility", "Power Infrastructure",
+            "Large Parking", "Airport/Helipad", "Construction Site"
+        ]
         for factor in result["factors"]:
-            if factor.factor in ["Traffic Safety", "Industrial Area", "Major Road", "Noise Sources"]:
+            if factor.factor in negative_factor_names:
                 assert factor.impact == "negative"
     
     def test_summary_generated(self):
@@ -482,3 +608,31 @@ class TestRadiusConstants:
     def test_accident_radius_smaller_than_positive(self):
         """Test that accident radius is smaller to reduce penalties."""
         assert LivabilityScorer.ACCIDENT_RADIUS < LivabilityScorer.GREENERY_RADIUS
+    
+    def test_railway_radius(self):
+        """Test railway radius is sensible."""
+        assert LivabilityScorer.RAILWAY_RADIUS == 75
+    
+    def test_gas_station_radius(self):
+        """Test gas station radius is sensible."""
+        assert LivabilityScorer.GAS_STATION_RADIUS == 50
+    
+    def test_waste_radius(self):
+        """Test waste facility radius is sensible."""
+        assert LivabilityScorer.WASTE_RADIUS == 200
+    
+    def test_power_radius(self):
+        """Test power infrastructure radius is sensible."""
+        assert LivabilityScorer.POWER_RADIUS == 50
+    
+    def test_parking_radius(self):
+        """Test parking lot radius is sensible."""
+        assert LivabilityScorer.PARKING_RADIUS == 30
+    
+    def test_airport_radius(self):
+        """Test airport radius is sensible."""
+        assert LivabilityScorer.AIRPORT_RADIUS == 500
+    
+    def test_construction_radius(self):
+        """Test construction site radius is sensible."""
+        assert LivabilityScorer.CONSTRUCTION_RADIUS == 100
