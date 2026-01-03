@@ -4,7 +4,8 @@
   # Bremen Livability Index (BLI)
 </div>
 
-[![Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/tests.yml)
+[![Backend Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml)
+[![Frontend Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/frontend-tests.yml)
 [![Build and Release Apps](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/build-release.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/build-release.yml)
 [![codecov](https://codecov.io/gh/Milad9A/Bremen-Livability-Index/graph/badge.svg)](https://codecov.io/gh/Milad9A/Bremen-Livability-Index)
 
@@ -177,5 +178,7 @@ Coverage reports are automatically uploaded to [Codecov](https://codecov.io/gh/M
 
 ## 📄 License
 
-University project for educational purposes.  
+This project is licensed under the [MIT License](LICENSE).
+
+**Data licenses:**  
 OpenStreetMap data: [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) | Unfallatlas data: [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0)

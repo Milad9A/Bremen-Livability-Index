@@ -2,7 +2,7 @@ name: Build and Release Apps
 
 on:
   workflow_run:
-    workflows: ["Tests"]
+    workflows: ["Frontend Tests"]
     types:
       - completed
     branches:
@@ -23,7 +23,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
     steps:
       - name: Tests passed
-        run: echo "Tests passed, proceeding with build..."
+        run: echo "Frontend tests passed, proceeding with build..."
 
   # -----------------------------------------------------------------
   # Android Build Job
