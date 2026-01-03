@@ -189,7 +189,8 @@ backend/
 │       ├── ingest_osm_data.py      # OpenStreetMap data
 │       └── ingest_unfallatlas.py   # German accident data
 ├── tests/
-│   └── test_api.py       # Pytest API tests
+│   ├── test_api.py       # Pytest API tests
+│   └── test_scoring.py   # Scoring algorithm tests (58 tests)
 ├── config.py             # Pydantic settings configuration
 ├── init_db.sql           # Database schema
 ├── requirements.txt
@@ -356,35 +357,35 @@ elif category == 3: severity = "minor"
 
 ```
 Final Score = BASE_SCORE + Positive_Factors - Negative_Factors
-            = 40 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
+            = 45 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
                  - (Accidents + Industrial + Roads + Noise)
 
-Theoretical Range: 40 + 75 - 30 = [0, 100] (clamped)
+Theoretical Range: 45 + 75 - 25 = [0, 100] (clamped)
 ```
 
-The base score of **40** ensures that average locations start with a reasonable score, making the scoring more intuitive. The UI displays this calculation breakdown as:
+The base score of **45** provides a balanced starting point where most locations begin slightly below average, making positive features more impactful and rewarding. The UI displays this calculation breakdown as:
 
 ```
-[Base: 40] [+Positive Total] [-Negative Total] = Final Score
+[Base: 45] [+Positive Total] [-Negative Total] = Final Score
 ```
 
 ### Factor Weights & Radii
 
 | Factor | Type | Max Points | Radius | Calculation |
 |--------|------|------------|--------|-------------|
-| **Greenery** | Positive | 18 | 150m | `min(10, log1p(trees) * 2.5) + min(8, parks * 4)` |
-| **Amenities** | Positive | 12 | 500m | `min(12, log1p(count) * 4)` |
-| **Transport** | Positive | 10 | 400m | `min(10, log1p(stops) * 5.5)` |
-| **Healthcare** | Positive | 7 | 600m | `min(7, facilities * 3.5)` |
-| **Bike Infrastructure** | Positive | 8 | 250m | `min(8, log1p(count) * 3.5)` |
-| **Education** | Positive | 7 | 800m | `min(7, facilities * 2.5)` |
-| **Sports & Leisure** | Positive | 5 | 600m | `min(5, log1p(count) * 2.5)` |
-| **Pedestrian Infrastructure** | Positive | 4 | 250m | `min(4, log1p(count) * 1.8)` |
-| **Cultural Venues** | Positive | 4 | 1000m | `min(4, count * 2)` |
-| **Accidents** | Negative | -8 | 100m | `min(8, count * 2)` |
-| **Industrial** | Negative | -10 | 150m | Binary: `10 if near else 0` |
-| **Major Roads** | Negative | -6 | 50m | Binary: `6 if near else 0` |
-| **Noise Sources** | Negative | -6 | 75m | `min(6, count * 2)` |
+| **Greenery** | Positive | 18 | 175m | `min(11, log1p(trees) * 2.75) + min(7, parks * 3.5)` |
+| **Amenities** | Positive | 12 | 550m | `min(12, log1p(count) * 4.2)` |
+| **Transport** | Positive | 10 | 450m | `min(10, log1p(stops) * 5.75)` |
+| **Healthcare** | Positive | 7 | 700m | `min(7, facilities * 3.75)` |
+| **Bike Infrastructure** | Positive | 8 | 275m | `min(8, log1p(count) * 3.75)` |
+| **Education** | Positive | 7 | 900m | `min(7, facilities * 3)` |
+| **Sports & Leisure** | Positive | 5 | 700m | `min(5, log1p(count) * 2.75)` |
+| **Pedestrian Infrastructure** | Positive | 4 | 275m | `min(4, log1p(count) * 2)` |
+| **Cultural Venues** | Positive | 4 | 1100m | `min(4, count * 2)` |
+| **Accidents** | Negative | -7 | 90m | `min(7, count * 1.75)` |
+| **Industrial** | Negative | -8 | 125m | Binary: `8 if near else 0` |
+| **Major Roads** | Negative | -5 | 40m | Binary: `5 if near else 0` |
+| **Noise Sources** | Negative | -5 | 60m | `min(5, count * 1.75)` |
 
 ### Factor Explanations
 
@@ -394,25 +395,25 @@ Each metric captures a specific aspect of neighborhood livability:
 
 | Factor | Why It Matters | What We Measure |
 |--------|----------------|-----------------|
-| **Trees** | Urban trees improve air quality, reduce heat islands, provide shade, and enhance mental well-being. Studies show proximity to green elements reduces stress and increases property values. | Individual street and park trees within 100m radius |
-| **Parks** | Access to green spaces promotes physical activity, social interaction, and provides refuge from urban density. WHO recommends living within 300m of green space. | Public parks and green areas within 300m radius |
-| **Public Transport** | Good transit access reduces car dependency, lowers household transport costs, and improves mobility for non-drivers (elderly, youth, disabled). | Bus stops and tram stops within 400m walking distance |
-| **Amenities** | Daily-use facilities reduce travel needs, support local economy, and create vibrant neighborhoods. Walkable amenities are a key indicator of "15-minute city" design. | Supermarkets, cafes, restaurants, bakeries, banks, post offices within 500m |
-| **Healthcare** | Proximity to medical services is critical for emergencies and routine care. Especially important for elderly residents and families with children. | Hospitals, clinics, doctors' offices, pharmacies within 500m |
-| **Bike Infrastructure** | Dedicated cycling facilities encourage sustainable transport, improve safety, and indicate progressive urban planning. Correlates with lower car dependency. | Cycleways, bike lanes, bicycle parking, bike rental stations within 200m |
-| **Education** | Schools and libraries serve as community anchors. Proximity reduces commute stress for families and indicates family-friendly neighborhoods. | Schools, universities, kindergartens, libraries within 800m |
-| **Sports & Leisure** | Recreational facilities promote active lifestyles and community building. Playgrounds indicate child-friendliness; gyms and pools serve adult fitness needs. | Sports centers, swimming pools, playgrounds, fitness centers, sports pitches within 500m |
-| **Pedestrian Infrastructure** | Crosswalks, pedestrian zones, and footways indicate walkability and pedestrian safety. Well-designed pedestrian areas reduce accidents and encourage walking. | Pedestrian crossings, pedestrian streets, dedicated footways within 200m |
-| **Cultural Venues** | Museums, theaters, and community centers enrich quality of life, provide entertainment, and create cultural identity. Indicates neighborhood vibrancy. | Museums, galleries, theaters, cinemas, arts centers, community centers within 1km |
+| **Trees** | Urban trees improve air quality, reduce heat islands, provide shade, and enhance mental well-being. Studies show proximity to green elements reduces stress and increases property values. | Individual street and park trees within 175m radius |
+| **Parks** | Access to green spaces promotes physical activity, social interaction, and provides refuge from urban density. WHO recommends living within 300m of green space. | Public parks and green areas within 175m radius |
+| **Public Transport** | Good transit access reduces car dependency, lowers household transport costs, and improves mobility for non-drivers (elderly, youth, disabled). | Bus stops and tram stops within 450m walking distance |
+| **Amenities** | Daily-use facilities reduce travel needs, support local economy, and create vibrant neighborhoods. Walkable amenities are a key indicator of "15-minute city" design. | Supermarkets, cafes, restaurants, bakeries, banks, post offices within 550m |
+| **Healthcare** | Proximity to medical services is critical for emergencies and routine care. Especially important for elderly residents and families with children. | Hospitals, clinics, doctors' offices, pharmacies within 700m |
+| **Bike Infrastructure** | Dedicated cycling facilities encourage sustainable transport, improve safety, and indicate progressive urban planning. Correlates with lower car dependency. | Cycleways, bike lanes, bicycle parking, bike rental stations within 275m |
+| **Education** | Schools and libraries serve as community anchors. Proximity reduces commute stress for families and indicates family-friendly neighborhoods. | Schools, universities, kindergartens, libraries within 900m |
+| **Sports & Leisure** | Recreational facilities promote active lifestyles and community building. Playgrounds indicate child-friendliness; gyms and pools serve adult fitness needs. | Sports centers, swimming pools, playgrounds, fitness centers, sports pitches within 700m |
+| **Pedestrian Infrastructure** | Crosswalks, pedestrian zones, and footways indicate walkability and pedestrian safety. Well-designed pedestrian areas reduce accidents and encourage walking. | Pedestrian crossings, pedestrian streets, dedicated footways within 275m |
+| **Cultural Venues** | Museums, theaters, and community centers enrich quality of life, provide entertainment, and create cultural identity. Indicates neighborhood vibrancy. | Museums, galleries, theaters, cinemas, arts centers, community centers within 1.1km |
 
 #### Negative Factors
 
 | Factor | Why It Matters | What We Measure |
 |--------|----------------|-----------------|
-| **Traffic Accidents** | Historical accident data reveals dangerous intersections and streets. High accident density indicates safety risks for pedestrians, cyclists, and drivers. | Police-reported accidents (2019-2023) within 150m, weighted by severity |
-| **Industrial Areas** | Industrial zones generate noise, air pollution, heavy traffic, and visual blight. Residential proximity to industry correlates with lower health outcomes. | Industrial land use zones within 200m (binary detection) |
-| **Major Roads** | Highways and primary roads produce constant noise, air pollution (particulates, NOx), and create pedestrian barriers. Living near major roads linked to respiratory issues. | Motorways, trunk roads, primary roads within 100m (binary detection) |
-| **Noise Sources** | Nightclubs, bars, and car repair shops generate noise pollution that disrupts sleep and reduces quality of life, especially during evening hours. | Nightclubs, bars, pubs, fast food outlets, car repair shops within 100m |
+| **Traffic Accidents** | Historical accident data reveals dangerous intersections and streets. High accident density indicates safety risks for pedestrians, cyclists, and drivers. | Police-reported accidents (2019-2023) within 90m, weighted by severity |
+| **Industrial Areas** | Industrial zones generate noise, air pollution, heavy traffic, and visual blight. Residential proximity to industry correlates with lower health outcomes. | Industrial land use zones within 125m (binary detection) |
+| **Major Roads** | Highways and primary roads produce constant noise, air pollution (particulates, NOx), and create pedestrian barriers. Living near major roads linked to respiratory issues. | Motorways, trunk roads, primary roads within 40m (binary detection) |
+| **Noise Sources** | Nightclubs, bars, and car repair shops generate noise pollution that disrupts sleep and reduces quality of life, especially during evening hours. | Nightclubs, bars, pubs, fast food outlets, car repair shops within 60m |
 
 ### Logarithmic Scaling
 
@@ -425,13 +426,13 @@ For count-based factors, logarithmic scaling (`log1p`) prevents diminishing retu
 #   - Additional items have decreasing marginal value
 #   - Prevents score manipulation by dense areas
 
-tree_score = min(10.0, math.log1p(tree_count) * 2.0)
+tree_score = min(11.0, math.log1p(tree_count) * 2.75)
 ```
 
 **Example**: 
-- 5 trees → `log1p(5) * 2.0 = 3.6 points`
-- 50 trees → `log1p(50) * 2.0 = 7.9 points`
-- 500 trees → `log1p(500) * 2.0 = 10.0 points` (capped)
+- 5 trees → `log1p(5) * 2.75 = 4.9 points`
+- 50 trees → `log1p(50) * 2.75 = 10.8 points`
+- 500 trees → `log1p(500) * 2.75 = 11.0 points` (capped)
 
 ### Score Ranges
 
@@ -598,10 +599,10 @@ Coverage configuration is in `backend/pyproject.toml`:
 |--------|----------|
 | `app/models.py` | 100% |
 | `app/db_models.py` | 100% |
-| `core/scoring.py` | ~93% |
+| `core/scoring.py` | ~99% |
 | `services/geocode.py` | ~90% |
 | `app/main.py` | ~89% |
-| **Overall** | **~93%** |
+| **Overall** | **~95%** |
 
 ### Flutter Tests
 
@@ -614,7 +615,11 @@ test/
 ├── nearby_feature_layers_test.dart # Geometry parsing tests
 ├── widget_test.dart                # Basic widget tests
 ├── map_viewmodel_test.dart         # ViewModel unit tests
-└── map_screen_test.dart            # MapScreen widget tests
+├── map_screen_test.dart            # MapScreen widget tests
+├── glass_container_test.dart       # GlassContainer widget tests
+├── loading_overlay_test.dart       # LoadingOverlay widget tests
+├── floating_search_bar_test.dart   # FloatingSearchBar widget tests
+└── search_results_list_test.dart   # SearchResultsList widget tests
 ```
 
 **Run tests:**
@@ -633,11 +638,15 @@ open coverage/html/index.html
 | Module | Coverage |
 |--------|----------|
 | `widgets/score_card.dart` | 100% |
+| `widgets/glass_container.dart` | 100% |
+| `widgets/loading_overlay.dart` | 100% |
+| `widgets/floating_search_bar.dart` | 100% |
+| `widgets/search_results_list.dart` | 100% |
 | `models/location_marker.dart` | 100% |
 | `screens/map_screen.dart` | ~69% |
 | `services/api_service.dart` | ~69% |
 | `viewmodels/map_viewmodel.dart` | ~36% |
-| **Overall** | **~52%** |
+| **Overall** | **~59%** |
 
 ### CI/CD Coverage
 

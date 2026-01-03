@@ -18,35 +18,35 @@ class LivabilityScorer:
     WEIGHT_PEDESTRIAN_INFRA = 4.0
     WEIGHT_CULTURAL = 4.0
     
-    # Negative factor weights
-    PENALTY_ACCIDENTS = 6.0
+    # Negative factor weights (total: 25 max)
+    PENALTY_ACCIDENTS = 7.0
     PENALTY_INDUSTRIAL = 8.0
-    PENALTY_MAJOR_ROADS = 4.0
-    PENALTY_NOISE = 4.0
+    PENALTY_MAJOR_ROADS = 5.0
+    PENALTY_NOISE = 5.0
     
-    # Base score - higher base means average locations score higher
-    BASE_SCORE = 50.0
+    # Base score
+    BASE_SCORE = 45.0
     
-    # Distance thresholds (in meters)
-    GREENERY_RADIUS = 200       
-    AMENITIES_RADIUS = 600      
-    PUBLIC_TRANSPORT_RADIUS = 500  
-    HEALTHCARE_RADIUS = 800     
-    ACCIDENT_RADIUS = 80        
-    INDUSTRIAL_RADIUS = 100     
-    MAJOR_ROADS_RADIUS = 30     
-    BIKE_INFRASTRUCTURE_RADIUS = 300  
-    EDUCATION_RADIUS = 1000     
-    SPORTS_LEISURE_RADIUS = 800 
-    PEDESTRIAN_INFRA_RADIUS = 300  
-    CULTURAL_RADIUS = 1200      
-    NOISE_RADIUS = 50           
+    # Distance thresholds (in meters) 
+    GREENERY_RADIUS = 175       
+    AMENITIES_RADIUS = 550      
+    PUBLIC_TRANSPORT_RADIUS = 450  
+    HEALTHCARE_RADIUS = 700     
+    ACCIDENT_RADIUS = 90        
+    INDUSTRIAL_RADIUS = 125     
+    MAJOR_ROADS_RADIUS = 40     
+    BIKE_INFRASTRUCTURE_RADIUS = 275  
+    EDUCATION_RADIUS = 900     
+    SPORTS_LEISURE_RADIUS = 700 
+    PEDESTRIAN_INFRA_RADIUS = 275  
+    CULTURAL_RADIUS = 1100      
+    NOISE_RADIUS = 60           
     
     @staticmethod
     def calculate_greenery_score(tree_count: int, park_count: int) -> float:
         """Calculate greenery score (0-18)."""
-        tree_score = min(12.0, math.log1p(tree_count) * 3.0)
-        park_score = min(6.0, park_count * 3.0)  # Each park = 3 points
+        tree_score = min(11.0, math.log1p(tree_count) * 2.75)
+        park_score = min(7.0, park_count * 3.5)
         return tree_score + park_score
     
     @staticmethod
@@ -54,7 +54,7 @@ class LivabilityScorer:
         """Calculate amenities score (0-12)."""
         if amenity_count == 0:
             return 0.0
-        score = min(12.0, math.log1p(amenity_count) * 4.5)  
+        score = min(12.0, math.log1p(amenity_count) * 4.2)  
         return score
     
     @staticmethod
@@ -62,44 +62,42 @@ class LivabilityScorer:
         """Calculate public transport score (0-10)."""
         if stop_count == 0:
             return 0.0
-        # 1 stop = 6 points, 2 stops = 8.3 points, 3+ stops = 10 points
-        return min(10.0, math.log1p(stop_count) * 6.0)
+        return min(10.0, math.log1p(stop_count) * 5.75)
     
     @staticmethod
     def calculate_healthcare_score(facility_count: int) -> float:
         """Calculate healthcare score (0-7)."""
         if facility_count == 0:
             return 0.0
-        # 1 facility = 4 points, 2 = 7 points (max)
-        return min(7.0, facility_count * 4.0)
+        return min(7.0, facility_count * 3.75)
     
     @staticmethod
     def calculate_bike_infrastructure_score(bike_count: int) -> float:
         """Calculate bike infrastructure score (0-8)."""
         if bike_count == 0:
             return 0.0
-        return min(8.0, math.log1p(bike_count) * 4.0)
+        return min(8.0, math.log1p(bike_count) * 3.75)
     
     @staticmethod
     def calculate_education_score(education_count: int) -> float:
         """Calculate education facilities score (0-7)."""
         if education_count == 0:
             return 0.0
-        return min(7.0, education_count * 3.5)
+        return min(7.0, education_count * 3.0)
     
     @staticmethod
     def calculate_sports_leisure_score(sports_count: int) -> float:
         """Calculate sports and leisure score (0-5)."""
         if sports_count == 0:
             return 0.0
-        return min(5.0, math.log1p(sports_count) * 3.0)
+        return min(5.0, math.log1p(sports_count) * 2.75)
     
     @staticmethod
     def calculate_pedestrian_infra_score(pedestrian_count: int) -> float:
         """Calculate pedestrian infrastructure score (0-4)."""
         if pedestrian_count == 0:
             return 0.0
-        return min(4.0, math.log1p(pedestrian_count) * 2.2)
+        return min(4.0, math.log1p(pedestrian_count) * 2.0)
     
     @staticmethod
     def calculate_cultural_score(cultural_count: int) -> float:
@@ -110,10 +108,10 @@ class LivabilityScorer:
     
     @staticmethod
     def calculate_accident_penalty(accident_count: int) -> float:
-        """Calculate accident penalty (0-6)."""
+        """Calculate accident penalty (0-7)."""
         if accident_count == 0:
             return 0.0
-        return min(6.0, accident_count * 1.5)
+        return min(7.0, accident_count * 1.75)
     
     @staticmethod
     def calculate_industrial_penalty(in_industrial_area: bool) -> float:
@@ -122,15 +120,15 @@ class LivabilityScorer:
     
     @staticmethod
     def calculate_major_roads_penalty(near_major_road: bool) -> float:
-        """Calculate major roads penalty (0-4)."""
-        return 4.0 if near_major_road else 0.0
+        """Calculate major roads penalty (0-5)."""
+        return 5.0 if near_major_road else 0.0
     
     @staticmethod
     def calculate_noise_penalty(noise_count: int) -> float:
-        """Calculate noise sources penalty (0-4)."""
+        """Calculate noise sources penalty (0-5)."""
         if noise_count == 0:
             return 0.0
-        return min(4.0, noise_count * 1.5)
+        return min(5.0, noise_count * 1.75)
     
     @classmethod
     def calculate_score(

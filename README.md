@@ -116,10 +116,6 @@ Auto-deployment is configured via GitHub Actions and Render webhooks. On push to
 
 ## 💻 Flutter Development
 
-### Prerequisites
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) installed
-- iOS Simulator (Mac), Android Emulator, or Chrome (for web)
-
 ### Running the App
 
 ```bash
@@ -168,50 +164,18 @@ genhtml coverage/lcov.info -o coverage/html
 open coverage/html/index.html
 ```
 
-### Test Coverage
-
-| Component | Tests | Coverage |
-|-----------|-------|----------|
-| **Backend** | 11 | ~93% |
-| **Frontend** | 70 | ~52% |
-
 Coverage reports are automatically uploaded to [Codecov](https://codecov.io/gh/Milad9A/Bremen-Livability-Index) on every push.
 
-## � Data Sources & Resources
-
-### Primary Data Sources
+## 🗃️ Data Sources & Resources
 
 | Source | Description | License |
 |--------|-------------|---------|
 | [OpenStreetMap](https://www.openstreetmap.org) | Trees, parks, amenities, transport, healthcare, cycling, pedestrian infrastructure, education, sports, cultural venues | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) |
 | [Unfallatlas](https://unfallatlas.statistikportal.de) | German traffic accident data (2019-2023) | [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0) |
 
-### Useful Tools
-
-| Tool | URL | Purpose |
-|------|-----|---------|
-| Overpass Turbo | [overpass-turbo.eu](https://overpass-turbo.eu) | Test OSM queries interactively |
-| TagInfo | [taginfo.openstreetmap.org](https://taginfo.openstreetmap.org) | Explore OSM tag usage statistics |
-| Geoportal Bremen | [geoportal.bremen.de](https://www.geoportal.bremen.de) | Official Bremen geodata |
-
 > 📖 **Full Details:** [External Resources & References](TECHNICAL.md#external-resources--references) in TECHNICAL.md
-
-## 🔧 Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Database connection failed | `docker ps` to check container status |
-| Port 8000 in use | `lsof -i :8000` then `kill -9 <PID>` |
-| Overpass API timeout | Retry - the API has rate limits |
-| Flutter build errors | Run `flutter clean && flutter pub get` |
 
 ## 📄 License
 
 University project for educational purposes.  
 OpenStreetMap data: [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) | Unfallatlas data: [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0)
-
-## 🙏 Acknowledgments
-
-- [OpenStreetMap](https://www.openstreetmap.org) contributors
-- [German Accident Atlas](https://unfallatlas.statistikportal.de) (Statistisches Bundesamt)
-- [Overpass API](https://overpass-api.de) maintainers
