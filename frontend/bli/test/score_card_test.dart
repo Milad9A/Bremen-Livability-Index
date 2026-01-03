@@ -7,11 +7,13 @@ void main() {
   // Helper to create a LivabilityScore for testing
   LivabilityScore createTestScore({
     double score = 75.0,
+    double baseScore = 40.0,
     String summary = 'Test summary',
     List<Factor>? factors,
   }) {
     return LivabilityScore(
       score: score,
+      baseScore: baseScore,
       location: Location(latitude: 53.0793, longitude: 8.8017),
       factors:
           factors ??

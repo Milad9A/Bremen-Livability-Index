@@ -25,7 +25,7 @@ class LivabilityScorer:
     PENALTY_NOISE = 6.0
     
     # Base score - higher base means average locations score higher
-    BASE_SCORE = 25.0
+    BASE_SCORE = 40.0
     
     # Distance thresholds (in meters) - increased for better coverage
     GREENERY_RADIUS = 150
@@ -322,6 +322,7 @@ class LivabilityScorer:
         
         return {
             "score": round(final_score, 1),
+            "base_score": cls.BASE_SCORE,
             "factors": factors,
             "summary": summary
         }

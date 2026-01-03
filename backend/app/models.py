@@ -29,6 +29,7 @@ class FeatureDetail(BaseModel):
 class LivabilityScoreResponse(BaseModel):
     """Response model for livability score."""
     score: float = Field(..., ge=0, le=100, description="Overall livability score (0-100)")
+    base_score: float = Field(..., description="Base score before positive and negative factors")
     location: dict = Field(..., description="Requested location coordinates")
     factors: List[FactorBreakdown] = Field(..., description="Breakdown of contributing factors")
     nearby_features: Dict[str, List[FeatureDetail]] = Field(default_factory=dict, description="Details of nearby features")

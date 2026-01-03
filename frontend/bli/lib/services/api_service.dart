@@ -67,6 +67,7 @@ class ApiService {
 
 class LivabilityScore {
   final double score;
+  final double baseScore;
   final Location location;
   final List<Factor> factors;
   final Map<String, List<FeatureDetail>> nearbyFeatures;
@@ -74,6 +75,7 @@ class LivabilityScore {
 
   LivabilityScore({
     required this.score,
+    required this.baseScore,
     required this.location,
     required this.factors,
     required this.nearbyFeatures,
@@ -89,6 +91,7 @@ class LivabilityScore {
 
     return LivabilityScore(
       score: (json['score'] as num).toDouble(),
+      baseScore: (json['base_score'] as num).toDouble(),
       location: Location.fromJson(json['location']),
       factors: (json['factors'] as List)
           .map((f) => Factor.fromJson(f))

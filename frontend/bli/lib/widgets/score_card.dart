@@ -81,11 +81,18 @@ class ScoreCard extends StatelessWidget {
               Row(
                 children: [
                   _ScoreSummaryChip(
+                    icon: Icons.trending_flat,
+                    label: '${score.baseScore.toStringAsFixed(0)}',
+                    color: Colors.white.withValues(alpha: 0.15),
+                    tooltip: 'Base Score',
+                  ),
+                  const SizedBox(width: 6),
+                  _ScoreSummaryChip(
                     icon: Icons.add_circle,
                     label: '+${positiveTotal.toStringAsFixed(1)}',
                     color: Colors.white.withValues(alpha: 0.2),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   _ScoreSummaryChip(
                     icon: Icons.remove_circle,
                     label: '-${negativeTotal.toStringAsFixed(1)}',
@@ -183,16 +190,18 @@ class _ScoreSummaryChip extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
+  final String? tooltip;
 
   const _ScoreSummaryChip({
     required this.icon,
     required this.label,
     required this.color,
+    this.tooltip,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final chip = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color,
@@ -214,6 +223,11 @@ class _ScoreSummaryChip extends StatelessWidget {
         ],
       ),
     );
+
+    if (tooltip != null) {
+      return Tooltip(message: tooltip!, child: chip);
+    }
+    return chip;
   }
 }
 

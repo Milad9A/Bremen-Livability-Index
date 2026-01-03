@@ -356,10 +356,16 @@ elif category == 3: severity = "minor"
 
 ```
 Final Score = BASE_SCORE + Positive_Factors - Negative_Factors
-            = 25 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
+            = 40 + (Greenery + Amenities + Transport + Healthcare + Bike + Education + Sports + Pedestrian + Cultural)
                  - (Accidents + Industrial + Roads + Noise)
 
-Theoretical Range: 25 + 75 - 30 = [0, 100]
+Theoretical Range: 40 + 75 - 30 = [0, 100] (clamped)
+```
+
+The base score of **40** ensures that average locations start with a reasonable score, making the scoring more intuitive. The UI displays this calculation breakdown as:
+
+```
+[Base: 40] [+Positive Total] [-Negative Total] = Final Score
 ```
 
 ### Factor Weights & Radii

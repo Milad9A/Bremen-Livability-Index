@@ -10,6 +10,7 @@ void main() {
     test('fromJson parses complete data correctly', () {
       final json = {
         'score': 75.5,
+        'base_score': 40.0,
         'location': {'latitude': 53.0793, 'longitude': 8.8017},
         'factors': [
           {
@@ -46,6 +47,7 @@ void main() {
       final score = LivabilityScore.fromJson(json);
 
       expect(score.score, 75.5);
+      expect(score.baseScore, 40.0);
       expect(score.location.latitude, 53.0793);
       expect(score.location.longitude, 8.8017);
       expect(score.factors.length, 2);
@@ -63,6 +65,7 @@ void main() {
       // Use constructor directly to avoid type casting issues with empty map
       final score = LivabilityScore(
         score: 50.0,
+        baseScore: 40.0,
         location: Location(latitude: 53.0, longitude: 8.0),
         factors: [],
         nearbyFeatures: {},
@@ -75,6 +78,7 @@ void main() {
     test('scoreColor returns green for score >= 70', () {
       final score = LivabilityScore(
         score: 70.0,
+        baseScore: 40.0,
         location: Location(latitude: 53.0, longitude: 8.0),
         factors: [],
         nearbyFeatures: {},
@@ -87,6 +91,7 @@ void main() {
     test('scoreColor returns orange for score >= 50 and < 70', () {
       final score = LivabilityScore(
         score: 55.0,
+        baseScore: 40.0,
         location: Location(latitude: 53.0, longitude: 8.0),
         factors: [],
         nearbyFeatures: {},
@@ -99,6 +104,7 @@ void main() {
     test('scoreColor returns red for score < 50', () {
       final score = LivabilityScore(
         score: 30.0,
+        baseScore: 40.0,
         location: Location(latitude: 53.0, longitude: 8.0),
         factors: [],
         nearbyFeatures: {},
