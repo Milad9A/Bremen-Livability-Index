@@ -120,11 +120,10 @@ class _MapScreenContentState extends State<_MapScreenContent> {
             ],
           ),
 
-          // Search Bar
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             left: 16,
-            right: 80, // Leave space for location button
+            right: 80,
             child: viewModel.showSearch
                 ? AddressSearchWidget(
                     onLocationSelected: viewModel.onLocationSelected,
@@ -133,7 +132,6 @@ class _MapScreenContentState extends State<_MapScreenContent> {
                 : FloatingSearchBar(onTap: () => viewModel.toggleSearch(true)),
           ),
 
-          // Error Banner
           if (viewModel.errorMessage != null)
             Positioned(
               top: MediaQuery.of(context).padding.top + 80,
@@ -173,13 +171,11 @@ class _MapScreenContentState extends State<_MapScreenContent> {
               ),
             ),
 
-          // Loading Overlay
           if (viewModel.isLoading)
             LoadingOverlay(
               showSlowLoadingMessage: viewModel.showSlowLoadingMessage,
             ),
 
-          // Location Reset Button
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             right: 16,
@@ -193,7 +189,6 @@ class _MapScreenContentState extends State<_MapScreenContent> {
             ),
           ),
 
-          // Score Card
           if (viewModel.currentScore != null)
             Positioned(
               bottom: 20,

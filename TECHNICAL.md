@@ -475,7 +475,7 @@ frontend/bli/lib/
 ├── main.dart                    # App entry point
 ├── models/
 │   ├── models.dart              # Barrel export for all models
-│   ├── enums.dart               # Metric & feature enums
+│   ├── enums.dart               # MetricCategory (with featureKeys) & FeatureType
 │   ├── factor.dart              # Scoring factor (Freezed)
 │   ├── feature_detail.dart      # Nearby feature (Freezed)
 │   ├── geocode_result.dart      # Search result (Freezed)
@@ -483,7 +483,7 @@ frontend/bli/lib/
 │   ├── location.dart            # Coordinates (Freezed)
 │   └── location_marker.dart     # Map marker (Freezed)
 ├── utils/
-│   └── feature_styles.dart      # Shared styling logic (icons/colors)
+│   └── feature_styles.dart      # Icons, colors, and display names for features
 ├── screens/
 │   ├── start_screen.dart        # Animated start screen
 │   └── map_screen.dart          # Main map view
