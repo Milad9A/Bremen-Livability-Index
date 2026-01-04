@@ -289,8 +289,8 @@ The following table details all OSM features collected, their tags, and typical 
 | **Bike Infrastructure** | `highway=cycleway`, `cycleway=*`, `amenity=bicycle_parking\|bicycle_rental` | Cycling facilities | ~3,000 |
 | **Education** | `amenity=school\|university\|college\|kindergarten\|library` | Educational institutions | ~350 |
 | **Sports & Leisure** | `leisure=sports_centre\|swimming_pool\|playground\|pitch\|fitness_centre` | Recreational facilities | ~600 |
-| **Pedestrian Infrastructure** | `highway=crossing\|pedestrian\|footway`, `crossing=*` | Crosswalks, pedestrian streets | ~8,000 |
-| **Cultural Venues** | `tourism=museum\|gallery`, `amenity=theatre\|cinema\|arts_centre\|community_centre` | Cultural facilities | ~100 |
+| **Pedestrian Infrastructure** | `highway=pedestrian\|footway` | Pedestrian streets, footways (LineStrings only) | ~2,500 |
+| **Cultural Venues** | `tourism=museum\|gallery\|artwork`, `amenity=theatre\|cinema\|arts_centre\|community_centre` | Filtered cultural facilities | ~670 |
 | **Noise Sources** | `amenity=nightclub\|bar\|pub\|fast_food\|car_repair` | Potential noise generators | ~200 |
 
 ### Bremen Bounding Box
@@ -416,8 +416,8 @@ Each metric captures a specific aspect of neighborhood livability:
 | **Bike Infrastructure** | Dedicated cycling facilities encourage sustainable transport, improve safety, and indicate progressive urban planning. Correlates with lower car dependency. | Cycleways, bike lanes, bicycle parking, bike rental stations within 275m |
 | **Education** | Schools and libraries serve as community anchors. Proximity reduces commute stress for families and indicates family-friendly neighborhoods. | Schools, universities, kindergartens, libraries within 900m |
 | **Sports & Leisure** | Recreational facilities promote active lifestyles and community building. Playgrounds indicate child-friendliness; gyms and pools serve adult fitness needs. | Sports centers, swimming pools, playgrounds, fitness centers, sports pitches within 700m |
-| **Pedestrian Infrastructure** | Crosswalks, pedestrian zones, and footways indicate walkability and pedestrian safety. Well-designed pedestrian areas reduce accidents and encourage walking. | Pedestrian crossings, pedestrian streets, dedicated footways within 275m |
-| **Cultural Venues** | Museums, theaters, and community centers enrich quality of life, provide entertainment, and create cultural identity. Indicates neighborhood vibrancy. | Museums, galleries, theaters, cinemas, arts centers, community centers within 1.1km |
+| **Pedestrian Infrastructure** | Pedestrian zones and footways indicate walkability and pedestrian-friendly urban design. Dedicated walking areas encourage walking and reduce car dependency. | Pedestrian streets, dedicated footways within 275m (LineStrings only, no point crossings) |
+| **Cultural Venues** | Museums, theaters, and community centers enrich quality of life, provide entertainment, and create cultural identity. Indicates neighborhood vibrancy. | Museums, galleries, artworks, theaters, cinemas, arts centers, community centers within 1km |
 
 #### Negative Factors
 

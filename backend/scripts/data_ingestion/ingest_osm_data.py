@@ -311,25 +311,16 @@ def ingest_sports_leisure(api, conn):
 
 
 def ingest_pedestrian_infrastructure(api, conn):
-    """Ingest pedestrian infrastructure (positive factor for walkability)."""
-    print("Fetching pedestrian infrastructure...")
-    # Query for crossings, pedestrian streets, footways, and pedestrian areas
-    query = f'[out:json][timeout:300];(node[highway=crossing]({get_bbox_str()});way[highway=pedestrian]({get_bbox_str()});way[highway=footway]({get_bbox_str()});way[footway=crossing]({get_bbox_str()});node[crossing]({get_bbox_str()}););out body;>;out skel qt;'
+    """Ingest pedestrian infrastructure - only LineString geometries (ways)."""
+    print("Fetching pedestrian infrastructure (ways only)...")
+    # Query only for ways (pedestrian streets, footways) - no point features
+    query = f'[out:json][timeout:300];(way[highway=pedestrian]({get_bbox_str()});way[highway=footway]({get_bbox_str()}););out body;>;out skel qt;'
     result = query_with_retry(api, query)
     
     cursor = conn.cursor()
     cursor.execute("TRUNCATE TABLE gis_data.pedestrian_infrastructure CASCADE;")
     
     count = 0
-    for node in result.nodes:
-        if node.lat and node.lon:
-            infra_type = node.tags.get("highway", node.tags.get("crossing", "crossing"))
-            cursor.execute("""
-                INSERT INTO gis_data.pedestrian_infrastructure (osm_id, name, infra_type, geometry)
-                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
-            """, (node.id, node.tags.get("name", ""), infra_type, node.lon, node.lat))
-            count += 1
-    
     for way in result.ways:
         if len(way.nodes) >= 2:
             infra_type = way.tags.get("highway", way.tags.get("footway", "pedestrian"))
@@ -346,14 +337,17 @@ def ingest_pedestrian_infrastructure(api, conn):
     
     conn.commit()
     cursor.close()
-    print(f"✅ Inserted {count} pedestrian infrastructure features")
+    print(f"✅ Inserted {count} pedestrian infrastructure features (ways only)")
 
 
 def ingest_cultural_venues(api, conn):
-    """Ingest cultural venues (positive factor)."""
+    """Ingest cultural venues (positive factor) - filtered to specific venue types."""
     print("Fetching cultural venues...")
     query = f'[out:json][timeout:300];(node[tourism~"^(museum|gallery|artwork)$"]({get_bbox_str()});node[amenity~"^(theatre|cinema|arts_centre|community_centre)$"]({get_bbox_str()});way[tourism~"^(museum|gallery)$"]({get_bbox_str()});way[amenity~"^(theatre|cinema|arts_centre|community_centre)$"]({get_bbox_str()}););out body;>;out skel qt;'
     result = query_with_retry(api, query)
+    
+    # Only allow these venue types
+    allowed_types = {'museum', 'gallery', 'theatre', 'cinema', 'artwork', 'arts_centre', 'community_centre'}
     
     cursor = conn.cursor()
     cursor.execute("TRUNCATE TABLE gis_data.cultural_venues CASCADE;")
@@ -361,12 +355,13 @@ def ingest_cultural_venues(api, conn):
     count = 0
     for node in result.nodes:
         if node.lat and node.lon:
-            venue_type = node.tags.get("tourism", node.tags.get("amenity", "cultural"))
-            cursor.execute("""
-                INSERT INTO gis_data.cultural_venues (osm_id, name, venue_type, geometry)
-                VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
-            """, (node.id, node.tags.get("name", ""), venue_type, node.lon, node.lat))
-            count += 1
+            venue_type = node.tags.get("tourism", node.tags.get("amenity", None))
+            if venue_type in allowed_types:
+                cursor.execute("""
+                    INSERT INTO gis_data.cultural_venues (osm_id, name, venue_type, geometry)
+                    VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+                """, (node.id, node.tags.get("name", ""), venue_type, node.lon, node.lat))
+                count += 1
     
     for way in result.ways:
         if len(way.nodes) >= 3:
@@ -375,16 +370,17 @@ def ingest_cultural_venues(api, conn):
             if lats and lons:
                 centroid_lat = sum(lats) / len(lats)
                 centroid_lon = sum(lons) / len(lons)
-                venue_type = way.tags.get("tourism", way.tags.get("amenity", "cultural"))
-                cursor.execute("""
-                    INSERT INTO gis_data.cultural_venues (osm_id, name, venue_type, geometry)
-                    VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
-                """, (way.id, way.tags.get("name", ""), venue_type, centroid_lon, centroid_lat))
-                count += 1
+                venue_type = way.tags.get("tourism", way.tags.get("amenity", None))
+                if venue_type in allowed_types:
+                    cursor.execute("""
+                        INSERT INTO gis_data.cultural_venues (osm_id, name, venue_type, geometry)
+                        VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
+                    """, (way.id, way.tags.get("name", ""), venue_type, centroid_lon, centroid_lat))
+                    count += 1
     
     conn.commit()
     cursor.close()
-    print(f"✅ Inserted {count} cultural venues")
+    print(f"✅ Inserted {count} cultural venues (filtered to allowed types)")
 
 
 def ingest_noise_sources(api, conn):

@@ -16,8 +16,8 @@ Fetches data from OpenStreetMap via Overpass API:
 - Bike Infrastructure (`cycleways`, `bike lanes`, `bicycle parking/rental`)
 - Education Facilities (`school`, `university`, `college`, `kindergarten`, `library`)
 - Sports & Leisure (`sports centres`, `swimming pools`, `playgrounds`, `fitness centres`)
-- Pedestrian Infrastructure (`crossings`, `pedestrian streets`, `footways`)
-- Cultural Venues (`museums`, `theatres`, `cinemas`, `galleries`, `arts centres`)
+- Pedestrian Infrastructure (`pedestrian streets`, `footways` - LineStrings only)
+- Cultural Venues (`museums`, `galleries`, `artworks`, `theatres`, `cinemas`, `arts centres`, `community centres`)
 
 **Negative Factors:**
 - Industrial areas (`landuse=industrial`)
