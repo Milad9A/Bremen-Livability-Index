@@ -30,7 +30,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: AddressSearchWidget(
-              onLocationSelected: (_, __) {},
+              onLocationSelected: (_, _) {},
               onClose: () {},
             ),
           ),
@@ -69,7 +69,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: AddressSearchWidget(
-              onLocationSelected: (_, __) {},
+              onLocationSelected: (_, _) {},
               onClose: () {},
               apiService: mockApi,
             ),
@@ -140,7 +140,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: AddressSearchWidget(
-              onLocationSelected: (_, __) {},
+              onLocationSelected: (_, _) {},
               onClose: () {},
               apiService: mockApi,
             ),

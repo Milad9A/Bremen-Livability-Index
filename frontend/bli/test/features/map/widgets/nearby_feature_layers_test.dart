@@ -2,10 +2,160 @@ import 'package:bli/features/map/models/enums.dart';
 import 'package:bli/features/map/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:bli/features/map/widgets/nearby_feature_layers.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+
 void main() {
-  // Note: NearbyFeatureLayers widget rendering tests are skipped because
-  // they require a FlutterMap parent widget context which is complex to mock.
-  // We test the underlying functionality through unit tests in code or implicitly.
+  group('NearbyFeatureLayers Widget Tests', () {
+    testWidgets('renders nothing when features are empty', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(53.0793, 8.8017),
+              initialZoom: 13.0,
+            ),
+            children: const [NearbyFeatureLayers(nearbyFeatures: {})],
+          ),
+        ),
+      );
+
+      expect(find.byType(MarkerLayer), findsNothing);
+      expect(find.byType(PolygonLayer), findsNothing);
+      expect(find.byType(PolylineLayer), findsNothing);
+      expect(find.byType(SizedBox), findsOneWidget);
+    });
+
+    testWidgets('renders markers for Point features', (
+      WidgetTester tester,
+    ) async {
+      final features = {
+        'trees': [
+          FeatureDetail(
+            type: FeatureType.tree,
+            distance: 10.0,
+            geometry: {
+              'type': 'Point',
+              'coordinates': [8.8017, 53.0793],
+            },
+          ),
+        ],
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(53.0793, 8.8017),
+              initialZoom: 13.0,
+            ),
+            children: [NearbyFeatureLayers(nearbyFeatures: features)],
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(MarkerLayer), findsOneWidget);
+      // Verify MarkerLayer contains markers
+      final markerLayer = tester.widget<MarkerLayer>(find.byType(MarkerLayer));
+      expect(markerLayer.markers.length, 1);
+      final marker = markerLayer.markers.first;
+      expect(marker.point.latitude, 53.0793);
+      expect(marker.point.longitude, 8.8017);
+    });
+
+    testWidgets('renders polygons for Polygon features', (
+      WidgetTester tester,
+    ) async {
+      final features = {
+        'parks': [
+          FeatureDetail(
+            type: FeatureType.park,
+            distance: 50.0,
+            geometry: {
+              'type': 'Polygon',
+              'coordinates': [
+                [
+                  [8.80, 53.07],
+                  [8.81, 53.07],
+                  [8.81, 53.08],
+                  [8.80, 53.08],
+                  [8.80, 53.07],
+                ],
+              ],
+            },
+          ),
+        ],
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(53.075, 8.805),
+              initialZoom: 13.0,
+            ),
+            children: [NearbyFeatureLayers(nearbyFeatures: features)],
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(PolygonLayer), findsOneWidget);
+      final polygonLayer = tester.widget<PolygonLayer>(
+        find.byType(PolygonLayer),
+      );
+      expect(polygonLayer.polygons.length, 1);
+      expect(polygonLayer.polygons.first.points.length, 5);
+    });
+
+    testWidgets('renders polylines for LineString features', (
+      WidgetTester tester,
+    ) async {
+      final features = {
+        'roads': [
+          FeatureDetail(
+            type: FeatureType.majorRoad,
+            distance: 20.0,
+            geometry: {
+              'type': 'LineString',
+              'coordinates': [
+                [8.80, 53.07],
+                [8.81, 53.08],
+              ],
+            },
+          ),
+        ],
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(53.075, 8.805),
+              initialZoom: 13.0,
+            ),
+            children: [NearbyFeatureLayers(nearbyFeatures: features)],
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(PolylineLayer), findsOneWidget);
+      final polylineLayer = tester.widget<PolylineLayer>(
+        find.byType(PolylineLayer),
+      );
+      expect(polylineLayer.polylines.length, 1);
+      expect(polylineLayer.polylines.first.points.length, 2);
+    });
+  });
 
   group('NearbyFeatureLayers helper methods', () {
     // Methods moved to FeatureStyles, tested via integration or directly if needed.

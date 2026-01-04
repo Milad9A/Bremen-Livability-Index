@@ -1,21 +1,33 @@
 import 'package:bli/features/map/bloc/map_bloc.dart';
 import 'package:bli/features/map/models/models.dart';
 import 'package:bli/core/services/api_service.dart';
+import 'package:bli/features/map/widgets/score_card.dart';
+import 'package:bli/features/map/widgets/nearby_feature_layers.dart';
+import 'package:bli/features/map/models/enums.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bli/features/map/screens/map_screen.dart';
 import 'package:bli/features/map/widgets/floating_search_bar.dart';
-import 'package:bli/features/map/widgets/address_search.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/flutter_map.dart' hide MapEvent;
+import 'package:latlong2/latlong.dart';
+
+import 'dart:async';
+import 'dart:io';
 
 // Mock ApiService to avoid real network calls and timers
 class MockApiService implements ApiService {
+  Completer<void>? analyzeCompleter;
+
   @override
   Future<bool> checkHealth() async => true;
 
   @override
   Future<LivabilityScore> analyzeLocation(double lat, double lon) async {
+    // Wait for manual completion if completer is set
+    if (analyzeCompleter != null) {
+      await analyzeCompleter!.future;
+    }
     return const LivabilityScore(
       score: 80.0,
       baseScore: 50.0,
@@ -38,11 +50,19 @@ class MockApiService implements ApiService {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class TestHttpOverrides extends HttpOverrides {}
+
 void main() {
   late MapBloc bloc;
+  late MockApiService mockApiService;
+
+  setUpAll(() {
+    HttpOverrides.global = TestHttpOverrides();
+  });
 
   setUp(() {
-    bloc = MapBloc(apiService: MockApiService());
+    mockApiService = MockApiService();
+    bloc = MapBloc(apiService: mockApiService);
   });
 
   tearDown(() {
@@ -79,37 +99,112 @@ void main() {
       expect(find.text('Livability Score'), findsNothing);
     });
 
-    testWidgets('does not show error banner initially', (
+    testWidgets('shows score card when score is loaded', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(MaterialApp(home: MapScreen(bloc: bloc)));
+      final score = LivabilityScore(
+        score: 85.0,
+        baseScore: 50.0,
+        summary: "Excellent Livability",
+        factors: [],
+        nearbyFeatures: {
+          'park': [
+            FeatureDetail(
+              name: 'Central Park',
+              distance: 100,
+              type: FeatureType.park,
+              geometry: {
+                'type': 'Point',
+                'coordinates': [8.8017, 53.0793],
+              },
+            ),
+          ],
+        },
+        location: const Location(latitude: 53.0793, longitude: 8.8017),
+      );
 
-      expect(find.byIcon(Icons.error_outline), findsNothing);
+      // Trigger/Simulate analysis success
+      bloc.add(
+        MapEvent.analysisSucceeded(
+          score,
+          LatLng(score.location.latitude, score.location.longitude),
+        ),
+      );
+
+      await tester.pumpWidget(MaterialApp(home: MapScreen(bloc: bloc)));
+      await tester.pump(); // Rebuild with new state
+
+      expect(find.byType(ScoreCard), findsOneWidget);
+      expect(find.text('85.0/100'), findsOneWidget);
     });
 
-    testWidgets('does not show loading overlay initially', (
+    testWidgets('shows error message card when error occurs', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(MaterialApp(home: MapScreen(bloc: bloc)));
+      const errorMessage = 'Failed to load data';
+      bloc.add(const MapEvent.analysisFailed(errorMessage));
 
-      expect(find.byType(CircularProgressIndicator), findsNothing);
+      await tester.pumpWidget(MaterialApp(home: MapScreen(bloc: bloc)));
+      await tester.pump();
+
+      expect(find.text(errorMessage), findsOneWidget);
+      expect(find.byIcon(Icons.error_outline), findsOneWidget);
     });
 
-    // Skipped: BLoC state updates have timing issues in widget tests
-    testWidgets('tapping search bar area shows address search', skip: true, (
+    testWidgets('shows snackbar when bloc triggers onShowMessage', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(MaterialApp(home: MapScreen(bloc: bloc)));
 
-      // Tap on the floating search bar
-      await tester.tap(find.byType(FloatingSearchBar));
-      await tester.pump(); // Process the tap
-      await tester.pump(); // Allow BLoC state to propagate
-      await tester.pump(); // Allow widget rebuild
+      const message = 'Test Message';
+      // Trigger the callback
+      bloc.onShowMessage?.call(message);
 
-      // FloatingSearchBar should be replaced with AddressSearchWidget
-      expect(find.byType(FloatingSearchBar), findsNothing);
-      expect(find.byType(AddressSearchWidget), findsOneWidget);
+      await tester.pump(); // Trigger animation
+      await tester.pump(
+        const Duration(milliseconds: 500),
+      ); // Wait for animation
+
+      expect(find.text(message), findsOneWidget);
+    });
+
+    testWidgets('shows nearby features on map when score has features', (
+      WidgetTester tester,
+    ) async {
+      final score = LivabilityScore(
+        score: 85.0,
+        baseScore: 50.0,
+        summary: "Test",
+        factors: [],
+        nearbyFeatures: {
+          'park': [
+            FeatureDetail(
+              name: 'Park',
+              distance: 100,
+              type: FeatureType.park,
+              geometry: {
+                'type': 'Point',
+                'coordinates': [8.8, 53.0],
+              },
+            ),
+          ],
+        },
+        location: const Location(latitude: 53.0, longitude: 8.8),
+      );
+
+      bloc.add(
+        MapEvent.analysisSucceeded(
+          score,
+          LatLng(score.location.latitude, score.location.longitude),
+        ),
+      );
+
+      await tester.pumpWidget(MaterialApp(home: MapScreen(bloc: bloc)));
+      await tester.pump();
+
+      // NearbyFeatureLayers uses Markers, check if we can find something specific internal to it
+      // or just check for the widget itself
+      expect(find.byType(NearbyFeatureLayers), findsOneWidget);
     });
 
     testWidgets('tapping reset button resets map', (WidgetTester tester) async {

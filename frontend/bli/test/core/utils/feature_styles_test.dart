@@ -70,8 +70,8 @@ void main() {
         expect(FeatureStyles.getFeatureColor(FeatureType.park), Colors.green);
         expect(FeatureStyles.getFeatureColor(FeatureType.tree), Colors.green);
         expect(
-          FeatureStyles.getFeatureColor(FeatureType.majorRoad).value,
-          AppColors.black.withValues(alpha: 0.54).value,
+          FeatureStyles.getFeatureColor(FeatureType.majorRoad).toARGB32(),
+          AppColors.black.withValues(alpha: 0.54).toARGB32(),
         );
         expect(
           FeatureStyles.getFeatureColor(FeatureType.unknown),

@@ -638,10 +638,11 @@ Coverage configuration is in `backend/pyproject.toml`:
 |--------|----------|
 | `app/models.py` | 100% |
 | `app/db_models.py` | 100% |
-| `core/scoring.py` | ~99% |
-| `services/geocode.py` | ~90% |
-| `app/main.py` | ~89% |
-| **Overall** | **~95%** |
+| `core/scoring.py` | 100% |
+| `core/database.py` | 100% |
+| `services/geocode.py` | 90% |
+| `app/main.py` | 91% |
+| **Overall** | **98%** |
 
 ### Flutter Tests
 
@@ -691,11 +692,15 @@ open coverage/html/index.html
 | `features/map/widgets/floating_search_bar.dart` | 100% |
 | `features/map/widgets/search_results_list.dart` | 100% |
 | `features/map/models/location_marker.dart` | 100% |
-| `features/map/screens/map_screen.dart` | ~69% |
+| `features/map/models/livability_score.dart` | 100% |
+| `features/map/models/factor.dart` | 100% |
+| `features/map/models/location.dart` | 100% |
+| `features/map/widgets/nearby_feature_layers.dart` | 100% |
+| `features/map/screens/map_screen.dart` | ~90% |
 | `core/services/api_service.dart` | ~69% |
 | `features/map/bloc/map_bloc.dart` | ~95% |
 | `core/utils/feature_styles.dart` | 100% |
-| **Overall** | **~59%** |
+| **Overall** | **~88%** |
 
 ### CI/CD Coverage
 
