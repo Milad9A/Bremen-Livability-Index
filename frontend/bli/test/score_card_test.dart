@@ -149,7 +149,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: ScoreFactorItem(factor: factor)),
+          home: Scaffold(
+            body: ScoreFactorItem(factor: factor, nearbyFeatures: const {}),
+          ),
         ),
       );
 
@@ -171,7 +173,9 @@ void main() {
 
       await tester.pumpWidget(
         MaterialApp(
-          home: Scaffold(body: ScoreFactorItem(factor: factor)),
+          home: Scaffold(
+            body: ScoreFactorItem(factor: factor, nearbyFeatures: const {}),
+          ),
         ),
       );
 

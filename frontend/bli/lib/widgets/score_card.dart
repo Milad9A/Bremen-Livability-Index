@@ -211,7 +211,10 @@ class _ScoreCardState extends State<ScoreCard> {
                   ),
                   const SizedBox(height: 6),
                   ...positiveFactors.map(
-                    (factor) => ScoreFactorItem(factor: factor),
+                    (factor) => ScoreFactorItem(
+                      factor: factor,
+                      nearbyFeatures: score.nearbyFeatures,
+                    ),
                   ),
                   const SizedBox(height: 12),
                 ],
@@ -236,7 +239,10 @@ class _ScoreCardState extends State<ScoreCard> {
                   ),
                   const SizedBox(height: 6),
                   ...negativeFactors.map(
-                    (factor) => ScoreFactorItem(factor: factor),
+                    (factor) => ScoreFactorItem(
+                      factor: factor,
+                      nearbyFeatures: score.nearbyFeatures,
+                    ),
                   ),
                 ],
               ],
@@ -295,8 +301,80 @@ class _ScoreSummaryChip extends StatelessWidget {
 
 class ScoreFactorItem extends StatelessWidget {
   final Factor factor;
+  final Map<String, List<FeatureDetail>> nearbyFeatures;
 
-  const ScoreFactorItem({super.key, required this.factor});
+  const ScoreFactorItem({
+    super.key,
+    required this.factor,
+    required this.nearbyFeatures,
+  });
+
+  List<FeatureDetail> _getFeaturesForFactor() {
+    final factorName = factor.factor.toLowerCase();
+
+    // Map factor names to feature keys
+    if (factorName.contains('greenery')) {
+      return [
+        ...(nearbyFeatures['trees'] ?? []),
+        ...(nearbyFeatures['parks'] ?? []),
+      ];
+    }
+    if (factorName.contains('amenities')) {
+      return nearbyFeatures['amenities'] ?? [];
+    }
+    if (factorName.contains('public transport')) {
+      return nearbyFeatures['public_transport'] ?? [];
+    }
+    if (factorName.contains('healthcare')) {
+      return nearbyFeatures['healthcare'] ?? [];
+    }
+    if (factorName.contains('bike infrastructure')) {
+      return nearbyFeatures['bike_infrastructure'] ?? [];
+    }
+    if (factorName.contains('education')) {
+      return nearbyFeatures['education'] ?? [];
+    }
+    if (factorName.contains('sports')) {
+      return nearbyFeatures['sports_leisure'] ?? [];
+    }
+    if (factorName.contains('pedestrian')) {
+      return nearbyFeatures['pedestrian_infrastructure'] ?? [];
+    }
+    if (factorName.contains('cultural')) {
+      return nearbyFeatures['cultural_venues'] ?? [];
+    }
+
+    // Negative factors
+    if (factorName.contains('traffic')) {
+      return nearbyFeatures['accidents'] ?? [];
+    }
+    if (factorName.contains('industrial')) {
+      return nearbyFeatures['industrial'] ?? [];
+    }
+    if (factorName.contains('major road')) {
+      return nearbyFeatures['major_roads'] ?? [];
+    }
+    if (factorName.contains('noise')) {
+      return nearbyFeatures['noise_sources'] ?? [];
+    }
+    if (factorName.contains('railway')) return nearbyFeatures['railways'] ?? [];
+    if (factorName.contains('gas')) return nearbyFeatures['gas_stations'] ?? [];
+    if (factorName.contains('waste')) {
+      return nearbyFeatures['waste_facilities'] ?? [];
+    }
+    if (factorName.contains('power')) {
+      return nearbyFeatures['power_infrastructure'] ?? [];
+    }
+    if (factorName.contains('parking')) {
+      return nearbyFeatures['parking_lots'] ?? [];
+    }
+    if (factorName.contains('airport')) return nearbyFeatures['airports'] ?? [];
+    if (factorName.contains('construction')) {
+      return nearbyFeatures['construction_sites'] ?? [];
+    }
+
+    return [];
+  }
 
   IconData _getIconForFactor(String factorName) {
     switch (factorName.toLowerCase()) {
@@ -349,42 +427,98 @@ class ScoreFactorItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Icon(
-            _getIconForFactor(factor.factor),
-            color: AppColors.white,
-            size: 20,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              '${factor.factor}: ${factor.description}',
-              style: const TextStyle(color: AppColors.white, fontSize: 12),
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-            decoration: BoxDecoration(
-              color: factor.impact == 'positive'
-                  ? Colors.white.withValues(alpha: 0.2)
-                  : Colors.black.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              factor.value >= 0
-                  ? '+${factor.value.toStringAsFixed(1)}'
-                  : factor.value.toStringAsFixed(1),
-              style: const TextStyle(
-                color: AppColors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+    final features = _getFeaturesForFactor();
+    final isPositive = factor.impact == 'positive';
+    final color = isPositive ? Colors.greenAccent : Colors.orangeAccent;
+
+    // Only sort features with distance
+    features.sort((a, b) => a.distance.compareTo(b.distance));
+    final displayFeatures = features.take(10).toList(); // Show max 10
+
+    return Theme(
+      data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+      child: ExpansionTile(
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.only(left: 16, bottom: 8),
+        iconColor: AppColors.white,
+        collapsedIconColor: AppColors.white.withValues(alpha: 0.5),
+        dense: true,
+        title: Row(
+          children: [
+            Icon(_getIconForFactor(factor.factor), color: color, size: 20),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                '${factor.factor}: ${factor.description}',
+                style: const TextStyle(color: AppColors.white, fontSize: 13),
               ),
             ),
-          ),
-        ],
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: isPositive
+                    ? Colors.green.withValues(alpha: 0.2)
+                    : Colors.deepOrange.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: isPositive
+                      ? Colors.green.withValues(alpha: 0.5)
+                      : Colors.deepOrange.withValues(alpha: 0.5),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                factor.value >= 0
+                    ? '+${factor.value.toStringAsFixed(1)}'
+                    : factor.value.toStringAsFixed(1),
+                style: TextStyle(
+                  color: isPositive ? Colors.greenAccent : Colors.orangeAccent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+        children: displayFeatures.isEmpty
+            ? [
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    "No detailed features available.",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ]
+            : displayFeatures.map((feature) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.place,
+                        size: 12,
+                        color: AppColors.white.withValues(alpha: 0.5),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          "${feature.name ?? feature.subtype ?? feature.type} (${feature.distance.toStringAsFixed(0)}m)",
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
       ),
     );
   }
