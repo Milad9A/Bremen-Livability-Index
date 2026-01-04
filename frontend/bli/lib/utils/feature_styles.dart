@@ -249,4 +249,205 @@ class FeatureStyles {
         return Icons.help_outline;
     }
   }
+
+  /// Returns a human-readable display name for a feature subtype.
+  /// Falls back to the FeatureType display name if subtype is not recognized.
+  static String getSubtypeDisplayName(String? subtype, FeatureType type) {
+    if (subtype == null) {
+      return getFeatureTypeDisplayName(type);
+    }
+
+    // Map of subtype keys to display names
+    const subtypeNames = <String, String>{
+      // Public Transport
+      'tram_stop': 'Tram Stop',
+      'bus_stop': 'Bus Stop',
+      'bus_station': 'Bus Station',
+      'train_station': 'Train Station',
+      'subway_entrance': 'Subway Entrance',
+      'ferry_terminal': 'Ferry Terminal',
+
+      // Amenities
+      'restaurant': 'Restaurant',
+      'cafe': 'Café',
+      'fast_food': 'Fast Food',
+      'bar': 'Bar',
+      'pub': 'Pub',
+      'bank': 'Bank',
+      'atm': 'ATM',
+      'pharmacy': 'Pharmacy',
+      'post_office': 'Post Office',
+      'supermarket': 'Supermarket',
+      'convenience': 'Convenience Store',
+      'bakery': 'Bakery',
+      'butcher': 'Butcher',
+      'greengrocer': 'Greengrocer',
+      'marketplace': 'Marketplace',
+      'fuel': 'Gas Station',
+      'parking': 'Parking',
+
+      // Healthcare
+      'hospital': 'Hospital',
+      'clinic': 'Clinic',
+      'doctors': 'Doctor',
+      'dentist': 'Dentist',
+      'veterinary': 'Veterinary',
+      'nursing_home': 'Nursing Home',
+
+      // Education
+      'school': 'School',
+      'university': 'University',
+      'college': 'College',
+      'kindergarten': 'Kindergarten',
+      'library': 'Library',
+      'music_school': 'Music School',
+      'language_school': 'Language School',
+      'driving_school': 'Driving School',
+
+      // Sports & Leisure
+      'swimming_pool': 'Swimming Pool',
+      'fitness_centre': 'Fitness Centre',
+      'sports_centre': 'Sports Centre',
+      'stadium': 'Stadium',
+      'pitch': 'Sports Pitch',
+      'track': 'Running Track',
+      'playground': 'Playground',
+      'golf_course': 'Golf Course',
+      'ice_rink': 'Ice Rink',
+      'tennis': 'Tennis Court',
+      'basketball': 'Basketball Court',
+
+      // Cultural Venues
+      'museum': 'Museum',
+      'theatre': 'Theatre',
+      'cinema': 'Cinema',
+      'arts_centre': 'Arts Centre',
+      'gallery': 'Gallery',
+      'community_centre': 'Community Centre',
+      'nightclub': 'Nightclub',
+      'place_of_worship': 'Place of Worship',
+      'church': 'Church',
+      'mosque': 'Mosque',
+      'synagogue': 'Synagogue',
+
+      // Greenery
+      'tree': 'Tree',
+      'park': 'Park',
+      'garden': 'Garden',
+      'forest': 'Forest',
+      'nature_reserve': 'Nature Reserve',
+      'grass': 'Grass Area',
+
+      // Bike Infrastructure
+      'bicycle_parking': 'Bicycle Parking',
+      'bicycle_rental': 'Bicycle Rental',
+      'bicycle_repair_station': 'Bicycle Repair Station',
+
+      // Pedestrian Infrastructure
+      'pedestrian': 'Pedestrian Zone',
+      'footway': 'Footway',
+      'crossing': 'Pedestrian Crossing',
+      'steps': 'Steps',
+      'bench': 'Bench',
+
+      // Negative factors
+      'industrial': 'Industrial Area',
+      'primary': 'Primary Road',
+      'secondary': 'Secondary Road',
+      'tertiary': 'Tertiary Road',
+      'motorway': 'Motorway',
+      'trunk': 'Trunk Road',
+      'railway': 'Railway',
+      'rail': 'Rail Line',
+      'light_rail': 'Light Rail',
+      'monorail': 'Monorail',
+      'tram': 'Tram Line',
+      'subway': 'Subway Line',
+      'airport': 'Airport',
+      'helipad': 'Helipad',
+      'construction': 'Construction Site',
+      'landfill': 'Landfill',
+      'recycling': 'Recycling Centre',
+      'waste_transfer_station': 'Waste Transfer Station',
+      'power_plant': 'Power Plant',
+      'substation': 'Substation',
+      'generator': 'Generator',
+      'power_line': 'Power Line',
+      'transformer': 'Transformer',
+      'surface': 'Surface Parking',
+      'multi-storey': 'Multi-Storey Parking',
+      'underground': 'Underground Parking',
+    };
+
+    final displayName = subtypeNames[subtype.toLowerCase()];
+    if (displayName != null) {
+      return displayName;
+    }
+
+    // Fallback: format the subtype string nicely
+    return _formatSubtypeString(subtype);
+  }
+
+  /// Returns a human-readable display name for a FeatureType.
+  static String getFeatureTypeDisplayName(FeatureType type) {
+    switch (type) {
+      case FeatureType.tree:
+        return 'Tree';
+      case FeatureType.park:
+        return 'Park';
+      case FeatureType.amenity:
+        return 'Amenity';
+      case FeatureType.publicTransport:
+        return 'Public Transport';
+      case FeatureType.healthcare:
+        return 'Healthcare';
+      case FeatureType.education:
+        return 'Education';
+      case FeatureType.sportsLeisure:
+        return 'Sports & Leisure';
+      case FeatureType.culturalVenue:
+        return 'Cultural Venue';
+      case FeatureType.noiseSource:
+        return 'Noise Source';
+      case FeatureType.accident:
+        return 'Traffic Accident';
+      case FeatureType.industrial:
+        return 'Industrial Area';
+      case FeatureType.majorRoad:
+        return 'Major Road';
+      case FeatureType.bikeInfrastructure:
+        return 'Bike Infrastructure';
+      case FeatureType.pedestrianInfrastructure:
+        return 'Pedestrian Infrastructure';
+      case FeatureType.railway:
+        return 'Railway';
+      case FeatureType.gasStation:
+        return 'Gas Station';
+      case FeatureType.wasteFacility:
+        return 'Waste Facility';
+      case FeatureType.powerInfrastructure:
+        return 'Power Infrastructure';
+      case FeatureType.parkingLot:
+        return 'Parking Lot';
+      case FeatureType.airport:
+        return 'Airport';
+      case FeatureType.constructionSite:
+        return 'Construction Site';
+      case FeatureType.unknown:
+        return 'Unknown';
+    }
+  }
+
+  /// Formats a snake_case or lowercase subtype string to Title Case.
+  /// Used as a fallback when no explicit mapping exists.
+  static String _formatSubtypeString(String subtype) {
+    return subtype
+        .split('_')
+        .map(
+          (word) => word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1).toLowerCase()}'
+              : '',
+        )
+        .join(' ');
+  }
 }

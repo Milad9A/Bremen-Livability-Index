@@ -2,62 +2,64 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 enum MetricCategory {
   @JsonValue('Greenery')
-  greenery,
+  greenery(['trees', 'parks']),
   @JsonValue('Amenities')
-  amenities,
+  amenities(['amenities']),
   @JsonValue('Public Transport')
-  publicTransport,
+  publicTransport(['public_transport']),
   @JsonValue('Healthcare')
-  healthcare,
+  healthcare(['healthcare']),
   @JsonValue('Education')
-  education,
+  education(['education']),
   @JsonValue('Sports & Leisure')
-  sportsLeisure,
+  sportsLeisure(['sports_leisure']),
   @JsonValue('Cultural Venues')
-  culturalVenues,
+  culturalVenues(['cultural_venues']),
   @JsonValue('Traffic Safety')
-  trafficSafety,
+  trafficSafety(['accidents']),
   @JsonValue('Industrial Area')
-  industrialArea,
+  industrialArea(['industrial']),
   @JsonValue('Major Road')
-  majorRoad,
+  majorRoad(['major_roads']),
   @JsonValue('Noise Sources')
-  noiseSources,
+  noiseSources(['noise_sources']),
   @JsonValue('Bike Infrastructure')
-  bikeInfrastructure,
+  bikeInfrastructure(['bike_infrastructure']),
   @JsonValue('Pedestrian Infrastructure')
-  pedestrianInfrastructure,
+  pedestrianInfrastructure(['pedestrian_infrastructure']),
   @JsonValue('Railway')
-  railway,
+  railway(['railways']),
   @JsonValue('Gas Station')
-  gasStation,
+  gasStation(['gas_stations']),
   @JsonValue('Waste Facility')
-  wasteFacility,
+  wasteFacility(['waste_facilities']),
   @JsonValue('Power Infrastructure')
-  powerInfrastructure,
+  powerInfrastructure(['power_infrastructure']),
   @JsonValue('Large Parking')
-  largeParking,
+  largeParking(['parking_lots']),
   @JsonValue('Airport/Helipad')
-  airport,
+  airport(['airports']),
   @JsonValue('Construction Site')
-  constructionSite,
+  constructionSite(['construction_sites']),
 
   // Fallback for unexpected values
   @JsonValue('Unknown')
-  unknown,
+  unknown([]);
+
+  /// The API response keys for nearby features that belong to this category.
+  final List<String> featureKeys;
+
+  const MetricCategory(this.featureKeys);
 }
 
 enum FeatureType {
   @JsonValue('tree')
-  @JsonValue('trees')
   tree,
 
   @JsonValue('park')
-  @JsonValue('parks')
   park,
 
   @JsonValue('amenity')
-  @JsonValue('amenities')
   amenity,
 
   @JsonValue('public_transport')
@@ -70,53 +72,42 @@ enum FeatureType {
   education,
 
   @JsonValue('sports_leisure')
-  @JsonValue('sports')
   sportsLeisure,
 
   @JsonValue('cultural_venue')
-  @JsonValue('cultural_venues')
   culturalVenue,
 
   @JsonValue('noise_source')
-  @JsonValue('noise_sources')
   noiseSource,
 
   @JsonValue('accident')
-  @JsonValue('accidents')
   accident,
 
   @JsonValue('industrial')
   industrial,
 
   @JsonValue('major_road')
-  @JsonValue('major_roads')
   majorRoad,
 
   @JsonValue('railway')
-  @JsonValue('railways')
   railway,
 
   @JsonValue('airport')
-  @JsonValue('airports')
   airport,
 
   @JsonValue('construction_site')
-  @JsonValue('construction_sites')
   constructionSite,
 
   @JsonValue('parking_lot')
-  @JsonValue('parking_lots')
   parkingLot,
 
   @JsonValue('power_infrastructure')
   powerInfrastructure,
 
   @JsonValue('waste_facility')
-  @JsonValue('waste_facilities')
   wasteFacility,
 
   @JsonValue('gas_station')
-  @JsonValue('gas_stations')
   gasStation,
 
   @JsonValue('bike_infrastructure')
@@ -126,6 +117,6 @@ enum FeatureType {
   pedestrianInfrastructure,
 
   // Fallback
-  @JsonValue('Unknown')
+  @JsonValue('unknown')
   unknown,
 }

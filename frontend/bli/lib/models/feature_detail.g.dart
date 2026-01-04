@@ -52,5 +52,5 @@ const _$FeatureTypeEnumMap = {
   FeatureType.gasStation: 'gas_station',
   FeatureType.bikeInfrastructure: 'bike_infrastructure',
   FeatureType.pedestrianInfrastructure: 'pedestrian_infrastructure',
-  FeatureType.unknown: 'Unknown',
+  FeatureType.unknown: 'unknown',
 };

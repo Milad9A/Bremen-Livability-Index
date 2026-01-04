@@ -337,53 +337,22 @@ class ScoreFactorItem extends StatelessWidget {
   });
 
   List<FeatureDetail> _getFeaturesForFactor() {
-    switch (factor.factor) {
-      case MetricCategory.greenery:
-        return [
-          ...(nearbyFeatures['trees'] ?? []),
-          ...(nearbyFeatures['parks'] ?? []),
-        ];
-      case MetricCategory.amenities:
-        return nearbyFeatures['amenities'] ?? [];
-      case MetricCategory.publicTransport:
-        return nearbyFeatures['public_transport'] ?? [];
-      case MetricCategory.healthcare:
-        return nearbyFeatures['healthcare'] ?? [];
-      case MetricCategory.bikeInfrastructure:
-        return nearbyFeatures['bike_infrastructure'] ?? [];
-      case MetricCategory.education:
-        return nearbyFeatures['education'] ?? [];
-      case MetricCategory.sportsLeisure:
-        return nearbyFeatures['sports_leisure'] ?? [];
-      case MetricCategory.pedestrianInfrastructure:
-        return nearbyFeatures['pedestrian_infrastructure'] ?? [];
-      case MetricCategory.culturalVenues:
-        return nearbyFeatures['cultural_venues'] ?? [];
-      case MetricCategory.trafficSafety:
-        return nearbyFeatures['accidents'] ?? [];
-      case MetricCategory.industrialArea:
-        return nearbyFeatures['industrial'] ?? [];
-      case MetricCategory.majorRoad:
-        return nearbyFeatures['major_roads'] ?? [];
-      case MetricCategory.noiseSources:
-        return nearbyFeatures['noise_sources'] ?? [];
-      case MetricCategory.railway:
-        return nearbyFeatures['railways'] ?? [];
-      case MetricCategory.gasStation:
-        return nearbyFeatures['gas_stations'] ?? [];
-      case MetricCategory.wasteFacility:
-        return nearbyFeatures['waste_facilities'] ?? [];
-      case MetricCategory.powerInfrastructure:
-        return nearbyFeatures['power_infrastructure'] ?? [];
-      case MetricCategory.largeParking:
-        return nearbyFeatures['parking_lots'] ?? [];
-      case MetricCategory.airport:
-        return nearbyFeatures['airports'] ?? [];
-      case MetricCategory.constructionSite:
-        return nearbyFeatures['construction_sites'] ?? [];
-      case MetricCategory.unknown:
-        return [];
+    final features = <FeatureDetail>[];
+    for (final key in factor.factor.featureKeys) {
+      features.addAll(nearbyFeatures[key] ?? []);
     }
+    return features;
+  }
+
+  String _buildFeatureDisplayText(FeatureDetail feature) {
+    final subtype = FeatureStyles.getSubtypeDisplayName(
+      feature.subtype,
+      feature.type,
+    );
+    if (feature.name != null && feature.name!.isNotEmpty) {
+      return '$subtype (${feature.name})';
+    }
+    return subtype;
   }
 
   @override
@@ -493,7 +462,7 @@ class ScoreFactorItem extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          feature.name ?? feature.subtype ?? feature.type.name,
+                          _buildFeatureDisplayText(feature),
                           style: TextStyle(
                             color: AppColors.greyDark,
                             fontSize: 12,
