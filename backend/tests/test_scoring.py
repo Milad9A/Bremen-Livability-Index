@@ -611,28 +611,28 @@ class TestRadiusConstants:
     
     def test_railway_radius(self):
         """Test railway radius is sensible."""
-        assert LivabilityScorer.RAILWAY_RADIUS == 75
+        assert LivabilityScorer.RAILWAY_RADIUS == 100
     
     def test_gas_station_radius(self):
         """Test gas station radius is sensible."""
-        assert LivabilityScorer.GAS_STATION_RADIUS == 50
+        assert LivabilityScorer.GAS_STATION_RADIUS == 75
     
     def test_waste_radius(self):
         """Test waste facility radius is sensible."""
-        assert LivabilityScorer.WASTE_RADIUS == 200
+        assert LivabilityScorer.WASTE_RADIUS == 250
     
     def test_power_radius(self):
         """Test power infrastructure radius is sensible."""
-        assert LivabilityScorer.POWER_RADIUS == 50
+        assert LivabilityScorer.POWER_RADIUS == 75
     
     def test_parking_radius(self):
         """Test parking lot radius is sensible."""
-        assert LivabilityScorer.PARKING_RADIUS == 30
+        assert LivabilityScorer.PARKING_RADIUS == 50
     
     def test_airport_radius(self):
         """Test airport radius is sensible."""
-        assert LivabilityScorer.AIRPORT_RADIUS == 500
+        assert LivabilityScorer.AIRPORT_RADIUS == 600
     
     def test_construction_radius(self):
         """Test construction site radius is sensible."""
-        assert LivabilityScorer.CONSTRUCTION_RADIUS == 100
+        assert LivabilityScorer.CONSTRUCTION_RADIUS == 125
