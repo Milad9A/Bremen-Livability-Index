@@ -138,7 +138,7 @@ class MapViewModel extends ChangeNotifier {
       _isLoading = false;
     } catch (e) {
       _stopSlowLoadingTimer();
-      _errorMessage = 'Failed to analyze location: $e';
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
       _isLoading = false;
     }
     notifyListeners();
@@ -170,7 +170,7 @@ class MapViewModel extends ChangeNotifier {
       _isLoading = false;
     } catch (e) {
       _stopSlowLoadingTimer();
-      _errorMessage = 'Failed to analyze location: $e';
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
       _isLoading = false;
     }
     notifyListeners();

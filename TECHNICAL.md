@@ -287,8 +287,8 @@ The following table details all OSM features collected, their tags, and typical 
 | **Industrial Areas** | `landuse=industrial` | Industrial zones (polygons) | ~150 |
 | **Major Roads** | `highway=motorway\|trunk\|primary` | High-traffic roads | ~200 |
 | **Bike Infrastructure** | `highway=cycleway`, `cycleway=*`, `amenity=bicycle_parking\|bicycle_rental` | Cycling facilities | ~3,000 |
-| **Education** | `amenity=school\|university\|college\|kindergarten\|library` | Educational institutions | ~350 |
-| **Sports & Leisure** | `leisure=sports_centre\|swimming_pool\|playground\|pitch\|fitness_centre` | Recreational facilities | ~600 |
+| **Education** | `amenity=school\|university\|college\|kindergarten\|library` | Educational institutions | ~670 |
+| **Sports & Leisure** | `leisure=sports_centre\|swimming_pool\|playground\|pitch\|fitness_centre` | Recreational facilities | ~680 |
 | **Pedestrian Infrastructure** | `highway=pedestrian\|footway` | Pedestrian streets, footways (LineStrings only) | ~2,500 |
 | **Cultural Venues** | `tourism=museum\|gallery`, `amenity=theatre\|cinema\|arts_centre\|community_centre` | Filtered cultural facilities | ~500 |
 | **Noise Sources** | `amenity=nightclub\|bar\|pub\|fast_food\|car_repair` | Potential noise generators | ~200 |

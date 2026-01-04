@@ -240,27 +240,42 @@ def ingest_education(api, conn):
     cursor.execute("TRUNCATE TABLE gis_data.education CASCADE;")
     
     count = 0
+    # Track unique names to prevent duplicate buildings of same institution
+    seen_names = set()
+
     for node in result.nodes:
         if node.lat and node.lon:
+            name = node.tags.get("name", "").strip()
+            # Skip unnamed facilities and duplicates
+            if not name or name in seen_names:
+                continue
+            
+            seen_names.add(name)
             cursor.execute("""
                 INSERT INTO gis_data.education (osm_id, name, education_type, geometry)
                 VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
-            """, (node.id, node.tags.get("name", ""), node.tags.get("amenity", ""), node.lon, node.lat))
+            """, (node.id, name, node.tags.get("amenity", ""), node.lon, node.lat))
             count += 1
     
     # Also get centroids of ways (buildings)
     for way in result.ways:
         if len(way.nodes) >= 3:
+            name = way.tags.get("name", "").strip()
+            # Skip unnamed facilities and duplicates
+            if not name or name in seen_names:
+                continue
+                
             # Calculate centroid
             lats = [n.lat for n in way.nodes if n.lat]
             lons = [n.lon for n in way.nodes if n.lon]
             if lats and lons:
+                seen_names.add(name)
                 centroid_lat = sum(lats) / len(lats)
                 centroid_lon = sum(lons) / len(lons)
                 cursor.execute("""
                     INSERT INTO gis_data.education (osm_id, name, education_type, geometry)
                     VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
-                """, (way.id, way.tags.get("name", ""), way.tags.get("amenity", ""), centroid_lon, centroid_lat))
+                """, (way.id, name, way.tags.get("amenity", ""), centroid_lon, centroid_lat))
                 count += 1
     
     conn.commit()
@@ -280,29 +295,44 @@ def ingest_sports_leisure(api, conn):
     count = 0
     seen_ids = set()
     
+    # Track unique names to prevent duplicate buildings of same complex
+    seen_names = set()
+    
     for node in result.nodes:
         if node.lat and node.lon and node.id not in seen_ids:
+            name = node.tags.get("name", "").strip()
+            # Skip unnamed facilities and duplicates
+            if not name or name in seen_names:
+                continue
+            
             seen_ids.add(node.id)
+            seen_names.add(name)
             leisure_type = node.tags.get("leisure", node.tags.get("sport", "sports"))
             cursor.execute("""
                 INSERT INTO gis_data.sports_leisure (osm_id, name, leisure_type, geometry)
                 VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
-            """, (node.id, node.tags.get("name", ""), leisure_type, node.lon, node.lat))
+            """, (node.id, name, leisure_type, node.lon, node.lat))
             count += 1
     
     for way in result.ways:
         if len(way.nodes) >= 3 and way.id not in seen_ids:
+            name = way.tags.get("name", "").strip()
+            # Skip unnamed facilities and duplicates
+            if not name or name in seen_names:
+                continue
+
             seen_ids.add(way.id)
             lats = [n.lat for n in way.nodes if n.lat]
             lons = [n.lon for n in way.nodes if n.lon]
             if lats and lons:
+                seen_names.add(name)
                 centroid_lat = sum(lats) / len(lats)
                 centroid_lon = sum(lons) / len(lons)
                 leisure_type = way.tags.get("leisure", way.tags.get("sport", "sports"))
                 cursor.execute("""
                     INSERT INTO gis_data.sports_leisure (osm_id, name, leisure_type, geometry)
                     VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography)
-                """, (way.id, way.tags.get("name", ""), leisure_type, centroid_lon, centroid_lat))
+                """, (way.id, name, leisure_type, centroid_lon, centroid_lat))
                 count += 1
     
     conn.commit()

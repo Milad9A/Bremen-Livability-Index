@@ -37,94 +37,90 @@ class _ScoreCardState extends State<ScoreCard> {
       elevation: 8,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-        alignment: Alignment.topCenter,
-        child: Container(
-          constraints: _isExpanded
-              ? BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.6,
-                )
-              : null,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              colors: [
-                getScoreColor(score.score),
-                getScoreColor(score.score).withValues(alpha: 0.85),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: getScoreColor(score.score).withValues(alpha: 0.4),
-                blurRadius: 15,
-                offset: const Offset(0, 8),
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: [
+              getScoreColor(score.score),
+              getScoreColor(score.score).withValues(alpha: 0.85),
             ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () => setState(() => _isExpanded = !_isExpanded),
-                  behavior: HitTestBehavior.opaque,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Text(
-                            'Livability Score',
-                            style: TextStyle(
-                              color: AppColors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
+          boxShadow: [
+            BoxShadow(
+              color: getScoreColor(score.score).withValues(alpha: 0.4),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: Container(
+            constraints: _isExpanded
+                ? BoxConstraints(
+                    maxHeight: MediaQuery.of(context).size.height * 0.6,
+                  )
+                : null,
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => setState(() => _isExpanded = !_isExpanded),
+                    behavior: HitTestBehavior.opaque,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Text(
+                              'Livability Score',
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 8),
-                          AnimatedRotation(
-                            turns: _isExpanded ? 0.5 : 0,
-                            duration: const Duration(milliseconds: 300),
-                            child: const Icon(
-                              Icons.keyboard_arrow_down,
-                              color: AppColors.white,
-                              size: 24,
+                            const SizedBox(width: 8),
+                            AnimatedRotation(
+                              turns: _isExpanded ? 0.5 : 0,
+                              duration: const Duration(milliseconds: 300),
+                              child: const Icon(
+                                Icons.keyboard_arrow_down,
+                                color: AppColors.white,
+                                size: 24,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '${score.score.toStringAsFixed(1)}/100',
-                        style: const TextStyle(
-                          color: AppColors.white,
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
+                          ],
                         ),
-                      ),
-                    ],
+                        Text(
+                          '${score.score.toStringAsFixed(1)}/100',
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                AnimatedCrossFade(
-                  duration: const Duration(milliseconds: 300),
-                  crossFadeState: _isExpanded
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  firstChild: const SizedBox.shrink(),
-                  secondChild: _buildExpandedContent(
-                    score,
-                    positiveFactors,
-                    negativeFactors,
-                    positiveTotal,
-                    negativeTotal,
-                  ),
-                ),
-              ],
+                  if (_isExpanded)
+                    _buildExpandedContent(
+                      score,
+                      positiveFactors,
+                      negativeFactors,
+                      positiveTotal,
+                      negativeTotal,
+                    ),
+                ],
+              ),
             ),
           ),
         ),

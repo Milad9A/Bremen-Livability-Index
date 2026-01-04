@@ -34,9 +34,20 @@ class ApiService {
 
       return LivabilityScore.fromJson(response.data);
     } on DioException catch (e) {
-      throw Exception('Failed to analyze location: ${e.message}');
+      if (e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.sendTimeout) {
+        throw Exception('Connection timed out. Please check your internet.');
+      }
+      if (e.response != null) {
+        if (e.response!.statusCode == 500) {
+          throw Exception('Server error. Please try again later.');
+        }
+        throw Exception('Server error (${e.response!.statusCode}).');
+      }
+      throw Exception('Network error. Please check your connection.');
     } catch (e) {
-      throw Exception('Error connecting to API: $e');
+      throw Exception('An unexpected error occurred.');
     }
   }
 
