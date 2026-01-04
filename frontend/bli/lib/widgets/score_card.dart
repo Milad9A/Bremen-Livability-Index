@@ -36,184 +36,217 @@ class _ScoreCardState extends State<ScoreCard> {
     return Card(
       elevation: 8,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: AnimatedContainer(
+      child: AnimatedSize(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        constraints: BoxConstraints(
-          maxHeight: _isExpanded
-              ? MediaQuery.of(context).size.height * 0.55
-              : 80,
-        ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          gradient: LinearGradient(
-            colors: [
-              getScoreColor(score.score),
-              getScoreColor(score.score).withValues(alpha: 0.85),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: getScoreColor(score.score).withValues(alpha: 0.4),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+        alignment: Alignment.topCenter,
+        child: Container(
+          constraints: _isExpanded
+              ? BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.55,
+                )
+              : null,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              colors: [
+                getScoreColor(score.score),
+                getScoreColor(score.score).withValues(alpha: 0.85),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
             ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              GestureDetector(
-                onTap: () => setState(() => _isExpanded = !_isExpanded),
-                behavior: HitTestBehavior.opaque,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'Livability Score',
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        AnimatedRotation(
-                          turns: _isExpanded ? 0.5 : 0,
-                          duration: const Duration(milliseconds: 300),
-                          child: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: AppColors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      '${score.score.toStringAsFixed(1)}/100',
-                      style: const TextStyle(
-                        color: AppColors.white,
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: getScoreColor(score.score).withValues(alpha: 0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
               ),
-              if (_isExpanded) ...[
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    _ScoreSummaryChip(
-                      icon: Icons.trending_flat,
-                      label: score.baseScore.toStringAsFixed(0),
-                      color: Colors.white.withValues(alpha: 0.15),
-                      tooltip: 'Base Score',
-                    ),
-                    const SizedBox(width: 6),
-                    _ScoreSummaryChip(
-                      icon: Icons.add_circle,
-                      label: '+${positiveTotal.toStringAsFixed(1)}',
-                      color: Colors.white.withValues(alpha: 0.2),
-                    ),
-                    const SizedBox(width: 6),
-                    _ScoreSummaryChip(
-                      icon: Icons.remove_circle,
-                      label: '-${negativeTotal.toStringAsFixed(1)}',
-                      color: Colors.black.withValues(alpha: 0.2),
-                    ),
-                    const Spacer(),
-                    Text(
-                      '${score.factors.length} factors',
-                      style: TextStyle(
-                        color: AppColors.white.withValues(alpha: 0.8),
-                        fontSize: 12,
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GestureDetector(
+                  onTap: () => setState(() => _isExpanded = !_isExpanded),
+                  behavior: HitTestBehavior.opaque,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Livability Score',
+                            style: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          AnimatedRotation(
+                            turns: _isExpanded ? 0.5 : 0,
+                            duration: const Duration(milliseconds: 300),
+                            child: const Icon(
+                              Icons.keyboard_arrow_down,
+                              color: AppColors.white,
+                              size: 24,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  score.summary,
-                  style: const TextStyle(
-                    color: AppColors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                      Text(
+                        '${score.score.toStringAsFixed(1)}/100',
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12),
-                const Divider(color: Colors.white70, thickness: 1),
-                const SizedBox(height: 8),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (positiveFactors.isNotEmpty) ...[
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.thumb_up,
-                                color: AppColors.white,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'Positive Factors (${positiveFactors.length})',
-                                style: const TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          ...positiveFactors.map(
-                            (factor) => ScoreFactorItem(factor: factor),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                        if (negativeFactors.isNotEmpty) ...[
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.thumb_down,
-                                color: AppColors.white,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                'Negative Factors (${negativeFactors.length})',
-                                style: const TextStyle(
-                                  color: AppColors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 6),
-                          ...negativeFactors.map(
-                            (factor) => ScoreFactorItem(factor: factor),
-                          ),
-                        ],
-                      ],
-                    ),
+                AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 300),
+                  crossFadeState: _isExpanded
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  firstChild: const SizedBox.shrink(),
+                  secondChild: _buildExpandedContent(
+                    score,
+                    positiveFactors,
+                    negativeFactors,
+                    positiveTotal,
+                    negativeTotal,
                   ),
                 ),
               ],
-            ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildExpandedContent(
+    LivabilityScore score,
+    List<Factor> positiveFactors,
+    List<Factor> negativeFactors,
+    double positiveTotal,
+    double negativeTotal,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _ScoreSummaryChip(
+              icon: Icons.trending_flat,
+              label: score.baseScore.toStringAsFixed(0),
+              color: Colors.white.withValues(alpha: 0.15),
+              tooltip: 'Base Score',
+            ),
+            const SizedBox(width: 6),
+            _ScoreSummaryChip(
+              icon: Icons.add_circle,
+              label: '+${positiveTotal.toStringAsFixed(1)}',
+              color: Colors.white.withValues(alpha: 0.2),
+            ),
+            const SizedBox(width: 6),
+            _ScoreSummaryChip(
+              icon: Icons.remove_circle,
+              label: '-${negativeTotal.toStringAsFixed(1)}',
+              color: Colors.black.withValues(alpha: 0.2),
+            ),
+            const Spacer(),
+            Text(
+              '${score.factors.length} factors',
+              style: TextStyle(
+                color: AppColors.white.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          score.summary,
+          style: const TextStyle(
+            color: AppColors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 12),
+        const Divider(color: Colors.white70, thickness: 1),
+        const SizedBox(height: 8),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.35,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (positiveFactors.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.thumb_up,
+                        color: AppColors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Positive Factors (${positiveFactors.length})',
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  ...positiveFactors.map(
+                    (factor) => ScoreFactorItem(factor: factor),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                if (negativeFactors.isNotEmpty) ...[
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.thumb_down,
+                        color: AppColors.white,
+                        size: 16,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Negative Factors (${negativeFactors.length})',
+                        style: const TextStyle(
+                          color: AppColors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  ...negativeFactors.map(
+                    (factor) => ScoreFactorItem(factor: factor),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

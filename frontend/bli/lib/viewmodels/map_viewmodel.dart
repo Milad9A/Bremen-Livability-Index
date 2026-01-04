@@ -7,7 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class MapViewModel extends ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  final ApiService _apiService;
   final MapController mapController = MapController();
 
   // Bremen center coordinates
@@ -45,7 +45,8 @@ class MapViewModel extends ChangeNotifier {
   bool get showSearch => _showSearch;
   bool get showSlowLoadingMessage => _showSlowLoadingMessage;
 
-  MapViewModel() {
+  MapViewModel({ApiService? apiService})
+    : _apiService = apiService ?? ApiService() {
     _checkApiHealth();
   }
 

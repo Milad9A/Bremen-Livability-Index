@@ -11,12 +11,14 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
 class MapScreen extends StatelessWidget {
-  const MapScreen({super.key});
+  final MapViewModel? viewModel;
+
+  const MapScreen({super.key, this.viewModel});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => MapViewModel(),
+      create: (_) => viewModel ?? MapViewModel(),
       child: const _MapScreenContent(),
     );
   }
