@@ -17,7 +17,7 @@ Fetches data from OpenStreetMap via Overpass API:
 - Education Facilities (`school`, `university`, `college`, `kindergarten`, `library`)
 - Sports & Leisure (`sports centres`, `swimming pools`, `playgrounds`, `fitness centres`)
 - Pedestrian Infrastructure (`pedestrian streets`, `footways` - LineStrings only)
-- Cultural Venues (`museums`, `galleries`, `artworks`, `theatres`, `cinemas`, `arts centres`, `community centres`)
+- Cultural Venues (`museums`, `galleries`, `theatres`, `cinemas`, `arts centres`, `community centres`)
 
 **Negative Factors:**
 - Industrial areas (`landuse=industrial`)

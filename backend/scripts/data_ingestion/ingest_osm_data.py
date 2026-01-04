@@ -343,11 +343,11 @@ def ingest_pedestrian_infrastructure(api, conn):
 def ingest_cultural_venues(api, conn):
     """Ingest cultural venues (positive factor) - filtered to specific venue types."""
     print("Fetching cultural venues...")
-    query = f'[out:json][timeout:300];(node[tourism~"^(museum|gallery|artwork)$"]({get_bbox_str()});node[amenity~"^(theatre|cinema|arts_centre|community_centre)$"]({get_bbox_str()});way[tourism~"^(museum|gallery)$"]({get_bbox_str()});way[amenity~"^(theatre|cinema|arts_centre|community_centre)$"]({get_bbox_str()}););out body;>;out skel qt;'
+    query = f'[out:json][timeout:300];(node[tourism~"^(museum|gallery)$"]({get_bbox_str()});node[amenity~"^(theatre|cinema|arts_centre|community_centre)$"]({get_bbox_str()});way[tourism~"^(museum|gallery)$"]({get_bbox_str()});way[amenity~"^(theatre|cinema|arts_centre|community_centre)$"]({get_bbox_str()}););out body;>;out skel qt;'
     result = query_with_retry(api, query)
     
     # Only allow these venue types
-    allowed_types = {'museum', 'gallery', 'theatre', 'cinema', 'artwork', 'arts_centre', 'community_centre'}
+    allowed_types = {'museum', 'gallery', 'theatre', 'cinema', 'arts_centre', 'community_centre'}
     
     cursor = conn.cursor()
     cursor.execute("TRUNCATE TABLE gis_data.cultural_venues CASCADE;")

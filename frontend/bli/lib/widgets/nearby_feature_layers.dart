@@ -234,10 +234,13 @@ class NearbyFeatureLayers extends StatelessWidget {
       case 'education':
         if (subtype != null) {
           if (subtype.contains('university') || subtype.contains('college')) {
-            return Icons.account_balance;
+            return Icons.school;
           }
           if (subtype.contains('kindergarten')) return Icons.child_care;
           if (subtype.contains('library')) return Icons.local_library;
+          if (subtype.contains('school')) {
+            return Icons.menu_book;
+          }
         }
         return Icons.school;
       case 'sports_leisure':
@@ -245,6 +248,10 @@ class NearbyFeatureLayers extends StatelessWidget {
           if (subtype.contains('swimming')) return Icons.pool;
           if (subtype.contains('playground')) return Icons.toys;
           if (subtype.contains('fitness')) return Icons.fitness_center;
+          if (subtype.contains('pitch')) return Icons.sports_soccer;
+          if (subtype.contains('sports_centre')) {
+            return Icons.stadium;
+          }
         }
         return Icons.sports_soccer;
       case 'pedestrian_infrastructure':
@@ -263,7 +270,6 @@ class NearbyFeatureLayers extends StatelessWidget {
           if (subtype.contains('gallery')) return Icons.museum;
           if (subtype.contains('theatre')) return Icons.theater_comedy;
           if (subtype.contains('cinema')) return Icons.movie;
-          if (subtype.contains('artwork')) return Icons.brush;
           if (subtype.contains('arts_centre')) return Icons.palette;
           if (subtype.contains('community_centre')) return Icons.groups;
         }

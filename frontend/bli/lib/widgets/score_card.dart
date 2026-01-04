@@ -35,6 +35,7 @@ class _ScoreCardState extends State<ScoreCard> {
 
     return Card(
       elevation: 8,
+      clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: AnimatedSize(
         duration: const Duration(milliseconds: 300),
@@ -43,7 +44,7 @@ class _ScoreCardState extends State<ScoreCard> {
         child: Container(
           constraints: _isExpanded
               ? BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height * 0.55,
+                  maxHeight: MediaQuery.of(context).size.height * 0.6,
                 )
               : null,
           decoration: BoxDecoration(
@@ -187,7 +188,7 @@ class _ScoreCardState extends State<ScoreCard> {
         const SizedBox(height: 8),
         ConstrainedBox(
           constraints: BoxConstraints(
-            maxHeight: MediaQuery.of(context).size.height * 0.35,
+            maxHeight: MediaQuery.of(context).size.height * 0.3,
           ),
           child: SingleChildScrollView(
             child: Column(
