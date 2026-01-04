@@ -131,7 +131,7 @@ class _StartScreenState extends State<StartScreen>
                         borderRadius: BorderRadius.circular(30),
                       ),
                       elevation: 8,
-                      shadowColor: Colors.black.withValues(alpha: 0.3),
+                      shadowColor: AppColors.black.withValues(alpha: 0.3),
                     ),
                     child: const Text(
                       'Get Started',

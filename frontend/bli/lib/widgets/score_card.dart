@@ -97,7 +97,7 @@ class _ScoreCardState extends State<ScoreCard> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
+                        color: AppColors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -154,31 +154,32 @@ class _ScoreCardState extends State<ScoreCard> {
                   _ScoreSummaryChip(
                     icon: Icons.trending_flat,
                     label: score.baseScore.toStringAsFixed(0),
-                    backgroundColor: Colors.grey.withValues(alpha: 0.1),
-                    textColor: Colors.black87,
-                    iconColor: Colors.grey,
+                    backgroundColor: AppColors.greyLight,
+                    textColor: AppColors.black,
+                    iconColor: AppColors.greyMedium,
                     tooltip: 'Base Score',
                   ),
                   const SizedBox(width: 8),
                   _ScoreSummaryChip(
                     icon: Icons.add_circle,
                     label: '+${positiveTotal.toStringAsFixed(1)}',
-                    backgroundColor: Colors.green.withValues(alpha: 0.1),
-                    textColor: Colors.green[700]!,
-                    iconColor: Colors.green,
+                    backgroundColor: AppColors.successLight,
+                    textColor: AppColors.successDark,
+                    iconColor: AppColors.success,
                   ),
                   const SizedBox(width: 8),
                   _ScoreSummaryChip(
                     icon: Icons.remove_circle,
                     label: '-${negativeTotal.toStringAsFixed(1)}',
-                    backgroundColor: Colors.red.withValues(alpha: 0.1),
-                    textColor: Colors.red[700]!,
-                    iconColor: Colors.red,
+                    backgroundColor: AppColors.errorLight,
+                    textColor: AppColors.errorDark,
+                    iconColor:
+                        AppColors.errorDark, // Using errorDark or similar red
                   ),
                   const Spacer(),
                   Text(
                     '${score.factors.length} factors',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    style: TextStyle(color: AppColors.greyMedium, fontSize: 12),
                   ),
                 ],
               ),
@@ -186,7 +187,7 @@ class _ScoreCardState extends State<ScoreCard> {
               Text(
                 score.summary,
                 style: const TextStyle(
-                  color: Colors.black87,
+                  color: AppColors.black,
                   fontSize: 14,
                   fontWeight: FontWeight.w400,
                   height: 1.4,
@@ -216,7 +217,7 @@ class _ScoreCardState extends State<ScoreCard> {
                       children: [
                         const Icon(
                           Icons.thumb_up,
-                          color: Colors.green,
+                          color: AppColors.success,
                           size: 16,
                         ),
                         const SizedBox(width: 8),
@@ -242,9 +243,9 @@ class _ScoreCardState extends State<ScoreCard> {
                   if (negativeFactors.isNotEmpty) ...[
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.thumb_down,
-                          color: Colors.red,
+                          color: AppColors.errorDark,
                           size: 16,
                         ),
                         const SizedBox(width: 8),
@@ -392,7 +393,7 @@ class ScoreFactorItem extends StatelessWidget {
 
     Color factorColor = FeatureStyles.getFactorColor(factor.factor);
     if (factorColor == AppColors.greyLight) {
-      factorColor = isPositive ? Colors.green : Colors.red;
+      factorColor = isPositive ? AppColors.success : AppColors.errorDark;
     }
 
     IconData factorIcon = FeatureStyles.getFactorIcon(factor.factor);
@@ -414,8 +415,8 @@ class ScoreFactorItem extends StatelessWidget {
       child: ExpansionTile(
         tilePadding: EdgeInsets.zero,
         childrenPadding: const EdgeInsets.only(left: 0, bottom: 8),
-        iconColor: Colors.grey[600],
-        collapsedIconColor: Colors.grey[400],
+        iconColor: AppColors.greyMedium,
+        collapsedIconColor: AppColors.greyMedium.withValues(alpha: 0.7),
         dense: true,
         title: Row(
           children: [
@@ -432,7 +433,7 @@ class ScoreFactorItem extends StatelessWidget {
               child: Text(
                 factor.description,
                 style: const TextStyle(
-                  color: Colors.black87,
+                  color: AppColors.black,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),
@@ -443,8 +444,8 @@ class ScoreFactorItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
               decoration: BoxDecoration(
                 color: isPositive
-                    ? Colors.green.withValues(alpha: 0.1)
-                    : Colors.red.withValues(alpha: 0.1),
+                    ? AppColors.successLight
+                    : AppColors.errorLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -452,7 +453,9 @@ class ScoreFactorItem extends StatelessWidget {
                     ? '+${factor.value.toStringAsFixed(1)}'
                     : factor.value.toStringAsFixed(1),
                 style: TextStyle(
-                  color: isPositive ? Colors.green[700] : Colors.red[700],
+                  color: isPositive
+                      ? AppColors.successDark
+                      : AppColors.errorDark,
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
@@ -467,7 +470,7 @@ class ScoreFactorItem extends StatelessWidget {
                   child: Text(
                     "No detailed features available.",
                     style: TextStyle(
-                      color: Colors.grey[500],
+                      color: AppColors.greyMedium,
                       fontSize: 12,
                       fontStyle: FontStyle.italic,
                     ),
@@ -492,7 +495,7 @@ class ScoreFactorItem extends StatelessWidget {
                         child: Text(
                           feature.name ?? feature.subtype ?? feature.type.name,
                           style: TextStyle(
-                            color: Colors.grey[700],
+                            color: AppColors.greyDark,
                             fontSize: 12,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -500,7 +503,10 @@ class ScoreFactorItem extends StatelessWidget {
                       ),
                       Text(
                         "${feature.distance.toStringAsFixed(0)}m",
-                        style: TextStyle(color: Colors.grey[500], fontSize: 11),
+                        style: TextStyle(
+                          color: AppColors.greyMedium,
+                          fontSize: 11,
+                        ),
                       ),
                     ],
                   ),
@@ -512,7 +518,7 @@ class ScoreFactorItem extends StatelessWidget {
 }
 
 Color getScoreColor(double score) {
-  if (score >= 75) return Colors.teal[700]!;
-  if (score >= 50) return Colors.orange[800]!;
-  return Colors.red[700]!;
+  if (score >= 75) return AppColors.scoreHigh;
+  if (score >= 50) return AppColors.scoreMedium;
+  return AppColors.scoreLow;
 }

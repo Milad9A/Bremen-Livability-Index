@@ -17,8 +17,18 @@ class AppColors {
   // Semantic Colors
   static final Color error = Colors.red[900]!;
   static final Color errorBackground = Colors.red[50]!;
-  static const Color success = Colors.green;
   static const Color warning = Colors.orange;
+
+  static const Color success = Colors.green;
+  static final Color successDark = Colors.green[700]!;
+  static final Color successLight = Colors.green.withValues(alpha: 0.1);
+
+  static final Color errorDark = Colors.red[700]!;
+  static final Color errorLight = Colors.red.withValues(alpha: 0.1);
+
+  static final Color scoreHigh = Colors.teal[700]!;
+  static final Color scoreMedium = Colors.orange[800]!;
+  static final Color scoreLow = Colors.red[700]!;
 
   // Glassmorphism
   static final Color glassBorder = white.withValues(alpha: 0.2);

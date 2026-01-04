@@ -423,17 +423,17 @@ Each metric captures a specific aspect of neighborhood livability:
 
 | Factor | Why It Matters | What We Measure |
 |--------|----------------|-----------------|
-| **Traffic Accidents** | Historical accident data reveals dangerous intersections and streets. High accident density indicates safety risks for pedestrians, cyclists, and drivers. | Police-reported accidents (2019-2023) within 90m, weighted by severity |
-| **Industrial Areas** | Industrial zones generate noise, air pollution, heavy traffic, and visual blight. Residential proximity to industry correlates with lower health outcomes. | Industrial land use zones within 125m (binary detection) |
-| **Major Roads** | Highways and primary roads produce constant noise, air pollution (particulates, NOx), and create pedestrian barriers. Living near major roads linked to respiratory issues. | Motorways, trunk roads, primary roads within 40m (binary detection) |
-| **Noise Sources** | Nightclubs, bars, and car repair shops generate noise pollution that disrupts sleep and reduces quality of life, especially during evening hours. | Nightclubs, bars, pubs, fast food outlets, car repair shops within 60m |
-| **Railways** | Active railway lines generate noise from passing trains and vibration. Level crossings create barriers and safety concerns for pedestrians. | Railway tracks and stations within 75m (binary detection) |
-| **Gas Stations** | Petrol/gas stations produce fuel odors, attract vehicle traffic, and pose fire/explosion risks. Underground tanks may contaminate groundwater. | Fuel stations within 50m (binary detection) |
-| **Waste Facilities** | Recycling centers, landfills, and waste processing sites generate odors, attract pests, and increase truck traffic. Visual blight reduces neighborhood appeal. | Recycling centers, landfills, waste processing within 200m (binary detection) |
-| **Power Infrastructure** | High-voltage power lines and substations raise concerns about electromagnetic fields. Substations generate noise and visual impact. | Power lines, substations, transformers within 50m (binary detection) |
-| **Large Parking Lots** | Surface parking lots create urban heat islands, generate traffic, and are visually unappealing. They indicate car-centric rather than pedestrian-friendly design. | Large parking facilities within 30m (binary detection) |
-| **Airports/Helipads** | Aircraft noise significantly impacts quality of life. Airports generate air pollution and constant traffic from departing/arriving passengers. | Airports, heliports, aerodromes within 500m (binary detection) |
-| **Construction Sites** | Active construction creates noise, dust, and traffic disruption. While temporary, they significantly impact short-term livability. | Active construction areas within 100m (binary detection) |
+| **Traffic Accidents** | Historical accident data reveals dangerous intersections and streets. High accident density indicates safety risks for pedestrians, cyclists, and drivers. | Police-reported accidents (2019-2023) within 120m, weighted by severity |
+| **Industrial Areas** | Industrial zones generate noise, air pollution, heavy traffic, and visual blight. Residential proximity to industry correlates with lower health outcomes. | Industrial land use zones within 150m (binary detection) |
+| **Major Roads** | Highways and primary roads produce constant noise, air pollution (particulates, NOx), and create pedestrian barriers. Living near major roads linked to respiratory issues. | Motorways, trunk roads, primary roads within 60m (binary detection) |
+| **Noise Sources** | Nightclubs, bars, and car repair shops generate noise pollution that disrupts sleep and reduces quality of life, especially during evening hours. | Nightclubs, bars, pubs, fast food outlets, car repair shops within 75m |
+| **Railways** | Active railway lines generate noise from passing trains and vibration. Level crossings create barriers and safety concerns for pedestrians. | Railway tracks and stations within 100m (binary detection) |
+| **Gas Stations** | Petrol/gas stations produce fuel odors, attract vehicle traffic, and pose fire/explosion risks. Underground tanks may contaminate groundwater. | Fuel stations within 75m (binary detection) |
+| **Waste Facilities** | Recycling centers, landfills, and waste processing sites generate odors, attract pests, and increase truck traffic. Visual blight reduces neighborhood appeal. | Recycling centers, landfills, waste processing within 250m (binary detection) |
+| **Power Infrastructure** | High-voltage power lines and substations raise concerns about electromagnetic fields. Substations generate noise and visual impact. | Power lines, substations, transformers within 75m (binary detection) |
+| **Large Parking Lots** | Surface parking lots create urban heat islands, generate traffic, and are visually unappealing. They indicate car-centric rather than pedestrian-friendly design. | Large parking facilities within 50m (binary detection) |
+| **Airports/Helipads** | Aircraft noise significantly impacts quality of life. Airports generate air pollution and constant traffic from departing/arriving passengers. | Airports, heliports, aerodromes within 600m (binary detection) |
+| **Construction Sites** | Active construction creates noise, dust, and traffic disruption. While temporary, they significantly impact short-term livability. | Active construction areas within 125m (binary detection) |
 
 ### Logarithmic Scaling
 

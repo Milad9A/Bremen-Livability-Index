@@ -34,17 +34,16 @@ class LoadingOverlay extends StatelessWidget {
                     const SizedBox(height: 12),
                     Text(
                       'Waking up server...',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                      style: AppTextStyles.subheading.copyWith(
                         color: AppColors.primaryDark,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'The backend is starting up. This may take up to 50 seconds.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.greyDark, height: 1.4),
+                      style: AppTextStyles.body.copyWith(height: 1.4),
                     ),
                   ],
                 ),

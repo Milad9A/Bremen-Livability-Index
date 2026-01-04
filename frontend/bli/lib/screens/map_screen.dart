@@ -43,7 +43,7 @@ class _MapScreenContentState extends State<_MapScreenContent> {
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.info_outline, color: Colors.white),
+                  const Icon(Icons.info_outline, color: AppColors.white),
                   const SizedBox(width: 12),
                   Expanded(child: Text(message)),
                 ],
@@ -104,11 +104,11 @@ class _MapScreenContentState extends State<_MapScreenContent> {
                         Icons.location_on,
                         color: viewModel.selectedMarker!.score != null
                             ? getScoreColor(viewModel.selectedMarker!.score!)
-                            : Colors.teal,
+                            : AppColors.primary,
                         size: 50,
                         shadows: [
                           Shadow(
-                            color: Colors.black.withValues(alpha: 0.3),
+                            color: AppColors.black.withValues(alpha: 0.3),
                             blurRadius: 10,
                             offset: const Offset(0, 5),
                           ),
@@ -140,7 +140,7 @@ class _MapScreenContentState extends State<_MapScreenContent> {
               left: 16,
               right: 16,
               child: Card(
-                color: Colors.red[50],
+                color: AppColors.errorBackground,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
