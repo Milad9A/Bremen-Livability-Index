@@ -135,7 +135,11 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     LocationSelected event,
     Emitter<MapState> emit,
   ) async {
-    mapController.move(event.location, 16.0);
+    try {
+      mapController.move(event.location, 16.0);
+    } catch (_) {
+      // MapController not attached to a map widget yet
+    }
 
     emit(
       MapState(

@@ -693,7 +693,8 @@ open coverage/html/index.html
 | `features/map/models/location_marker.dart` | 100% |
 | `features/map/screens/map_screen.dart` | ~69% |
 | `core/services/api_service.dart` | ~69% |
-| `features/map/bloc/map_bloc.dart` | >90% |
+| `features/map/bloc/map_bloc.dart` | ~95% |
+| `core/utils/feature_styles.dart` | 100% |
 | **Overall** | **~59%** |
 
 ### CI/CD Coverage
