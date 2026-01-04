@@ -46,10 +46,7 @@ class ApiService {
         throw Exception('Server error (${e.response!.statusCode}).');
       }
       throw Exception('Network error. Please check your connection.');
-    } catch (e, stackTrace) {
-      // Log the error for debugging
-      print('Error parsing response: $e');
-      print('Stack trace: $stackTrace');
+    } catch (e) {
       throw Exception('An unexpected error occurred: $e');
     }
   }

@@ -1,6 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'package:bli/models/enums.dart';
 import 'package:bli/models/factor.dart';
 import 'package:bli/models/feature_detail.dart';
 import 'package:bli/models/location.dart';

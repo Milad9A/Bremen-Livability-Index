@@ -388,17 +388,17 @@ The base score of **40** provides a balanced starting point where most locations
 | **Sports & Leisure** | Positive | 4 | 700m | `min(4, log1p(count) * 1.8)` |
 | **Pedestrian Infrastructure** | Positive | 3 | 275m | `min(3, log1p(count) * 1.2)` |
 | **Cultural Venues** | Positive | 4 | 500m | `min(4, count * 2)` |
-| **Accidents** | Negative | -8 | 90m | `min(8, count * 2)` |
-| **Industrial** | Negative | -10 | 125m | Binary: `10 if near else 0` |
-| **Major Roads** | Negative | -6 | 40m | Binary: `6 if near else 0` |
-| **Noise Sources** | Negative | -6 | 60m | `min(6, count * 2)` |
-| **Railways** | Negative | -5 | 75m | Binary: `5 if near else 0` |
-| **Gas Stations** | Negative | -3 | 50m | Binary: `3 if near else 0` |
-| **Waste Facilities** | Negative | -5 | 200m | Binary: `5 if near else 0` |
-| **Power Infrastructure** | Negative | -3 | 50m | Binary: `3 if near else 0` |
-| **Large Parking Lots** | Negative | -2 | 30m | Binary: `2 if near else 0` |
-| **Airports/Helipads** | Negative | -7 | 500m | Binary: `7 if near else 0` |
-| **Construction Sites** | Negative | -2 | 100m | Binary: `2 if near else 0` |
+| **Accidents** | Negative | -8 | 120m | `min(8, count * 2)` |
+| **Industrial** | Negative | -10 | 150m | Binary: `10 if near else 0` |
+| **Major Roads** | Negative | -6 | 60m | Binary: `6 if near else 0` |
+| **Noise Sources** | Negative | -6 | 75m | `min(6, count * 2)` |
+| **Railways** | Negative | -5 | 100m | Binary: `5 if near else 0` |
+| **Gas Stations** | Negative | -3 | 75m | Binary: `3 if near else 0` |
+| **Waste Facilities** | Negative | -5 | 250m | Binary: `5 if near else 0` |
+| **Power Infrastructure** | Negative | -3 | 75m | Binary: `3 if near else 0` |
+| **Large Parking Lots** | Negative | -2 | 50m | Binary: `2 if near else 0` |
+| **Airports/Helipads** | Negative | -7 | 600m | Binary: `7 if near else 0` |
+| **Construction Sites** | Negative | -2 | 125m | Binary: `2 if near else 0` |
 
 ### Factor Explanations
 

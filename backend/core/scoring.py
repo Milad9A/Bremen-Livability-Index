@@ -39,22 +39,22 @@ class LivabilityScorer:
     AMENITIES_RADIUS = 550      
     PUBLIC_TRANSPORT_RADIUS = 450  
     HEALTHCARE_RADIUS = 700     
-    ACCIDENT_RADIUS = 90        
-    INDUSTRIAL_RADIUS = 125     
-    MAJOR_ROADS_RADIUS = 40     
+    ACCIDENT_RADIUS = 120        # Increased from 90
+    INDUSTRIAL_RADIUS = 150      # Increased from 125
+    MAJOR_ROADS_RADIUS = 60      # Increased from 40
     BIKE_INFRASTRUCTURE_RADIUS = 275  
     EDUCATION_RADIUS = 500     
     SPORTS_LEISURE_RADIUS = 700 
     PEDESTRIAN_INFRA_RADIUS = 275  
     CULTURAL_RADIUS = 500      
-    NOISE_RADIUS = 60
-    RAILWAY_RADIUS = 75
-    GAS_STATION_RADIUS = 50
-    WASTE_RADIUS = 200
-    POWER_RADIUS = 50
-    PARKING_RADIUS = 30
-    AIRPORT_RADIUS = 500
-    CONSTRUCTION_RADIUS = 100
+    NOISE_RADIUS = 75            # Increased from 60
+    RAILWAY_RADIUS = 100         # Increased from 75
+    GAS_STATION_RADIUS = 75      # Increased from 50
+    WASTE_RADIUS = 250           # Increased from 200
+    POWER_RADIUS = 75            # Increased from 50
+    PARKING_RADIUS = 50          # Increased from 30
+    AIRPORT_RADIUS = 600         # Increased from 500
+    CONSTRUCTION_RADIUS = 125    # Increased from 100
     
     @staticmethod
     def calculate_greenery_score(tree_count: int, park_count: int) -> float:
