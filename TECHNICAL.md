@@ -648,16 +648,18 @@ Located in `frontend/bli/test/`:
 
 ```
 test/
-├── api_service_test.dart           # API and model unit tests
-├── score_card_test.dart            # ScoreCard widget tests
-├── nearby_feature_layers_test.dart # Geometry parsing tests
-├── widget_test.dart                # Basic widget tests
-├── map_bloc_test.dart              # BLoC unit tests
-├── map_screen_test.dart            # MapScreen widget tests
-├── glass_container_test.dart       # GlassContainer widget tests
-├── loading_overlay_test.dart       # LoadingOverlay widget tests
-├── floating_search_bar_test.dart   # FloatingSearchBar widget tests
-└── search_results_list_test.dart   # SearchResultsList widget tests
+├── core/
+│   ├── services/           # api_service_test.dart
+│   ├── theme/              # app_theme_test.dart
+│   ├── utils/              # feature_styles_test.dart
+│   └── widgets/            # glass_container, loading_overlay tests
+└── features/
+    ├── map/
+    │   ├── bloc/           # map_bloc_test.dart
+    │   ├── screens/        # map_screen_test.dart
+    │   └── widgets/        # address_search, score_card, etc.
+    └── onboarding/
+        └── screens/        # start_screen_test.dart
 ```
 
 **Run tests:**

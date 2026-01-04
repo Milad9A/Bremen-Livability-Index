@@ -11,11 +11,13 @@ import 'package:latlong2/latlong.dart';
 class AddressSearchWidget extends StatefulWidget {
   final Function(LatLng, String) onLocationSelected;
   final VoidCallback onClose;
+  final ApiService? apiService;
 
   const AddressSearchWidget({
     super.key,
     required this.onLocationSelected,
     required this.onClose,
+    this.apiService,
   });
 
   @override
@@ -25,7 +27,7 @@ class AddressSearchWidget extends StatefulWidget {
 class _AddressSearchWidgetState extends State<AddressSearchWidget> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final ApiService _apiService = ApiService();
+  late final ApiService _apiService;
   List<GeocodeResult> _searchResults = [];
   bool _isSearching = false;
   String? _errorMessage;
@@ -34,7 +36,9 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
   @override
   void initState() {
     super.initState();
+    _apiService = widget.apiService ?? ApiService();
     // Request focus immediately when the widget is built
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
     });
