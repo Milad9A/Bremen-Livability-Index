@@ -77,6 +77,7 @@ class MapViewModel extends ChangeNotifier {
 
   void resetMap() {
     mapController.move(bremenCenter, 13.0);
+    mapController.rotate(0);
     _selectedMarker = null;
     _currentScore = null;
     _errorMessage = null;
