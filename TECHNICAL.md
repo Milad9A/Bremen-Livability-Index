@@ -77,6 +77,7 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 | **HTTP Client** | Dio 5.x | HTTP client with interceptors and error handling |
 | **State Management** | flutter_bloc 9.x | BLoC pattern for reactive state management |
 | **Code Generation** | Freezed + json_serializable | Immutable data models and BLoC state/events |
+| **Testing** | Mockito + bloc_test | Mocking dependencies for unit tests and BLoC testing |
 | **Backend** | FastAPI 0.115 | Async Python REST API |
 | **ORM** | SQLModel + GeoAlchemy2 | Type-safe database access with PostGIS support |
 | **Database** | PostgreSQL 16 + PostGIS 3.4 | Spatial database for geographic queries |
@@ -643,6 +644,13 @@ Coverage configuration is in `backend/pyproject.toml`:
 | **Overall** | **~95%** |
 
 ### Flutter Tests
+
+The project employs a comprehensive testing strategy using `flutter_test`, `bloc_test`, and `mockito`.
+
+**Test Types:**
+- **Unit Tests**: For core logic, models, and services (mocking external dependencies like `Dio`).
+- **Widget Tests**: For UI components and screens.
+- **Bloc Tests**: For state management logic.
 
 Located in `frontend/bli/test/`:
 

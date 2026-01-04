@@ -1,9 +1,16 @@
+import 'package:bli/core/services/api_service.dart';
 import 'package:bli/features/map/models/enums.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:bli/features/map/models/models.dart';
 import 'package:bli/features/map/widgets/score_card.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+
+@GenerateMocks([Dio])
+import 'api_service_test.mocks.dart';
 
 void main() {
   group('LivabilityScore', () {
@@ -288,6 +295,196 @@ void main() {
       expect(getScoreColor(0.0), Colors.red[700]);
       expect(getScoreColor(25.0), Colors.red[700]);
       expect(getScoreColor(49.9), Colors.red[700]);
+    });
+  });
+
+  group('ApiService', () {
+    late ApiService apiService;
+    late MockDio mockDio;
+
+    setUp(() {
+      mockDio = MockDio();
+      apiService = ApiService(dio: mockDio);
+    });
+
+    group('analyzeLocation', () {
+      test('returns LivabilityScore on successful response', () async {
+        final mockData = <String, dynamic>{
+          'score': 75.5,
+          'base_score': 40.0,
+          'location': <String, dynamic>{
+            'latitude': 53.0793,
+            'longitude': 8.8017,
+          },
+          'factors': <dynamic>[],
+          'nearby_features': <String, dynamic>{},
+          'summary': 'Good',
+        };
+
+        when(mockDio.post('/analyze', data: anyNamed('data'))).thenAnswer(
+          (_) async => Response(
+            requestOptions: RequestOptions(path: '/analyze'),
+            data: mockData,
+            statusCode: 200,
+          ),
+        );
+
+        final result = await apiService.analyzeLocation(53.0793, 8.8017);
+
+        expect(result.score, 75.5);
+        verify(
+          mockDio.post(
+            '/analyze',
+            data: {'latitude': 53.0793, 'longitude': 8.8017},
+          ),
+        ).called(1);
+      });
+
+      test('throws Exception on 500 server error', () async {
+        when(mockDio.post('/analyze', data: anyNamed('data'))).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/analyze'),
+            response: Response(
+              requestOptions: RequestOptions(path: '/analyze'),
+              statusCode: 500,
+            ),
+            type: DioExceptionType.badResponse,
+          ),
+        );
+
+        expect(
+          () => apiService.analyzeLocation(53.0793, 8.8017),
+          throwsA(
+            predicate(
+              (e) =>
+                  e is Exception &&
+                  e.toString().contains(
+                    'Server error. Please try again later.',
+                  ),
+            ),
+          ),
+        );
+      });
+
+      test('throws Exception on connection timeout', () async {
+        when(mockDio.post('/analyze', data: anyNamed('data'))).thenThrow(
+          DioException(
+            requestOptions: RequestOptions(path: '/analyze'),
+            type: DioExceptionType.connectionTimeout,
+          ),
+        );
+
+        expect(
+          () => apiService.analyzeLocation(53.0793, 8.8017),
+          throwsA(
+            predicate(
+              (e) =>
+                  e is Exception &&
+                  e.toString().contains('Connection timed out'),
+            ),
+          ),
+        );
+      });
+
+      test('throws generic Exception on other errors', () async {
+        when(
+          mockDio.post('/analyze', data: anyNamed('data')),
+        ).thenThrow(Exception('Unexpected error'));
+
+        expect(
+          () => apiService.analyzeLocation(53.0793, 8.8017),
+          throwsA(
+            predicate(
+              (e) =>
+                  e is Exception &&
+                  e.toString().contains('An unexpected error occurred'),
+            ),
+          ),
+        );
+      });
+    });
+
+    group('checkHealth', () {
+      test('returns true when status code is 200', () async {
+        when(mockDio.get('/health')).thenAnswer(
+          (_) async => Response(
+            requestOptions: RequestOptions(path: '/health'),
+            statusCode: 200,
+          ),
+        );
+
+        final result = await apiService.checkHealth();
+
+        expect(result, true);
+        verify(mockDio.get('/health')).called(1);
+      });
+
+      test('returns false when status code is not 200', () async {
+        when(mockDio.get('/health')).thenAnswer(
+          (_) async => Response(
+            requestOptions: RequestOptions(path: '/health'),
+            statusCode: 500,
+          ),
+        );
+
+        final result = await apiService.checkHealth();
+
+        expect(result, false);
+      });
+
+      test('returns false on exception', () async {
+        when(mockDio.get('/health')).thenThrow(
+          DioException(requestOptions: RequestOptions(path: '/health')),
+        );
+
+        final result = await apiService.checkHealth();
+
+        expect(result, false);
+      });
+    });
+
+    group('geocodeAddress', () {
+      test('returns list of GeocodeResult on success', () async {
+        final mockData = <String, dynamic>{
+          'results': [
+            <String, dynamic>{
+              'latitude': 53.0793,
+              'longitude': 8.8017,
+              'display_name': 'Bremen',
+              'address': <String, dynamic>{},
+              'type': 'city',
+              'importance': 0.9,
+            },
+          ],
+        };
+
+        when(mockDio.post('/geocode', data: anyNamed('data'))).thenAnswer(
+          (_) async => Response(
+            requestOptions: RequestOptions(path: '/geocode'),
+            data: mockData,
+            statusCode: 200,
+          ),
+        );
+
+        final result = await apiService.geocodeAddress('Bremen');
+
+        expect(result.length, 1);
+        expect(result[0].displayName, 'Bremen');
+        verify(
+          mockDio.post('/geocode', data: {'query': 'Bremen', 'limit': 5}),
+        ).called(1);
+      });
+
+      test('throws Exception on error', () async {
+        when(
+          mockDio.post('/geocode', data: anyNamed('data')),
+        ).thenThrow(Exception('Geocoding failed'));
+
+        expect(
+          () => apiService.geocodeAddress('Bremen'),
+          throwsA(isA<Exception>()),
+        );
+      });
     });
   });
 }
