@@ -1,8 +1,8 @@
-import 'package:bli/models/enums.dart';
+import 'package:bli/features/map/models/enums.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
-import 'package:bli/models/models.dart';
-import 'package:bli/widgets/score_card.dart';
+import 'package:bli/features/map/models/models.dart';
+import 'package:bli/features/map/widgets/score_card.dart';
 import 'package:latlong2/latlong.dart';
 
 void main() {

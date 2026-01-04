@@ -1,5 +1,5 @@
-import 'package:bli/screens/map_screen.dart';
-import 'package:bli/theme/app_theme.dart';
+import 'package:bli/features/map/screens/map_screen.dart';
+import 'package:bli/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class StartScreen extends StatefulWidget {

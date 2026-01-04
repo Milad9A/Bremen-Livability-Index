@@ -1,4 +1,4 @@
-import 'package:bli/widgets/loading_overlay.dart';
+import 'package:bli/core/widgets/loading_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -1,5 +1,5 @@
-import 'package:bli/models/models.dart';
-import 'package:bli/utils/feature_styles.dart';
+import 'package:bli/features/map/models/models.dart';
+import 'package:bli/core/utils/feature_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';

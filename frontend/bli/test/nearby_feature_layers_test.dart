@@ -1,5 +1,5 @@
-import 'package:bli/models/enums.dart';
-import 'package:bli/models/models.dart';
+import 'package:bli/features/map/models/enums.dart';
+import 'package:bli/features/map/models/models.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

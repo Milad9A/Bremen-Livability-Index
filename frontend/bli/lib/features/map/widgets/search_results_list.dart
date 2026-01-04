@@ -1,5 +1,5 @@
-import 'package:bli/models/models.dart';
-import 'package:bli/theme/app_theme.dart';
+import 'package:bli/features/map/models/models.dart';
+import 'package:bli/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class SearchResultsList extends StatelessWidget {

@@ -1,4 +1,4 @@
-import 'package:bli/models/models.dart';
+import 'package:bli/features/map/models/models.dart';
 import 'package:dio/dio.dart';
 
 class ApiService {

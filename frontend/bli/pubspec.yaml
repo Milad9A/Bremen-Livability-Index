@@ -13,20 +13,12 @@ dependencies:
     sdk: flutter
 
   cupertino_icons: ^1.0.8
-  
-  # Map and location
   flutter_map: ^8.2.2
   latlong2: ^0.9.1
-  
-  # HTTP requests
   dio: ^5.4.0
-  
-  # Freezed for immutable models
   freezed_annotation: ^2.4.1
   json_annotation: ^4.8.1
-  
-  # State management
-  provider: ^6.1.2
+  flutter_bloc: ^9.0.0
 
 dev_dependencies:
   flutter_test:
@@ -39,6 +31,7 @@ dev_dependencies:
   build_runner: ^2.4.16
   freezed: ^2.4.7
   json_serializable: ^6.7.1
+  bloc_test: ^10.0.0
 
 flutter_launcher_icons:
   android: "launcher_icon"

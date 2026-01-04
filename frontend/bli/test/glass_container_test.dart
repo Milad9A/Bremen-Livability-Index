@@ -1,4 +1,4 @@
-import 'package:bli/widgets/glass_container.dart';
+import 'package:bli/core/widgets/glass_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

@@ -75,7 +75,8 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 |-------|------------|---------|
 | **Frontend** | Flutter 3.x | Cross-platform mobile & web app |
 | **HTTP Client** | Dio 5.x | HTTP client with interceptors and error handling |
-| **Models** | Freezed + json_serializable | Immutable data classes with JSON serialization |
+| **State Management** | flutter_bloc 9.x | BLoC pattern for reactive state management |
+| **Code Generation** | Freezed + json_serializable | Immutable data models and BLoC state/events |
 | **Backend** | FastAPI 0.115 | Async Python REST API |
 | **ORM** | SQLModel + GeoAlchemy2 | Type-safe database access with PostGIS support |
 | **Database** | PostgreSQL 16 + PostGIS 3.4 | Spatial database for geographic queries |
@@ -472,35 +473,20 @@ tree_score = min(9.0, math.log1p(tree_count) * 2.0)
 
 ```
 frontend/bli/lib/
-├── main.dart                    # App entry point
-├── models/
-│   ├── models.dart              # Barrel export for all models
-│   ├── enums.dart               # MetricCategory (with featureKeys) & FeatureType
-│   ├── factor.dart              # Scoring factor (Freezed)
-│   ├── feature_detail.dart      # Nearby feature (Freezed)
-│   ├── geocode_result.dart      # Search result (Freezed)
-│   ├── livability_score.dart    # API response (Freezed)
-│   ├── location.dart            # Coordinates (Freezed)
-│   └── location_marker.dart     # Map marker (Freezed)
-├── utils/
-│   └── feature_styles.dart      # Icons, colors, and display names for features
-├── screens/
-│   ├── start_screen.dart        # Animated start screen
-│   └── map_screen.dart          # Main map view
-├── services/
-│   └── api_service.dart         # Dio-based API client
-├── viewmodels/
-│   └── map_viewmodel.dart       # Map logic & state (MVVM)
-├── theme/
-│   └── app_theme.dart           # Design system (colors, text styles)
-└── widgets/
-    ├── address_search.dart      # Search logic wrapper
-    ├── search_results_list.dart # Reusable search results list
-    ├── floating_search_bar.dart # Collapsed floating search bar
-    ├── loading_overlay.dart     # Glass-morphic loading indicator
-    ├── nearby_feature_layers.dart  # Map markers
-    ├── score_card.dart          # Score display
-    └── glass_container.dart     # Reusable glass effect widget
+├── core/                   # Global / Shared
+│   ├── services/           # ApiService
+│   ├── theme/              # AppTheme
+│   ├── utils/              # FeatureStyles
+│   └── widgets/            # Shared widgets (GlassContainer, LoadingOverlay)
+├── features/
+│   ├── map/                # Map Feature
+│   │   ├── bloc/           # MapBloc, MapEvent, MapState
+│   │   ├── models/         # Map-related models (Score, Marker, etc.)
+│   │   ├── screens/        # MapScreen
+│   │   └── widgets/        # Map-specific widgets (ScoreCard, Search, etc.)
+│   └── onboarding/         # Onboarding Feature
+│       └── screens/        # StartScreen
+└── main.dart               # Entry point
 ```
 
 ### Code Generation
@@ -585,18 +571,24 @@ class ApiService {
   }
 }
 
-### State Management (MVVM)
+### State Management (BLoC)
 
-The application uses the **Model-View-ViewModel (MVVM)** pattern with the `provider` package.
+The application uses the **BLoC (Business Logic Component)** pattern with `flutter_bloc`.
 
-- **View (`MapScreen`)**: Stateless widget. Responsibilities:
-  - Layout and UI rendering
-  - Listening to ViewModel changes
-  - Delegating user actions to ViewModel
-- **ViewModel (`MapViewModel`)**: Extends `ChangeNotifier`. Responsibilities:
-  - Holding UI state (`isLoading`, `currentScore`, `selectedMarker`)
-  - Interacting with `ApiService` and `MapController`
-  - Rebuilding the View via `notifyListeners()` when state changes
+- **Events (`MapEvent`)**: Freezed sealed union representing user actions (MapTapped, SearchToggled, MapReset, LocationSelected)
+- **State (`MapState`)**: Freezed immutable state class with automatic copyWith generation
+- **BLoC (`MapBloc`)**: Handles events and emits new states
+
+```dart
+// Example: Handling a map tap
+on<MapTapped>((event, emit) async {
+  emit(state.copyWith(isLoading: true));
+  final score = await _apiService.analyzeLocation(event.position);
+  emit(state.copyWith(currentScore: score, isLoading: false));
+});
+```
+
+**View (`MapScreen`)** uses `BlocBuilder<MapBloc, MapState>` to rebuild on state changes.
 
 ### User Interface (Glassmorphism & Theming)
 
@@ -660,7 +652,7 @@ test/
 ├── score_card_test.dart            # ScoreCard widget tests
 ├── nearby_feature_layers_test.dart # Geometry parsing tests
 ├── widget_test.dart                # Basic widget tests
-├── map_viewmodel_test.dart         # ViewModel unit tests
+├── map_bloc_test.dart              # BLoC unit tests
 ├── map_screen_test.dart            # MapScreen widget tests
 ├── glass_container_test.dart       # GlassContainer widget tests
 ├── loading_overlay_test.dart       # LoadingOverlay widget tests
@@ -683,15 +675,15 @@ open coverage/html/index.html
 
 | Module | Coverage |
 |--------|----------|
-| `widgets/score_card.dart` | 100% |
-| `widgets/glass_container.dart` | 100% |
-| `widgets/loading_overlay.dart` | 100% |
-| `widgets/floating_search_bar.dart` | 100% |
-| `widgets/search_results_list.dart` | 100% |
-| `models/location_marker.dart` | 100% |
-| `screens/map_screen.dart` | ~69% |
-| `services/api_service.dart` | ~69% |
-| `viewmodels/map_viewmodel.dart` | ~36% |
+| `features/map/widgets/score_card.dart` | 100% |
+| `core/widgets/glass_container.dart` | 100% |
+| `core/widgets/loading_overlay.dart` | 100% |
+| `features/map/widgets/floating_search_bar.dart` | 100% |
+| `features/map/widgets/search_results_list.dart` | 100% |
+| `features/map/models/location_marker.dart` | 100% |
+| `features/map/screens/map_screen.dart` | ~69% |
+| `core/services/api_service.dart` | ~69% |
+| `features/map/bloc/map_bloc.dart` | >90% |
 | **Overall** | **~59%** |
 
 ### CI/CD Coverage

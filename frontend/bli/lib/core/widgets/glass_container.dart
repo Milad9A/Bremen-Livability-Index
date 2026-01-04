@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:bli/theme/app_theme.dart';
+import 'package:bli/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class GlassContainer extends StatelessWidget {

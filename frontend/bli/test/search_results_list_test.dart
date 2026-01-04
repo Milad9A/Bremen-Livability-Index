@@ -1,5 +1,5 @@
-import 'package:bli/models/models.dart';
-import 'package:bli/widgets/search_results_list.dart';
+import 'package:bli/features/map/models/models.dart';
+import 'package:bli/features/map/widgets/search_results_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 

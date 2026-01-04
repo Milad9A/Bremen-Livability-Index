@@ -141,19 +141,19 @@ flutter run -d "iPhone"  # iOS Device (requires Xcode)
 
 ### API Configuration
 
-The API URL is configured in `lib/services/api_service.dart`.
+The API URL is configured in `lib/core/services/api_service.dart`.
 
 **Default**: Production Backend (`https://bremen-livability-backend.onrender.com`)
 
 **To use local backend:**
-1. Open `lib/services/api_service.dart`
+1. Open `lib/core/services/api_service.dart`
 2. Uncomment the localhost line and comment out the Render URL
 
 > 📖 **Details:** [Frontend Implementation](TECHNICAL.md#frontend-implementation) in TECHNICAL.md
 
 ### Code Generation
 
-If you modify data models (`lib/models/*.dart`), you must run the build runner to regenerate JSON serialization code:
+If you modify data models (`lib/features/map/models/*.dart`), you must run the build runner to regenerate JSON serialization code:
 
 ```bash
 flutter pub run build_runner build --delete-conflicting-outputs

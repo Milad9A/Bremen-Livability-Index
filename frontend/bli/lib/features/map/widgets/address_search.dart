@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:bli/models/models.dart';
-import 'package:bli/services/api_service.dart';
-import 'package:bli/theme/app_theme.dart';
-import 'package:bli/widgets/glass_container.dart';
-import 'package:bli/widgets/search_results_list.dart';
+import 'package:bli/features/map/models/models.dart';
+import 'package:bli/core/services/api_service.dart';
+import 'package:bli/core/theme/app_theme.dart';
+import 'package:bli/core/widgets/glass_container.dart';
+import 'package:bli/features/map/widgets/search_results_list.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
