@@ -384,10 +384,10 @@ The base score of **40** provides a balanced starting point where most locations
 | **Transport** | Positive | 8 | 450m | `min(8, log1p(stops) * 3.5)` |
 | **Healthcare** | Positive | 6 | 700m | `min(6, facilities * 2.5)` |
 | **Bike Infrastructure** | Positive | 6 | 275m | `min(6, log1p(count) * 2.5)` |
-| **Education** | Positive | 5 | 900m | `min(5, facilities * 1.5)` |
+| **Education** | Positive | 5 | 500m | `min(5, facilities * 1.5)` |
 | **Sports & Leisure** | Positive | 4 | 700m | `min(4, log1p(count) * 1.8)` |
 | **Pedestrian Infrastructure** | Positive | 3 | 275m | `min(3, log1p(count) * 1.2)` |
-| **Cultural Venues** | Positive | 4 | 1100m | `min(4, count * 2)` |
+| **Cultural Venues** | Positive | 4 | 500m | `min(4, count * 2)` |
 | **Accidents** | Negative | -8 | 90m | `min(8, count * 2)` |
 | **Industrial** | Negative | -10 | 125m | Binary: `10 if near else 0` |
 | **Major Roads** | Negative | -6 | 40m | Binary: `6 if near else 0` |
@@ -414,10 +414,10 @@ Each metric captures a specific aspect of neighborhood livability:
 | **Amenities** | Daily-use facilities reduce travel needs, support local economy, and create vibrant neighborhoods. Walkable amenities are a key indicator of "15-minute city" design. | Supermarkets, cafes, restaurants, bakeries, banks, post offices within 550m |
 | **Healthcare** | Proximity to medical services is critical for emergencies and routine care. Especially important for elderly residents and families with children. | Hospitals, clinics, doctors' offices, pharmacies within 700m |
 | **Bike Infrastructure** | Dedicated cycling facilities encourage sustainable transport, improve safety, and indicate progressive urban planning. Correlates with lower car dependency. | Cycleways, bike lanes, bicycle parking, bike rental stations within 275m |
-| **Education** | Schools and libraries serve as community anchors. Proximity reduces commute stress for families and indicates family-friendly neighborhoods. | Schools, universities, kindergartens, libraries within 900m |
+| **Education** | Schools and libraries serve as community anchors. Proximity reduces commute stress for families and indicates family-friendly neighborhoods. | Schools, universities, kindergartens, libraries within 500m |
 | **Sports & Leisure** | Recreational facilities promote active lifestyles and community building. Playgrounds indicate child-friendliness; gyms and pools serve adult fitness needs. | Sports centers, swimming pools, playgrounds, fitness centers, sports pitches within 700m |
 | **Pedestrian Infrastructure** | Pedestrian zones and footways indicate walkability and pedestrian-friendly urban design. Dedicated walking areas encourage walking and reduce car dependency. | Pedestrian streets, dedicated footways within 275m (LineStrings only, no point crossings) |
-| **Cultural Venues** | Museums, theaters, and community centers enrich quality of life, provide entertainment, and create cultural identity. Indicates neighborhood vibrancy. | Museums, galleries, theaters, cinemas, arts centers, community centers within 1km |
+| **Cultural Venues** | Museums, theaters, and community centers enrich quality of life, provide entertainment, and create cultural identity. Indicates neighborhood vibrancy. | Museums, galleries, theaters, cinemas, arts centers, community centers within 500m |
 
 #### Negative Factors
 
