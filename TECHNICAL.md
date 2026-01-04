@@ -74,6 +74,8 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 | Layer | Technology | Purpose |
 |-------|------------|---------|
 | **Frontend** | Flutter 3.x | Cross-platform mobile & web app |
+| **HTTP Client** | Dio 5.x | HTTP client with interceptors and error handling |
+| **Models** | Freezed + json_serializable | Immutable data classes with JSON serialization |
 | **Backend** | FastAPI 0.115 | Async Python REST API |
 | **ORM** | SQLModel + GeoAlchemy2 | Type-safe database access with PostGIS support |
 | **Database** | PostgreSQL 16 + PostGIS 3.4 | Spatial database for geographic queries |
@@ -472,12 +474,18 @@ tree_score = min(9.0, math.log1p(tree_count) * 2.0)
 frontend/bli/lib/
 ├── main.dart                    # App entry point
 ├── models/
-│   └── livability_score.dart    # Data models
+│   ├── models.dart              # Barrel export for all models
+│   ├── factor.dart              # Scoring factor (Freezed)
+│   ├── feature_detail.dart      # Nearby feature (Freezed)
+│   ├── geocode_result.dart      # Search result (Freezed)
+│   ├── livability_score.dart    # API response (Freezed)
+│   ├── location.dart            # Coordinates (Freezed)
+│   └── location_marker.dart     # Map marker (Freezed)
 ├── screens/
 │   ├── start_screen.dart        # Animated start screen
 │   └── map_screen.dart          # Main map view
 ├── services/
-│   └── api_service.dart         # Backend API client
+│   └── api_service.dart         # Dio-based API client
 ├── viewmodels/
 │   └── map_viewmodel.dart       # Map logic & state (MVVM)
 ├── theme/
@@ -850,6 +858,8 @@ engine = create_engine(
 | **GeoAlchemy2** | [geoalchemy-2.readthedocs.io](https://geoalchemy-2.readthedocs.io) | 0.15.x |
 | **PostGIS** | [postgis.net/documentation](https://postgis.net/documentation) | 3.4 |
 | **Flutter** | [flutter.dev/docs](https://flutter.dev/docs) | 3.x |
+| **Dio** | [pub.dev/packages/dio](https://pub.dev/packages/dio) | 5.x |
+| **Freezed** | [pub.dev/packages/freezed](https://pub.dev/packages/freezed) | 2.x |
 | **flutter_map** | [fleaflet.dev](https://fleaflet.dev) | 7.x |
 | **Overpy** | [pypi.org/project/overpy](https://pypi.org/project/overpy/) | 0.7 |
 

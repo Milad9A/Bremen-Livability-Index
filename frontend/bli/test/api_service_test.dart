@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
-import 'package:bli/services/api_service.dart';
-import 'package:bli/models/location_marker.dart';
+import 'package:bli/models/models.dart';
 import 'package:bli/widgets/score_card.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -237,20 +236,23 @@ void main() {
   });
 
   group('LocationMarker', () {
-    test('constructor sets default timestamp', () {
+    test('LocationMarker.now sets timestamp automatically', () {
       final before = DateTime.now();
-      final marker = LocationMarker(position: const LatLng(53.0793, 8.8017));
+      final marker = LocationMarker.now(
+        position: const LatLng(53.0793, 8.8017),
+      );
       final after = DateTime.now();
 
       expect(marker.position.latitude, 53.0793);
       expect(marker.position.longitude, 8.8017);
       expect(marker.score, isNull);
+      expect(marker.timestamp, isNotNull);
       expect(
-        marker.timestamp.isAfter(before.subtract(const Duration(seconds: 1))),
+        marker.timestamp!.isAfter(before.subtract(const Duration(seconds: 1))),
         true,
       );
       expect(
-        marker.timestamp.isBefore(after.add(const Duration(seconds: 1))),
+        marker.timestamp!.isBefore(after.add(const Duration(seconds: 1))),
         true,
       );
     });

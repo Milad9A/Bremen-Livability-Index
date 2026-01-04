@@ -19,7 +19,11 @@ dependencies:
   latlong2: ^0.9.1
   
   # HTTP requests
-  http: ^1.2.2
+  dio: ^5.4.0
+  
+  # Freezed for immutable models
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
   
   # State management
   provider: ^6.1.2
@@ -33,6 +37,8 @@ dev_dependencies:
   flutter_native_splash: ^2.4.4
   mockito: ^5.4.6
   build_runner: ^2.4.16
+  freezed: ^2.4.7
+  json_serializable: ^6.7.1
 
 flutter_launcher_icons:
   android: "launcher_icon"

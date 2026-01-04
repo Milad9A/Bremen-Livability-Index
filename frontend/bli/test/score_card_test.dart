@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bli/widgets/score_card.dart';
-import 'package:bli/services/api_service.dart';
+import 'package:bli/models/models.dart';
 
 void main() {
   // Helper to create a LivabilityScore for testing

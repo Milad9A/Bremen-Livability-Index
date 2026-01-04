@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bli/services/api_service.dart';
+import 'package:bli/models/models.dart';
 
 void main() {
   // Note: NearbyFeatureLayers widget rendering tests are skipped because
