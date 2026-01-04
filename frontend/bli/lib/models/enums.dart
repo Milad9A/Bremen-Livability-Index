@@ -124,4 +124,8 @@ enum FeatureType {
 
   @JsonValue('pedestrian_infrastructure')
   pedestrianInfrastructure,
+
+  // Fallback
+  @JsonValue('Unknown')
+  unknown,
 }

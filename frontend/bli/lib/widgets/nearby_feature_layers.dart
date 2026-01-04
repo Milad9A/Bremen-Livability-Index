@@ -1,4 +1,3 @@
-import 'package:bli/models/enums.dart';
 import 'package:bli/models/models.dart';
 import 'package:bli/utils/feature_styles.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +5,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
 class NearbyFeatureLayers extends StatelessWidget {
-  final Map<FeatureType, List<FeatureDetail>> nearbyFeatures;
+  final Map<String, List<FeatureDetail>> nearbyFeatures;
 
   const NearbyFeatureLayers({super.key, required this.nearbyFeatures});
 
@@ -18,16 +17,16 @@ class NearbyFeatureLayers extends StatelessWidget {
     List<Polygon> polygons = [];
     List<Polyline> polylines = [];
 
-    nearbyFeatures.forEach((type, features) {
+    nearbyFeatures.forEach((key, features) {
       for (var feature in features) {
         // Parse geometry
         var geom = feature.geometry;
         var geomType = geom['type'];
         var coords = geom['coordinates'];
 
-        Color color = FeatureStyles.getFeatureColor(type);
+        Color color = FeatureStyles.getFeatureColor(feature.type);
         IconData icon = FeatureStyles.getFeatureIcon(
-          type,
+          feature.type,
           subtype: feature.subtype,
         );
 

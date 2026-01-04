@@ -57,7 +57,7 @@ void main() {
       expect(score.factors[1].factor, MetricCategory.trafficSafety);
       expect(score.factors[1].value, -10.0);
       expect(score.factors[1].impact, 'negative');
-      expect(score.nearbyFeatures[FeatureType.tree]?.length, 1);
+      expect(score.nearbyFeatures['tree']?.length, 1);
       expect(score.summary, 'Good livability score');
     });
 

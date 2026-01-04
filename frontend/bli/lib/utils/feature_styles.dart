@@ -143,6 +143,8 @@ class FeatureStyles {
         return Colors.blue;
       case FeatureType.constructionSite:
         return Colors.orangeAccent;
+      case FeatureType.unknown:
+        return AppColors.greyMedium;
     }
   }
 
@@ -243,6 +245,8 @@ class FeatureStyles {
         return Icons.flight;
       case FeatureType.constructionSite:
         return Icons.construction;
+      case FeatureType.unknown:
+        return Icons.help_outline;
     }
   }
 }

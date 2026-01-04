@@ -11,7 +11,7 @@ class FeatureDetail with _$FeatureDetail {
   const factory FeatureDetail({
     int? id,
     String? name,
-    required FeatureType type,
+    @JsonKey(unknownEnumValue: FeatureType.unknown) required FeatureType type,
     String? subtype,
     required double distance,
     required Map<String, dynamic> geometry,

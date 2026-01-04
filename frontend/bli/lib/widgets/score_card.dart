@@ -15,6 +15,13 @@ class ScoreCard extends StatefulWidget {
 
 class _ScoreCardState extends State<ScoreCard> {
   bool _isExpanded = true;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -188,66 +195,72 @@ class _ScoreCardState extends State<ScoreCard> {
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.3,
           ),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (positiveFactors.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.thumb_up,
-                        color: AppColors.white,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Positive Factors (${positiveFactors.length})',
-                        style: const TextStyle(
+          child: Scrollbar(
+            thumbVisibility: true,
+            controller: _scrollController,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              padding: const EdgeInsets.only(right: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (positiveFactors.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.thumb_up,
                           color: AppColors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          size: 16,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  ...positiveFactors.map(
-                    (factor) => ScoreFactorItem(
-                      factor: factor,
-                      nearbyFeatures: score.nearbyFeatures,
+                        const SizedBox(width: 6),
+                        Text(
+                          'Positive Factors (${positiveFactors.length})',
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                if (negativeFactors.isNotEmpty) ...[
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.thumb_down,
-                        color: AppColors.white,
-                        size: 16,
+                    const SizedBox(height: 6),
+                    ...positiveFactors.map(
+                      (factor) => ScoreFactorItem(
+                        factor: factor,
+                        nearbyFeatures: score.nearbyFeatures,
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Negative Factors (${negativeFactors.length})',
-                        style: const TextStyle(
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  if (negativeFactors.isNotEmpty) ...[
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.thumb_down,
                           color: AppColors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
+                          size: 16,
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  ...negativeFactors.map(
-                    (factor) => ScoreFactorItem(
-                      factor: factor,
-                      nearbyFeatures: score.nearbyFeatures,
+                        const SizedBox(width: 6),
+                        Text(
+                          'Negative Factors (${negativeFactors.length})',
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
+                    const SizedBox(height: 6),
+                    ...negativeFactors.map(
+                      (factor) => ScoreFactorItem(
+                        factor: factor,
+                        nearbyFeatures: score.nearbyFeatures,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         ),
@@ -303,7 +316,7 @@ class _ScoreSummaryChip extends StatelessWidget {
 
 class ScoreFactorItem extends StatelessWidget {
   final Factor factor;
-  final Map<FeatureType, List<FeatureDetail>> nearbyFeatures;
+  final Map<String, List<FeatureDetail>> nearbyFeatures;
 
   const ScoreFactorItem({
     super.key,
@@ -315,47 +328,47 @@ class ScoreFactorItem extends StatelessWidget {
     switch (factor.factor) {
       case MetricCategory.greenery:
         return [
-          ...(nearbyFeatures[FeatureType.tree] ?? []),
-          ...(nearbyFeatures[FeatureType.park] ?? []),
+          ...(nearbyFeatures['trees'] ?? []),
+          ...(nearbyFeatures['parks'] ?? []),
         ];
       case MetricCategory.amenities:
-        return nearbyFeatures[FeatureType.amenity] ?? [];
+        return nearbyFeatures['amenities'] ?? [];
       case MetricCategory.publicTransport:
-        return nearbyFeatures[FeatureType.publicTransport] ?? [];
+        return nearbyFeatures['public_transport'] ?? [];
       case MetricCategory.healthcare:
-        return nearbyFeatures[FeatureType.healthcare] ?? [];
+        return nearbyFeatures['healthcare'] ?? [];
       case MetricCategory.bikeInfrastructure:
-        return nearbyFeatures[FeatureType.bikeInfrastructure] ?? [];
+        return nearbyFeatures['bike_infrastructure'] ?? [];
       case MetricCategory.education:
-        return nearbyFeatures[FeatureType.education] ?? [];
+        return nearbyFeatures['education'] ?? [];
       case MetricCategory.sportsLeisure:
-        return nearbyFeatures[FeatureType.sportsLeisure] ?? [];
+        return nearbyFeatures['sports_leisure'] ?? [];
       case MetricCategory.pedestrianInfrastructure:
-        return nearbyFeatures[FeatureType.pedestrianInfrastructure] ?? [];
+        return nearbyFeatures['pedestrian_infrastructure'] ?? [];
       case MetricCategory.culturalVenues:
-        return nearbyFeatures[FeatureType.culturalVenue] ?? [];
+        return nearbyFeatures['cultural_venues'] ?? [];
       case MetricCategory.trafficSafety:
-        return nearbyFeatures[FeatureType.accident] ?? [];
+        return nearbyFeatures['accidents'] ?? [];
       case MetricCategory.industrialArea:
-        return nearbyFeatures[FeatureType.industrial] ?? [];
+        return nearbyFeatures['industrial'] ?? [];
       case MetricCategory.majorRoad:
-        return nearbyFeatures[FeatureType.majorRoad] ?? [];
+        return nearbyFeatures['major_roads'] ?? [];
       case MetricCategory.noiseSources:
-        return nearbyFeatures[FeatureType.noiseSource] ?? [];
+        return nearbyFeatures['noise_sources'] ?? [];
       case MetricCategory.railway:
-        return nearbyFeatures[FeatureType.railway] ?? [];
+        return nearbyFeatures['railways'] ?? [];
       case MetricCategory.gasStation:
-        return nearbyFeatures[FeatureType.gasStation] ?? [];
+        return nearbyFeatures['gas_stations'] ?? [];
       case MetricCategory.wasteFacility:
-        return nearbyFeatures[FeatureType.wasteFacility] ?? [];
+        return nearbyFeatures['waste_facilities'] ?? [];
       case MetricCategory.powerInfrastructure:
-        return nearbyFeatures[FeatureType.powerInfrastructure] ?? [];
+        return nearbyFeatures['power_infrastructure'] ?? [];
       case MetricCategory.largeParking:
-        return nearbyFeatures[FeatureType.parkingLot] ?? [];
+        return nearbyFeatures['parking_lots'] ?? [];
       case MetricCategory.airport:
-        return nearbyFeatures[FeatureType.airport] ?? [];
+        return nearbyFeatures['airports'] ?? [];
       case MetricCategory.constructionSite:
-        return nearbyFeatures[FeatureType.constructionSite] ?? [];
+        return nearbyFeatures['construction_sites'] ?? [];
       case MetricCategory.unknown:
         return [];
     }

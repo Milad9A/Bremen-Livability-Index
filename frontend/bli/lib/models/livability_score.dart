@@ -19,7 +19,7 @@ class LivabilityScore with _$LivabilityScore {
     required Location location,
     required List<Factor> factors,
     @JsonKey(name: 'nearby_features')
-    required Map<FeatureType, List<FeatureDetail>> nearbyFeatures,
+    required Map<String, List<FeatureDetail>> nearbyFeatures,
     required String summary,
   }) = _LivabilityScore;
 

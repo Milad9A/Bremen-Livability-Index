@@ -23,6 +23,7 @@ FeatureDetail _$FeatureDetailFromJson(Map<String, dynamic> json) {
 mixin _$FeatureDetail {
   int? get id => throw _privateConstructorUsedError;
   String? get name => throw _privateConstructorUsedError;
+  @JsonKey(unknownEnumValue: FeatureType.unknown)
   FeatureType get type => throw _privateConstructorUsedError;
   String? get subtype => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
@@ -48,7 +49,7 @@ abstract class $FeatureDetailCopyWith<$Res> {
   $Res call({
     int? id,
     String? name,
-    FeatureType type,
+    @JsonKey(unknownEnumValue: FeatureType.unknown) FeatureType type,
     String? subtype,
     double distance,
     Map<String, dynamic> geometry,
@@ -121,7 +122,7 @@ abstract class _$$FeatureDetailImplCopyWith<$Res>
   $Res call({
     int? id,
     String? name,
-    FeatureType type,
+    @JsonKey(unknownEnumValue: FeatureType.unknown) FeatureType type,
     String? subtype,
     double distance,
     Map<String, dynamic> geometry,
@@ -186,7 +187,7 @@ class _$FeatureDetailImpl implements _FeatureDetail {
   const _$FeatureDetailImpl({
     this.id,
     this.name,
-    required this.type,
+    @JsonKey(unknownEnumValue: FeatureType.unknown) required this.type,
     this.subtype,
     required this.distance,
     required final Map<String, dynamic> geometry,
@@ -200,6 +201,7 @@ class _$FeatureDetailImpl implements _FeatureDetail {
   @override
   final String? name;
   @override
+  @JsonKey(unknownEnumValue: FeatureType.unknown)
   final FeatureType type;
   @override
   final String? subtype;
@@ -262,6 +264,7 @@ abstract class _FeatureDetail implements FeatureDetail {
   const factory _FeatureDetail({
     final int? id,
     final String? name,
+    @JsonKey(unknownEnumValue: FeatureType.unknown)
     required final FeatureType type,
     final String? subtype,
     required final double distance,
@@ -276,6 +279,7 @@ abstract class _FeatureDetail implements FeatureDetail {
   @override
   String? get name;
   @override
+  @JsonKey(unknownEnumValue: FeatureType.unknown)
   FeatureType get type;
   @override
   String? get subtype;

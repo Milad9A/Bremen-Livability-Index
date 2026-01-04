@@ -10,7 +10,11 @@ _$FeatureDetailImpl _$$FeatureDetailImplFromJson(Map<String, dynamic> json) =>
     _$FeatureDetailImpl(
       id: (json['id'] as num?)?.toInt(),
       name: json['name'] as String?,
-      type: $enumDecode(_$FeatureTypeEnumMap, json['type']),
+      type: $enumDecode(
+        _$FeatureTypeEnumMap,
+        json['type'],
+        unknownValue: FeatureType.unknown,
+      ),
       subtype: json['subtype'] as String?,
       distance: (json['distance'] as num).toDouble(),
       geometry: json['geometry'] as Map<String, dynamic>,
@@ -48,4 +52,5 @@ const _$FeatureTypeEnumMap = {
   FeatureType.gasStation: 'gas_station',
   FeatureType.bikeInfrastructure: 'bike_infrastructure',
   FeatureType.pedestrianInfrastructure: 'pedestrian_infrastructure',
+  FeatureType.unknown: 'Unknown',
 };

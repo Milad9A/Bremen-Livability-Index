@@ -243,14 +243,14 @@ class LivabilityScorer:
         factors.append(FactorBreakdown(
             factor="Greenery",
             value=greenery,
-            description=f"{tree_count} trees, {park_count} parks within 100m",
+            description=f"{tree_count} trees, {park_count} parks within {cls.GREENERY_RADIUS}m",
             impact="positive"
         ))
         
         factors.append(FactorBreakdown(
             factor="Amenities",
             value=amenities,
-            description=f"{amenity_count} amenities within 500m",
+            description=f"{amenity_count} amenities within {cls.AMENITIES_RADIUS}m",
             impact="positive"
         ))
         
@@ -258,7 +258,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Public Transport",
                 value=transport,
-                description=f"{public_transport_count} stops within 300m",
+                description=f"{public_transport_count} stops within {cls.PUBLIC_TRANSPORT_RADIUS}m",
                 impact="positive"
             ))
         
@@ -266,7 +266,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Healthcare",
                 value=healthcare,
-                description=f"{healthcare_count} facilities within 500m",
+                description=f"{healthcare_count} facilities within {cls.HEALTHCARE_RADIUS}m",
                 impact="positive"
             ))
         
@@ -274,7 +274,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Bike Infrastructure",
                 value=bike_infra,
-                description=f"{bike_infrastructure_count} bike facilities within 200m",
+                description=f"{bike_infrastructure_count} bike facilities within {cls.BIKE_INFRASTRUCTURE_RADIUS}m",
                 impact="positive"
             ))
         
@@ -282,7 +282,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Education",
                 value=education,
-                description=f"{education_count} schools/universities within 800m",
+                description=f"{education_count} schools/universities within {cls.EDUCATION_RADIUS}m",
                 impact="positive"
             ))
         
@@ -290,7 +290,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Sports & Leisure",
                 value=sports,
-                description=f"{sports_leisure_count} sports facilities within 500m",
+                description=f"{sports_leisure_count} sports facilities within {cls.SPORTS_LEISURE_RADIUS}m",
                 impact="positive"
             ))
         
@@ -298,7 +298,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Pedestrian Infrastructure",
                 value=pedestrian,
-                description=f"{pedestrian_infra_count} pedestrian features within 200m",
+                description=f"{pedestrian_infra_count} pedestrian features within {cls.PEDESTRIAN_INFRA_RADIUS}m",
                 impact="positive"
             ))
         
@@ -306,7 +306,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Cultural Venues",
                 value=cultural,
-                description=f"{cultural_count} cultural venues within 1km",
+                description=f"{cultural_count} cultural venues within {cls.CULTURAL_RADIUS}m",
                 impact="positive"
             ))
         
@@ -314,7 +314,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Traffic Safety",
                 value=-accident_penalty,
-                description=f"{accident_count} accidents within 150m",
+                description=f"{accident_count} accidents within {cls.ACCIDENT_RADIUS}m",
                 impact="negative"
             ))
         
@@ -338,7 +338,7 @@ class LivabilityScorer:
             factors.append(FactorBreakdown(
                 factor="Noise Sources",
                 value=-noise_penalty,
-                description=f"{noise_count} noise sources within 100m",
+                description=f"{noise_count} noise sources within {cls.NOISE_RADIUS}m",
                 impact="negative"
             ))
         
