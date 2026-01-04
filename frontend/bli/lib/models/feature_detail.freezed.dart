@@ -23,7 +23,7 @@ FeatureDetail _$FeatureDetailFromJson(Map<String, dynamic> json) {
 mixin _$FeatureDetail {
   int? get id => throw _privateConstructorUsedError;
   String? get name => throw _privateConstructorUsedError;
-  String get type => throw _privateConstructorUsedError;
+  FeatureType get type => throw _privateConstructorUsedError;
   String? get subtype => throw _privateConstructorUsedError;
   double get distance => throw _privateConstructorUsedError;
   Map<String, dynamic> get geometry => throw _privateConstructorUsedError;
@@ -48,7 +48,7 @@ abstract class $FeatureDetailCopyWith<$Res> {
   $Res call({
     int? id,
     String? name,
-    String type,
+    FeatureType type,
     String? subtype,
     double distance,
     Map<String, dynamic> geometry,
@@ -90,7 +90,7 @@ class _$FeatureDetailCopyWithImpl<$Res, $Val extends FeatureDetail>
             type: null == type
                 ? _value.type
                 : type // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as FeatureType,
             subtype: freezed == subtype
                 ? _value.subtype
                 : subtype // ignore: cast_nullable_to_non_nullable
@@ -121,7 +121,7 @@ abstract class _$$FeatureDetailImplCopyWith<$Res>
   $Res call({
     int? id,
     String? name,
-    String type,
+    FeatureType type,
     String? subtype,
     double distance,
     Map<String, dynamic> geometry,
@@ -162,7 +162,7 @@ class __$$FeatureDetailImplCopyWithImpl<$Res>
         type: null == type
             ? _value.type
             : type // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as FeatureType,
         subtype: freezed == subtype
             ? _value.subtype
             : subtype // ignore: cast_nullable_to_non_nullable
@@ -200,7 +200,7 @@ class _$FeatureDetailImpl implements _FeatureDetail {
   @override
   final String? name;
   @override
-  final String type;
+  final FeatureType type;
   @override
   final String? subtype;
   @override
@@ -262,7 +262,7 @@ abstract class _FeatureDetail implements FeatureDetail {
   const factory _FeatureDetail({
     final int? id,
     final String? name,
-    required final String type,
+    required final FeatureType type,
     final String? subtype,
     required final double distance,
     required final Map<String, dynamic> geometry,
@@ -276,7 +276,7 @@ abstract class _FeatureDetail implements FeatureDetail {
   @override
   String? get name;
   @override
-  String get type;
+  FeatureType get type;
   @override
   String? get subtype;
   @override

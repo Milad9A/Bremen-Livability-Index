@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:bli/models/enums.dart';
 import 'package:bli/models/factor.dart';
 import 'package:bli/models/feature_detail.dart';
 import 'package:bli/models/location.dart';
@@ -18,7 +19,7 @@ class LivabilityScore with _$LivabilityScore {
     required Location location,
     required List<Factor> factors,
     @JsonKey(name: 'nearby_features')
-    required Map<String, List<FeatureDetail>> nearbyFeatures,
+    required Map<FeatureType, List<FeatureDetail>> nearbyFeatures,
     required String summary,
   }) = _LivabilityScore;
 

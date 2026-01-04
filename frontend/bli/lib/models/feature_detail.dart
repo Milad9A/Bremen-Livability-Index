@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:bli/models/enums.dart';
+
 part 'feature_detail.freezed.dart';
 part 'feature_detail.g.dart';
 
@@ -9,7 +11,7 @@ class FeatureDetail with _$FeatureDetail {
   const factory FeatureDetail({
     int? id,
     String? name,
-    required String type,
+    required FeatureType type,
     String? subtype,
     required double distance,
     required Map<String, dynamic> geometry,

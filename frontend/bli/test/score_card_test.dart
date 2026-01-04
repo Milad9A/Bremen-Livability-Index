@@ -1,7 +1,8 @@
+import 'package:bli/models/enums.dart';
+import 'package:bli/models/models.dart';
+import 'package:bli/widgets/score_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:bli/widgets/score_card.dart';
-import 'package:bli/models/models.dart';
 
 void main() {
   // Helper to create a LivabilityScore for testing
@@ -14,18 +15,18 @@ void main() {
     return LivabilityScore(
       score: score,
       baseScore: baseScore,
-      location: Location(latitude: 53.0793, longitude: 8.8017),
+      location: const Location(latitude: 53.0793, longitude: 8.8017),
       factors:
           factors ??
           [
-            Factor(
-              factor: 'Green Spaces',
+            const Factor(
+              factor: MetricCategory.greenery,
               value: 15.0,
               description: 'Many parks nearby',
               impact: 'positive',
             ),
-            Factor(
-              factor: 'Traffic',
+            const Factor(
+              factor: MetricCategory.trafficSafety,
               value: -10.0,
               description: 'Heavy traffic area',
               impact: 'negative',
@@ -79,21 +80,21 @@ void main() {
 
       expect(find.textContaining('Positive Factors'), findsOneWidget);
       expect(find.textContaining('Negative Factors'), findsOneWidget);
-      expect(find.textContaining('Green Spaces'), findsOneWidget);
-      expect(find.textContaining('Traffic'), findsOneWidget);
+      expect(find.textContaining('Many parks nearby'), findsOneWidget);
+      expect(find.textContaining('Heavy traffic area'), findsOneWidget);
       expect(find.text('+15.0'), findsWidgets);
       expect(find.text('-10.0'), findsWidgets);
     });
 
-    testWidgets('shows add_circle icon for positive impact', (
+    testWidgets('shows add_circle icon for positive impact (fallback)', (
       WidgetTester tester,
     ) async {
       final score = createTestScore(
         factors: [
-          Factor(
-            factor: 'Parks',
+          const Factor(
+            factor: MetricCategory.unknown,
             value: 10.0,
-            description: 'Close to parks',
+            description: 'Positive unknown factor',
             impact: 'positive',
           ),
         ],
@@ -110,15 +111,15 @@ void main() {
       expect(find.byIcon(Icons.add_circle), findsWidgets);
     });
 
-    testWidgets('shows remove_circle icon for negative impact', (
+    testWidgets('shows remove_circle icon for negative impact (fallback)', (
       WidgetTester tester,
     ) async {
       final score = createTestScore(
         factors: [
-          Factor(
-            factor: 'Noise',
+          const Factor(
+            factor: MetricCategory.unknown,
             value: -5.0,
-            description: 'Noisy area',
+            description: 'Negative unknown factor',
             impact: 'negative',
           ),
         ],
@@ -140,8 +141,8 @@ void main() {
     testWidgets('displays factor with positive value', (
       WidgetTester tester,
     ) async {
-      final factor = Factor(
-        factor: 'Green Spaces',
+      final factor = const Factor(
+        factor: MetricCategory.greenery,
         value: 12.5,
         description: 'Many parks',
         impact: 'positive',
@@ -155,17 +156,16 @@ void main() {
         ),
       );
 
-      expect(find.textContaining('Green Spaces'), findsOneWidget);
       expect(find.textContaining('Many parks'), findsOneWidget);
       expect(find.text('+12.5'), findsOneWidget);
-      expect(find.byIcon(Icons.add_circle), findsOneWidget);
+      expect(find.byIcon(Icons.nature), findsOneWidget);
     });
 
     testWidgets('displays factor with negative value', (
       WidgetTester tester,
     ) async {
-      final factor = Factor(
-        factor: 'Noise Sources',
+      final factor = const Factor(
+        factor: MetricCategory.noiseSources,
         value: -8.0,
         description: 'Near highway',
         impact: 'negative',

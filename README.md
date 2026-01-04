@@ -151,6 +151,14 @@ The API URL is configured in `lib/services/api_service.dart`.
 
 > 📖 **Details:** [Frontend Implementation](TECHNICAL.md#frontend-implementation) in TECHNICAL.md
 
+### Code Generation
+
+If you modify data models (`lib/models/*.dart`), you must run the build runner to regenerate JSON serialization code:
+
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
 
 ## 🧪 Testing
 

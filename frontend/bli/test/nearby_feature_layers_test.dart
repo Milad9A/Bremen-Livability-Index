@@ -1,34 +1,15 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:bli/models/enums.dart';
 import 'package:bli/models/models.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   // Note: NearbyFeatureLayers widget rendering tests are skipped because
-  // they require a FlutterMap parent widget context.
-  // We test the underlying functionality through unit tests.
+  // they require a FlutterMap parent widget context which is complex to mock.
+  // We test the underlying functionality through unit tests in code or implicitly.
 
   group('NearbyFeatureLayers helper methods', () {
-    // The private methods _getColorForType and _getIconForType are tested
-    // indirectly by documenting expected behavior:
-    // Positive factors:
-    // trees -> Colors.green
-    // parks -> Colors.lightGreen
-    // amenities -> Colors.blue
-    // public_transport -> Colors.indigo
-    // healthcare -> Colors.red
-    // bike_infrastructure -> Colors.cyan
-    // education -> Colors.purple
-    // sports_leisure -> Colors.amber
-    // pedestrian_infrastructure -> Colors.lime
-    // cultural_venues -> Colors.pink
-    //
-    // Negative factors:
-    // accidents -> Colors.orange
-    // industrial -> Colors.grey
-    // major_roads -> Colors.black54
-    // noise_sources -> Colors.deepOrange
-
+    // Methods moved to FeatureStyles, tested via integration or directly if needed.
     test('color and icon mapping documentation', () {
-      // This test documents the expected mappings
       expect(true, isTrue);
     });
   });
@@ -36,7 +17,7 @@ void main() {
   group('Feature parsing', () {
     test('Point geometry is parsed correctly', () {
       final feature = FeatureDetail(
-        type: 'tree',
+        type: FeatureType.tree,
         distance: 100.0,
         geometry: {
           'type': 'Point',
@@ -51,7 +32,7 @@ void main() {
 
     test('Polygon geometry is parsed correctly', () {
       final feature = FeatureDetail(
-        type: 'park',
+        type: FeatureType.park,
         distance: 200.0,
         geometry: {
           'type': 'Polygon',
@@ -75,7 +56,7 @@ void main() {
 
     test('LineString geometry is parsed correctly', () {
       final feature = FeatureDetail(
-        type: 'major_road',
+        type: FeatureType.majorRoad,
         distance: 50.0,
         geometry: {
           'type': 'LineString',
@@ -94,7 +75,7 @@ void main() {
 
     test('MultiPolygon geometry is parsed correctly', () {
       final feature = FeatureDetail(
-        type: 'industrial',
+        type: FeatureType.industrial,
         distance: 300.0,
         geometry: {
           'type': 'MultiPolygon',
@@ -130,7 +111,7 @@ void main() {
   group('Icon selection by subtype', () {
     test('amenity with restaurant subtype', () {
       final feature = FeatureDetail(
-        type: 'amenity',
+        type: FeatureType.amenity,
         subtype: 'restaurant',
         distance: 100.0,
         geometry: {
@@ -144,7 +125,7 @@ void main() {
 
     test('amenity with school subtype', () {
       final feature = FeatureDetail(
-        type: 'amenity',
+        type: FeatureType.amenity,
         subtype: 'school',
         distance: 150.0,
         geometry: {
@@ -158,7 +139,7 @@ void main() {
 
     test('public_transport with bus subtype', () {
       final feature = FeatureDetail(
-        type: 'public_transport',
+        type: FeatureType.publicTransport,
         subtype: 'bus_stop',
         distance: 200.0,
         geometry: {
@@ -172,7 +153,7 @@ void main() {
 
     test('bike_infrastructure with cycleway subtype', () {
       final feature = FeatureDetail(
-        type: 'bike_infrastructure',
+        type: FeatureType.bikeInfrastructure,
         subtype: 'cycleway',
         distance: 50.0,
         geometry: {
@@ -185,12 +166,12 @@ void main() {
       );
 
       expect(feature.subtype, 'cycleway');
-      expect(feature.type, 'bike_infrastructure');
+      expect(feature.type, FeatureType.bikeInfrastructure);
     });
 
     test('education with university subtype', () {
       final feature = FeatureDetail(
-        type: 'education',
+        type: FeatureType.education,
         subtype: 'university',
         distance: 400.0,
         geometry: {
@@ -204,7 +185,7 @@ void main() {
 
     test('sports_leisure with swimming pool subtype', () {
       final feature = FeatureDetail(
-        type: 'sports_leisure',
+        type: FeatureType.sportsLeisure,
         subtype: 'swimming_pool',
         distance: 300.0,
         geometry: {
@@ -218,7 +199,7 @@ void main() {
 
     test('pedestrian_infrastructure with crossing subtype', () {
       final feature = FeatureDetail(
-        type: 'pedestrian_infrastructure',
+        type: FeatureType.pedestrianInfrastructure,
         subtype: 'crossing',
         distance: 50.0,
         geometry: {
@@ -232,7 +213,7 @@ void main() {
 
     test('cultural_venue with museum subtype', () {
       final feature = FeatureDetail(
-        type: 'cultural_venue',
+        type: FeatureType.culturalVenue,
         subtype: 'museum',
         distance: 500.0,
         geometry: {
@@ -246,7 +227,7 @@ void main() {
 
     test('noise_source with nightclub subtype', () {
       final feature = FeatureDetail(
-        type: 'noise_source',
+        type: FeatureType.noiseSource,
         subtype: 'nightclub',
         distance: 80.0,
         geometry: {

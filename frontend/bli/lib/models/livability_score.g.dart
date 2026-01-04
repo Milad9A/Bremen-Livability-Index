@@ -17,7 +17,7 @@ _$LivabilityScoreImpl _$$LivabilityScoreImplFromJson(
       .toList(),
   nearbyFeatures: (json['nearby_features'] as Map<String, dynamic>).map(
     (k, e) => MapEntry(
-      k,
+      $enumDecode(_$FeatureTypeEnumMap, k),
       (e as List<dynamic>)
           .map((e) => FeatureDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -33,6 +33,32 @@ Map<String, dynamic> _$$LivabilityScoreImplToJson(
   'base_score': instance.baseScore,
   'location': instance.location,
   'factors': instance.factors,
-  'nearby_features': instance.nearbyFeatures,
+  'nearby_features': instance.nearbyFeatures.map(
+    (k, e) => MapEntry(_$FeatureTypeEnumMap[k]!, e),
+  ),
   'summary': instance.summary,
+};
+
+const _$FeatureTypeEnumMap = {
+  FeatureType.tree: 'tree',
+  FeatureType.park: 'park',
+  FeatureType.amenity: 'amenity',
+  FeatureType.publicTransport: 'public_transport',
+  FeatureType.healthcare: 'healthcare',
+  FeatureType.education: 'education',
+  FeatureType.sportsLeisure: 'sports_leisure',
+  FeatureType.culturalVenue: 'cultural_venue',
+  FeatureType.noiseSource: 'noise_source',
+  FeatureType.accident: 'accident',
+  FeatureType.industrial: 'industrial',
+  FeatureType.majorRoad: 'major_road',
+  FeatureType.railway: 'railway',
+  FeatureType.airport: 'airport',
+  FeatureType.constructionSite: 'construction_site',
+  FeatureType.parkingLot: 'parking_lot',
+  FeatureType.powerInfrastructure: 'power_infrastructure',
+  FeatureType.wasteFacility: 'waste_facility',
+  FeatureType.gasStation: 'gas_station',
+  FeatureType.bikeInfrastructure: 'bike_infrastructure',
+  FeatureType.pedestrianInfrastructure: 'pedestrian_infrastructure',
 };

@@ -475,12 +475,15 @@ frontend/bli/lib/
 ├── main.dart                    # App entry point
 ├── models/
 │   ├── models.dart              # Barrel export for all models
+│   ├── enums.dart               # Metric & feature enums
 │   ├── factor.dart              # Scoring factor (Freezed)
 │   ├── feature_detail.dart      # Nearby feature (Freezed)
 │   ├── geocode_result.dart      # Search result (Freezed)
 │   ├── livability_score.dart    # API response (Freezed)
 │   ├── location.dart            # Coordinates (Freezed)
 │   └── location_marker.dart     # Map marker (Freezed)
+├── utils/
+│   └── feature_styles.dart      # Shared styling logic (icons/colors)
 ├── screens/
 │   ├── start_screen.dart        # Animated start screen
 │   └── map_screen.dart          # Main map view
@@ -500,6 +503,22 @@ frontend/bli/lib/
     └── glass_container.dart     # Reusable glass effect widget
 ```
 
+### Code Generation
+ 
+The project uses `freezed` and `json_serializable` to generate immutable data models and JSON serialization logic. Code generation is required whenever you modify models in `lib/models/`.
+ 
+**Run build runner:**
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+ 
+**Watch mode (auto-rebuild on change):**
+```bash
+flutter pub run build_runner watch --delete-conflicting-outputs
+```
+ 
+Generated files (`*.freezed.dart`, `*.g.dart`) are checked into the repository to ensure the app is buildable immediately after cloning.
+ 
 ### Splash Screen & Start Screen
 
 The app uses a two-stage launch experience:

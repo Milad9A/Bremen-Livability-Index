@@ -1,5 +1,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'package:bli/models/enums.dart';
+
 part 'factor.freezed.dart';
 part 'factor.g.dart';
 
@@ -7,7 +9,8 @@ part 'factor.g.dart';
 @freezed
 class Factor with _$Factor {
   const factory Factor({
-    required String factor,
+    @JsonKey(unknownEnumValue: MetricCategory.unknown)
+    required MetricCategory factor,
     required double value,
     required String description,
     required String impact,

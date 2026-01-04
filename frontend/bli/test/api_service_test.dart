@@ -1,3 +1,4 @@
+import 'package:bli/models/enums.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:bli/models/models.dart';
@@ -13,20 +14,20 @@ void main() {
         'location': {'latitude': 53.0793, 'longitude': 8.8017},
         'factors': [
           {
-            'factor': 'Green Spaces',
+            'factor': 'Greenery',
             'value': 15.0,
             'description': 'Many parks nearby',
             'impact': 'positive',
           },
           {
-            'factor': 'Traffic',
+            'factor': 'Traffic Safety',
             'value': -10.0,
             'description': 'Heavy traffic',
             'impact': 'negative',
           },
         ],
         'nearby_features': {
-          'trees': [
+          'tree': [
             {
               'id': 1,
               'name': 'Oak',
@@ -50,13 +51,13 @@ void main() {
       expect(score.location.latitude, 53.0793);
       expect(score.location.longitude, 8.8017);
       expect(score.factors.length, 2);
-      expect(score.factors[0].factor, 'Green Spaces');
+      expect(score.factors[0].factor, MetricCategory.greenery);
       expect(score.factors[0].value, 15.0);
       expect(score.factors[0].impact, 'positive');
-      expect(score.factors[1].factor, 'Traffic');
+      expect(score.factors[1].factor, MetricCategory.trafficSafety);
       expect(score.factors[1].value, -10.0);
       expect(score.factors[1].impact, 'negative');
-      expect(score.nearbyFeatures['trees']?.length, 1);
+      expect(score.nearbyFeatures[FeatureType.tree]?.length, 1);
       expect(score.summary, 'Good livability score');
     });
 
@@ -65,7 +66,7 @@ void main() {
       final score = LivabilityScore(
         score: 50.0,
         baseScore: 40.0,
-        location: Location(latitude: 53.0, longitude: 8.0),
+        location: const Location(latitude: 53.0, longitude: 8.0),
         factors: [],
         nearbyFeatures: {},
         summary: 'Average area',
@@ -78,7 +79,7 @@ void main() {
       final score = LivabilityScore(
         score: 70.0,
         baseScore: 40.0,
-        location: Location(latitude: 53.0, longitude: 8.0),
+        location: const Location(latitude: 53.0, longitude: 8.0),
         factors: [],
         nearbyFeatures: {},
         summary: 'Good',
@@ -91,7 +92,7 @@ void main() {
       final score = LivabilityScore(
         score: 55.0,
         baseScore: 40.0,
-        location: Location(latitude: 53.0, longitude: 8.0),
+        location: const Location(latitude: 53.0, longitude: 8.0),
         factors: [],
         nearbyFeatures: {},
         summary: 'Okay',
@@ -104,7 +105,7 @@ void main() {
       final score = LivabilityScore(
         score: 30.0,
         baseScore: 40.0,
-        location: Location(latitude: 53.0, longitude: 8.0),
+        location: const Location(latitude: 53.0, longitude: 8.0),
         factors: [],
         nearbyFeatures: {},
         summary: 'Poor',
@@ -132,7 +133,7 @@ void main() {
 
       expect(feature.id, 123);
       expect(feature.name, 'Test Feature');
-      expect(feature.type, 'amenity');
+      expect(feature.type, FeatureType.amenity);
       expect(feature.subtype, 'restaurant');
       expect(feature.distance, 150.5);
       expect(feature.geometry['type'], 'Point');
@@ -179,7 +180,7 @@ void main() {
   group('Factor', () {
     test('fromJson parses all fields', () {
       final json = {
-        'factor': 'Green Spaces',
+        'factor': 'Greenery',
         'value': 12.5,
         'description': 'Parks within 500m',
         'impact': 'positive',
@@ -187,7 +188,7 @@ void main() {
 
       final factor = Factor.fromJson(json);
 
-      expect(factor.factor, 'Green Spaces');
+      expect(factor.factor, MetricCategory.greenery);
       expect(factor.value, 12.5);
       expect(factor.description, 'Parks within 500m');
       expect(factor.impact, 'positive');
@@ -195,7 +196,7 @@ void main() {
 
     test('fromJson handles negative values', () {
       final json = {
-        'factor': 'Noise',
+        'factor': 'Noise Sources',
         'value': -15.0,
         'description': 'Near major road',
         'impact': 'negative',

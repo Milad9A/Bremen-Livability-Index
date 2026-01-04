@@ -1,5 +1,7 @@
+import 'package:bli/models/enums.dart';
 import 'package:bli/models/models.dart';
 import 'package:bli/theme/app_theme.dart';
+import 'package:bli/utils/feature_styles.dart';
 import 'package:flutter/material.dart';
 
 class ScoreCard extends StatefulWidget {
@@ -301,7 +303,7 @@ class _ScoreSummaryChip extends StatelessWidget {
 
 class ScoreFactorItem extends StatelessWidget {
   final Factor factor;
-  final Map<String, List<FeatureDetail>> nearbyFeatures;
+  final Map<FeatureType, List<FeatureDetail>> nearbyFeatures;
 
   const ScoreFactorItem({
     super.key,
@@ -310,118 +312,52 @@ class ScoreFactorItem extends StatelessWidget {
   });
 
   List<FeatureDetail> _getFeaturesForFactor() {
-    final factorName = factor.factor.toLowerCase();
-
-    // Map factor names to feature keys
-    if (factorName.contains('greenery')) {
-      return [
-        ...(nearbyFeatures['trees'] ?? []),
-        ...(nearbyFeatures['parks'] ?? []),
-      ];
-    }
-    if (factorName.contains('amenities')) {
-      return nearbyFeatures['amenities'] ?? [];
-    }
-    if (factorName.contains('public transport')) {
-      return nearbyFeatures['public_transport'] ?? [];
-    }
-    if (factorName.contains('healthcare')) {
-      return nearbyFeatures['healthcare'] ?? [];
-    }
-    if (factorName.contains('bike infrastructure')) {
-      return nearbyFeatures['bike_infrastructure'] ?? [];
-    }
-    if (factorName.contains('education')) {
-      return nearbyFeatures['education'] ?? [];
-    }
-    if (factorName.contains('sports')) {
-      return nearbyFeatures['sports_leisure'] ?? [];
-    }
-    if (factorName.contains('pedestrian')) {
-      return nearbyFeatures['pedestrian_infrastructure'] ?? [];
-    }
-    if (factorName.contains('cultural')) {
-      return nearbyFeatures['cultural_venues'] ?? [];
-    }
-
-    // Negative factors
-    if (factorName.contains('traffic')) {
-      return nearbyFeatures['accidents'] ?? [];
-    }
-    if (factorName.contains('industrial')) {
-      return nearbyFeatures['industrial'] ?? [];
-    }
-    if (factorName.contains('major road')) {
-      return nearbyFeatures['major_roads'] ?? [];
-    }
-    if (factorName.contains('noise')) {
-      return nearbyFeatures['noise_sources'] ?? [];
-    }
-    if (factorName.contains('railway')) return nearbyFeatures['railways'] ?? [];
-    if (factorName.contains('gas')) return nearbyFeatures['gas_stations'] ?? [];
-    if (factorName.contains('waste')) {
-      return nearbyFeatures['waste_facilities'] ?? [];
-    }
-    if (factorName.contains('power')) {
-      return nearbyFeatures['power_infrastructure'] ?? [];
-    }
-    if (factorName.contains('parking')) {
-      return nearbyFeatures['parking_lots'] ?? [];
-    }
-    if (factorName.contains('airport')) return nearbyFeatures['airports'] ?? [];
-    if (factorName.contains('construction')) {
-      return nearbyFeatures['construction_sites'] ?? [];
-    }
-
-    return [];
-  }
-
-  IconData _getIconForFactor(String factorName) {
-    switch (factorName.toLowerCase()) {
-      case 'greenery':
-        return Icons.nature;
-      case 'amenities':
-        return Icons.store;
-      case 'public transport':
-        return Icons.directions_bus;
-      case 'healthcare':
-        return Icons.local_hospital;
-      case 'bike infrastructure':
-        return Icons.directions_bike;
-      case 'education':
-        return Icons.school;
-      case 'sports & leisure':
-        return Icons.sports_soccer;
-      case 'pedestrian infrastructure':
-        return Icons.accessibility_new;
-      case 'cultural venues':
-        return Icons.palette;
-      case 'traffic safety':
-        return Icons.warning;
-      case 'industrial area':
-        return Icons.factory;
-      case 'major road':
-        return Icons.add_road;
-      case 'noise sources':
-        return Icons.volume_up;
-      case 'railway':
-        return Icons.train;
-      case 'gas station':
-        return Icons.local_gas_station;
-      case 'waste facility':
-        return Icons.delete;
-      case 'power infrastructure':
-        return Icons.electrical_services;
-      case 'large parking':
-        return Icons.local_parking;
-      case 'airport/helipad':
-        return Icons.flight;
-      case 'construction site':
-        return Icons.construction;
-      default:
-        return factor.impact == 'positive'
-            ? Icons.add_circle
-            : Icons.remove_circle;
+    switch (factor.factor) {
+      case MetricCategory.greenery:
+        return [
+          ...(nearbyFeatures[FeatureType.tree] ?? []),
+          ...(nearbyFeatures[FeatureType.park] ?? []),
+        ];
+      case MetricCategory.amenities:
+        return nearbyFeatures[FeatureType.amenity] ?? [];
+      case MetricCategory.publicTransport:
+        return nearbyFeatures[FeatureType.publicTransport] ?? [];
+      case MetricCategory.healthcare:
+        return nearbyFeatures[FeatureType.healthcare] ?? [];
+      case MetricCategory.bikeInfrastructure:
+        return nearbyFeatures[FeatureType.bikeInfrastructure] ?? [];
+      case MetricCategory.education:
+        return nearbyFeatures[FeatureType.education] ?? [];
+      case MetricCategory.sportsLeisure:
+        return nearbyFeatures[FeatureType.sportsLeisure] ?? [];
+      case MetricCategory.pedestrianInfrastructure:
+        return nearbyFeatures[FeatureType.pedestrianInfrastructure] ?? [];
+      case MetricCategory.culturalVenues:
+        return nearbyFeatures[FeatureType.culturalVenue] ?? [];
+      case MetricCategory.trafficSafety:
+        return nearbyFeatures[FeatureType.accident] ?? [];
+      case MetricCategory.industrialArea:
+        return nearbyFeatures[FeatureType.industrial] ?? [];
+      case MetricCategory.majorRoad:
+        return nearbyFeatures[FeatureType.majorRoad] ?? [];
+      case MetricCategory.noiseSources:
+        return nearbyFeatures[FeatureType.noiseSource] ?? [];
+      case MetricCategory.railway:
+        return nearbyFeatures[FeatureType.railway] ?? [];
+      case MetricCategory.gasStation:
+        return nearbyFeatures[FeatureType.gasStation] ?? [];
+      case MetricCategory.wasteFacility:
+        return nearbyFeatures[FeatureType.wasteFacility] ?? [];
+      case MetricCategory.powerInfrastructure:
+        return nearbyFeatures[FeatureType.powerInfrastructure] ?? [];
+      case MetricCategory.largeParking:
+        return nearbyFeatures[FeatureType.parkingLot] ?? [];
+      case MetricCategory.airport:
+        return nearbyFeatures[FeatureType.airport] ?? [];
+      case MetricCategory.constructionSite:
+        return nearbyFeatures[FeatureType.constructionSite] ?? [];
+      case MetricCategory.unknown:
+        return [];
     }
   }
 
@@ -429,7 +365,19 @@ class ScoreFactorItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final features = _getFeaturesForFactor();
     final isPositive = factor.impact == 'positive';
-    final color = isPositive ? Colors.greenAccent : Colors.orangeAccent;
+
+    // Get color from unified styles
+    Color factorColor = FeatureStyles.getFactorColor(factor.factor);
+    if (factorColor == AppColors.greyLight) {
+      factorColor = isPositive ? Colors.green : Colors.red;
+    }
+
+    // Get icon from unified styles
+    IconData factorIcon = FeatureStyles.getFactorIcon(factor.factor);
+    if (factorIcon == Icons.help_outline &&
+        factor.factor == MetricCategory.unknown) {
+      factorIcon = isPositive ? Icons.add_circle : Icons.remove_circle;
+    }
 
     // Only sort features with distance
     features.sort((a, b) => a.distance.compareTo(b.distance));
@@ -440,16 +388,16 @@ class ScoreFactorItem extends StatelessWidget {
       child: ExpansionTile(
         tilePadding: EdgeInsets.zero,
         childrenPadding: const EdgeInsets.only(left: 16, bottom: 8),
-        iconColor: AppColors.white,
-        collapsedIconColor: AppColors.white.withValues(alpha: 0.5),
+        iconColor: factorColor,
+        collapsedIconColor: factorColor.withValues(alpha: 0.7),
         dense: true,
         title: Row(
           children: [
-            Icon(_getIconForFactor(factor.factor), color: color, size: 20),
+            Icon(factorIcon, color: factorColor, size: 20),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                '${factor.factor}: ${factor.description}',
+                factor.description,
                 style: const TextStyle(color: AppColors.white, fontSize: 13),
               ),
             ),
@@ -500,16 +448,19 @@ class ScoreFactorItem extends StatelessWidget {
                   child: Row(
                     children: [
                       Icon(
-                        Icons.place,
-                        size: 12,
-                        color: AppColors.white.withValues(alpha: 0.5),
+                        FeatureStyles.getFeatureIcon(
+                          feature.type,
+                          subtype: feature.subtype,
+                        ),
+                        size: 14,
+                        color: factorColor.withValues(alpha: 0.8),
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          "${feature.name ?? feature.subtype ?? feature.type} (${feature.distance.toStringAsFixed(0)}m)",
-                          style: const TextStyle(
-                            color: Colors.white70,
+                          "${feature.name ?? feature.subtype ?? feature.type.name} (${feature.distance.toStringAsFixed(0)}m)",
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
                             fontSize: 12,
                           ),
                           overflow: TextOverflow.ellipsis,

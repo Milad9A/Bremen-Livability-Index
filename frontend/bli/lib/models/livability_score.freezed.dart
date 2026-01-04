@@ -27,7 +27,7 @@ mixin _$LivabilityScore {
   Location get location => throw _privateConstructorUsedError;
   List<Factor> get factors => throw _privateConstructorUsedError;
   @JsonKey(name: 'nearby_features')
-  Map<String, List<FeatureDetail>> get nearbyFeatures =>
+  Map<FeatureType, List<FeatureDetail>> get nearbyFeatures =>
       throw _privateConstructorUsedError;
   String get summary => throw _privateConstructorUsedError;
 
@@ -54,7 +54,7 @@ abstract class $LivabilityScoreCopyWith<$Res> {
     Location location,
     List<Factor> factors,
     @JsonKey(name: 'nearby_features')
-    Map<String, List<FeatureDetail>> nearbyFeatures,
+    Map<FeatureType, List<FeatureDetail>> nearbyFeatures,
     String summary,
   });
 
@@ -104,7 +104,7 @@ class _$LivabilityScoreCopyWithImpl<$Res, $Val extends LivabilityScore>
             nearbyFeatures: null == nearbyFeatures
                 ? _value.nearbyFeatures
                 : nearbyFeatures // ignore: cast_nullable_to_non_nullable
-                      as Map<String, List<FeatureDetail>>,
+                      as Map<FeatureType, List<FeatureDetail>>,
             summary: null == summary
                 ? _value.summary
                 : summary // ignore: cast_nullable_to_non_nullable
@@ -140,7 +140,7 @@ abstract class _$$LivabilityScoreImplCopyWith<$Res>
     Location location,
     List<Factor> factors,
     @JsonKey(name: 'nearby_features')
-    Map<String, List<FeatureDetail>> nearbyFeatures,
+    Map<FeatureType, List<FeatureDetail>> nearbyFeatures,
     String summary,
   });
 
@@ -190,7 +190,7 @@ class __$$LivabilityScoreImplCopyWithImpl<$Res>
         nearbyFeatures: null == nearbyFeatures
             ? _value._nearbyFeatures
             : nearbyFeatures // ignore: cast_nullable_to_non_nullable
-                  as Map<String, List<FeatureDetail>>,
+                  as Map<FeatureType, List<FeatureDetail>>,
         summary: null == summary
             ? _value.summary
             : summary // ignore: cast_nullable_to_non_nullable
@@ -209,7 +209,7 @@ class _$LivabilityScoreImpl extends _LivabilityScore {
     required this.location,
     required final List<Factor> factors,
     @JsonKey(name: 'nearby_features')
-    required final Map<String, List<FeatureDetail>> nearbyFeatures,
+    required final Map<FeatureType, List<FeatureDetail>> nearbyFeatures,
     required this.summary,
   }) : _factors = factors,
        _nearbyFeatures = nearbyFeatures,
@@ -233,10 +233,10 @@ class _$LivabilityScoreImpl extends _LivabilityScore {
     return EqualUnmodifiableListView(_factors);
   }
 
-  final Map<String, List<FeatureDetail>> _nearbyFeatures;
+  final Map<FeatureType, List<FeatureDetail>> _nearbyFeatures;
   @override
   @JsonKey(name: 'nearby_features')
-  Map<String, List<FeatureDetail>> get nearbyFeatures {
+  Map<FeatureType, List<FeatureDetail>> get nearbyFeatures {
     if (_nearbyFeatures is EqualUnmodifiableMapView) return _nearbyFeatures;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_nearbyFeatures);
@@ -304,7 +304,7 @@ abstract class _LivabilityScore extends LivabilityScore {
     required final Location location,
     required final List<Factor> factors,
     @JsonKey(name: 'nearby_features')
-    required final Map<String, List<FeatureDetail>> nearbyFeatures,
+    required final Map<FeatureType, List<FeatureDetail>> nearbyFeatures,
     required final String summary,
   }) = _$LivabilityScoreImpl;
   const _LivabilityScore._() : super._();
@@ -323,7 +323,7 @@ abstract class _LivabilityScore extends LivabilityScore {
   List<Factor> get factors;
   @override
   @JsonKey(name: 'nearby_features')
-  Map<String, List<FeatureDetail>> get nearbyFeatures;
+  Map<FeatureType, List<FeatureDetail>> get nearbyFeatures;
   @override
   String get summary;
 

@@ -21,7 +21,8 @@ Factor _$FactorFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Factor {
-  String get factor => throw _privateConstructorUsedError;
+  @JsonKey(unknownEnumValue: MetricCategory.unknown)
+  MetricCategory get factor => throw _privateConstructorUsedError;
   double get value => throw _privateConstructorUsedError;
   String get description => throw _privateConstructorUsedError;
   String get impact => throw _privateConstructorUsedError;
@@ -40,7 +41,12 @@ abstract class $FactorCopyWith<$Res> {
   factory $FactorCopyWith(Factor value, $Res Function(Factor) then) =
       _$FactorCopyWithImpl<$Res, Factor>;
   @useResult
-  $Res call({String factor, double value, String description, String impact});
+  $Res call({
+    @JsonKey(unknownEnumValue: MetricCategory.unknown) MetricCategory factor,
+    double value,
+    String description,
+    String impact,
+  });
 }
 
 /// @nodoc
@@ -68,7 +74,7 @@ class _$FactorCopyWithImpl<$Res, $Val extends Factor>
             factor: null == factor
                 ? _value.factor
                 : factor // ignore: cast_nullable_to_non_nullable
-                      as String,
+                      as MetricCategory,
             value: null == value
                 ? _value.value
                 : value // ignore: cast_nullable_to_non_nullable
@@ -95,7 +101,12 @@ abstract class _$$FactorImplCopyWith<$Res> implements $FactorCopyWith<$Res> {
   ) = __$$FactorImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({String factor, double value, String description, String impact});
+  $Res call({
+    @JsonKey(unknownEnumValue: MetricCategory.unknown) MetricCategory factor,
+    double value,
+    String description,
+    String impact,
+  });
 }
 
 /// @nodoc
@@ -122,7 +133,7 @@ class __$$FactorImplCopyWithImpl<$Res>
         factor: null == factor
             ? _value.factor
             : factor // ignore: cast_nullable_to_non_nullable
-                  as String,
+                  as MetricCategory,
         value: null == value
             ? _value.value
             : value // ignore: cast_nullable_to_non_nullable
@@ -144,7 +155,7 @@ class __$$FactorImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FactorImpl implements _Factor {
   const _$FactorImpl({
-    required this.factor,
+    @JsonKey(unknownEnumValue: MetricCategory.unknown) required this.factor,
     required this.value,
     required this.description,
     required this.impact,
@@ -154,7 +165,8 @@ class _$FactorImpl implements _Factor {
       _$$FactorImplFromJson(json);
 
   @override
-  final String factor;
+  @JsonKey(unknownEnumValue: MetricCategory.unknown)
+  final MetricCategory factor;
   @override
   final double value;
   @override
@@ -200,7 +212,8 @@ class _$FactorImpl implements _Factor {
 
 abstract class _Factor implements Factor {
   const factory _Factor({
-    required final String factor,
+    @JsonKey(unknownEnumValue: MetricCategory.unknown)
+    required final MetricCategory factor,
     required final double value,
     required final String description,
     required final String impact,
@@ -209,7 +222,8 @@ abstract class _Factor implements Factor {
   factory _Factor.fromJson(Map<String, dynamic> json) = _$FactorImpl.fromJson;
 
   @override
-  String get factor;
+  @JsonKey(unknownEnumValue: MetricCategory.unknown)
+  MetricCategory get factor;
   @override
   double get value;
   @override
