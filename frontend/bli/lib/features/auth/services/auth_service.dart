@@ -39,16 +39,7 @@ class AuthService {
 
   Future<AppUser?> signInWithGoogle() async {
     try {
-      final googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) return null;
-
-      final googleAuth = await googleUser.authentication;
-      final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final userCredential = await _auth.signInWithCredential(credential);
+      final userCredential = await _auth.signInWithPopup(GoogleAuthProvider());
       return _mapFirebaseUser(userCredential.user, AppAuthProvider.google);
     } catch (e) {
       debugPrint('Google sign in error: $e');
@@ -58,9 +49,7 @@ class AuthService {
 
   Future<AppUser?> signInWithGitHub() async {
     try {
-      final githubProvider = GithubAuthProvider();
-
-      final userCredential = await _auth.signInWithProvider(githubProvider);
+      final userCredential = await _auth.signInWithPopup(GithubAuthProvider());
       return _mapFirebaseUser(userCredential.user, AppAuthProvider.github);
     } catch (e) {
       debugPrint('GitHub sign in error: $e');
@@ -151,7 +140,9 @@ class AuthService {
   }
 
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
+    if (!kIsWeb) {
+      await _googleSignIn.signOut();
+    }
     await _auth.signOut();
   }
 
