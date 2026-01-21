@@ -59,7 +59,7 @@ class AuthService {
 
   Future<void> sendEmailLink(String email) async {
     final actionCodeSettings = ActionCodeSettings(
-      url: 'https://bremen-livability-index.firebaseapp.com/login',
+      url: 'https://bremen-livability-frontend.onrender.com/login',
       handleCodeInApp: true,
       iOSBundleId: 'com.example.bli',
       androidPackageName: 'com.example.bli',

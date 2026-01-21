@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.example.bli",
+      "sha256_cert_fingerprints": [
+        "32:10:95:FC:02:8F:FA:EB:EF:2D:AA:04:1A:DC:02:7C:D9:6C:18:79:B9:A8:28:75:99:EF:98:0D:34:30:E0:43"
+      ]
+    }
+  }
+]

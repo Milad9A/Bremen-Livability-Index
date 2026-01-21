@@ -1,0 +1,11 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "9S8SGT8TD8.com.example.bli",
+        "paths": ["/login", "/login/*", "/__/auth/*"]
+      }
+    ]
+  }
+}
