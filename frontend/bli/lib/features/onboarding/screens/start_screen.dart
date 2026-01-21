@@ -1,6 +1,12 @@
-import 'package:bli/features/map/screens/map_screen.dart';
+import 'package:bli/features/auth/bloc/auth_bloc.dart';
+import 'package:bli/features/auth/bloc/auth_event.dart';
+import 'package:bli/features/auth/bloc/auth_state.dart';
+import 'package:bli/core/navigation/navigation_service.dart';
 import 'package:bli/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bli/features/onboarding/widgets/start_screen_actions.dart';
+import 'package:bli/features/onboarding/widgets/start_screen_title.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -29,7 +35,6 @@ class _StartScreenState extends State<StartScreen>
       end: 1.0,
     ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeIn));
 
-    // Slides Text down from above
     _textSlide = Tween<Offset>(begin: const Offset(0, -0.3), end: Offset.zero)
         .animate(
           CurvedAnimation(parent: _textController, curve: Curves.easeOutCubic),
@@ -39,7 +44,6 @@ class _StartScreenState extends State<StartScreen>
   }
 
   void _startAnimations() async {
-    // Wait a moment then start text animation
     await Future.delayed(const Duration(milliseconds: 250));
     if (mounted) {
       _textController.forward();
@@ -47,16 +51,15 @@ class _StartScreenState extends State<StartScreen>
   }
 
   void _navigateToMap() {
-    Navigator.of(context).pushReplacement(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const MapScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 250),
-      ),
-    );
+    NavigationService.navigateToMap(context, replace: true);
+  }
+
+  void _navigateToAuth() {
+    NavigationService.navigateToAuth(context);
+  }
+
+  void _continueAsGuest() {
+    context.read<AuthBloc>().add(const GuestSignInRequested());
   }
 
   @override
@@ -67,85 +70,34 @@ class _StartScreenState extends State<StartScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: Stack(
-        children: [
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: MediaQuery.of(context).size.height * 0.7,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                SlideTransition(
-                  position: _textSlide,
-                  child: FadeTransition(
-                    opacity: _textOpacity,
-                    child: const Text(
-                      'Bremen Livability Index',
-                      style: TextStyle(
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.white,
-                        letterSpacing: 0.5,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-              ],
+    return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (previous, current) =>
+          previous.isAuthenticated != current.isAuthenticated,
+      listener: (context, state) {
+        if (state.isAuthenticated) {
+          _navigateToMap();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.primary,
+        body: Stack(
+          children: [
+            StartScreenTitle(textSlide: _textSlide, textOpacity: _textOpacity),
+            Center(
+              child: Image.asset(
+                'assets/app_icon_no_background.png',
+                width: 136,
+                height: 136,
+                fit: BoxFit.contain,
+              ),
             ),
-          ),
-
-          Center(
-            child: Image.asset(
-              'assets/app_icon_no_background.png',
-              width: 136,
-              height: 136,
-              fit: BoxFit.contain,
+            StartScreenActions(
+              textOpacity: _textOpacity,
+              onLogin: _navigateToAuth,
+              onContinueAsGuest: _continueAsGuest,
             ),
-          ),
-
-          Positioned(
-            left: 0,
-            right: 0,
-            top: MediaQuery.of(context).size.height * 0.7,
-            bottom: 0,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                FadeTransition(
-                  opacity: _textOpacity,
-                  child: ElevatedButton(
-                    onPressed: _navigateToMap,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.white,
-                      foregroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 48,
-                        vertical: 16,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      elevation: 8,
-                      shadowColor: AppColors.black.withValues(alpha: 0.3),
-                    ),
-                    child: const Text(
-                      'Get Started',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

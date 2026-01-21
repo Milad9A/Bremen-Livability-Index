@@ -264,6 +264,96 @@ async def analyze_location(
     # session is automatically provided and cleaned up
 ```
 
+### API Endpoints
+
+The backend exposes a comprehensive REST API with the following endpoints:
+
+#### Informational Endpoints
+
+| Endpoint | Method | Description | Response |
+|----------|--------|-------------|----------|
+| `/` | GET | API information and available endpoints | `{"message", "version", "endpoints"}` |
+| `/health` | GET | Health check (verifies API and database connectivity) | `{"status": "healthy", "database": "connected"}` |
+
+#### Livability Analysis
+
+| Endpoint | Method | Request Body | Response | Description |
+|----------|--------|--------------|----------|-------------|
+| `/analyze` | POST | `{latitude: float, longitude: float}` | `LivabilityScoreResponse` | Calculate livability score for location (20 spatial factors) |
+
+**Example Response:**
+```json
+{
+  "score": 72.5,
+  "baseScore": 40.0,
+  "summary": "Good livability - friendly neighborhood",
+  "factors": [
+    {"name": "Greenery", "value": 10.2, "contribution": 10.2},
+    {"name": "Amenities", "value": 8.5, "contribution": 8.5},
+    ...
+  ],
+  "nearbyFeatures": {
+    "trees": [...],
+    "parks": [...],
+    ...
+  },
+  "location": {"latitude": 53.0793, "longitude": 8.8017}
+}
+```
+
+#### Geocoding & Address Search
+
+| Endpoint | Method | Request Body | Response | Description |
+|----------|--------|--------------|----------|-------------|
+| `/geocode` | POST | `{query: string, limit?: int}` | `GeocodeResponse` | Search addresses and get coordinates |
+
+**Example Response:**
+```json
+{
+  "results": [
+    {
+      "name": "Marktplatz, 28195 Bremen, Germany",
+      "latitude": 53.0793,
+      "longitude": 8.8017,
+      "boundingBox": {"south": 53.078, "west": 8.800, "north": 53.081, "east": 8.804}
+    }
+  ],
+  "count": 1
+}
+```
+
+#### User Management & Favorites (Firebase Integration)
+
+| Endpoint | Method | Request Body | Response | Status | Description |
+|----------|--------|--------------|----------|--------|-------------|
+| `/users` | POST | `{id: string (Firebase UID), email?: string, display_name?: string, provider: string}` | `{"message", "user_id"}` | 201 | Create or update user record |
+| `/users/{user_id}/favorites` | GET | - | `FavoritesListResponse` | 200 | Get all user's saved favorite locations |
+| `/users/{user_id}/favorites` | POST | `{label: string, latitude: float, longitude: float, address?: string}` | `FavoriteResponse` | 201 | Add new favorite location |
+| `/users/{user_id}/favorites/{favorite_id}` | DELETE | - | - | 204 | Delete a favorite location |
+
+**Favorite Location Response Example:**
+```json
+{
+  "id": 42,
+  "label": "My Apartment",
+  "latitude": 53.0793,
+  "longitude": 8.8017,
+  "address": "Example Street 123, 28195 Bremen",
+  "created_at": "2025-12-15T10:30:00Z"
+}
+```
+
+#### Authentication & Authorization
+
+- **User Creation**: Triggered via Firebase Authentication (on client side)
+  - Firebase UID is used as the primary identifier (`user_id`)
+  - Multiple auth providers supported: Google, GitHub, Email/Password, Phone, Anonymous
+  - Backend receives user metadata and stores it in the `users` table
+
+- **Favorites Sync**: Authenticated via Firebase ID Token (client passes in Authorization header)
+  - Firestore rules ensure users can only access their own favorites
+  - Backend verifies user ownership before allowing delete operations
+
 ---
 
 ## Data Ingestion Pipeline
@@ -480,13 +570,19 @@ frontend/bli/lib/
 │   ├── utils/              # FeatureStyles
 │   └── widgets/            # Shared widgets (GlassContainer, LoadingOverlay)
 ├── features/
+│   ├── auth/               # Authentication Feature
+│   │   ├── bloc/           # AuthBloc, AuthEvent, AuthState
+│   │   └── services/       # AuthService (Firebase integration)
 │   ├── map/                # Map Feature
 │   │   ├── bloc/           # MapBloc, MapEvent, MapState
 │   │   ├── models/         # Map-related models (Score, Marker, etc.)
 │   │   ├── screens/        # MapScreen
 │   │   └── widgets/        # Map-specific widgets (ScoreCard, Search, etc.)
-│   └── onboarding/         # Onboarding Feature
-│       └── screens/        # StartScreen
+│   ├── onboarding/         # Onboarding Feature
+│   │   └── screens/        # StartScreen
+│   └── favorites/          # Favorites Feature
+│       ├── bloc/           # FavoritesBloc, FavoritesEvent, FavoritesState
+│       └── models/         # Favorite location models
 └── main.dart               # Entry point
 ```
 
@@ -576,9 +672,19 @@ class ApiService {
 
 The application uses the **BLoC (Business Logic Component)** pattern with `flutter_bloc`.
 
-- **Events (`MapEvent`)**: Freezed sealed union representing user actions (MapTapped, SearchToggled, MapReset, LocationSelected)
-- **State (`MapState`)**: Freezed immutable state class with automatic copyWith generation
-- **BLoC (`MapBloc`)**: Handles events and emits new states
+- **Events (`MapEvent`, `AuthEvent`, `FavoritesEvent`)**: Freezed sealed unions representing user actions
+- **State (`MapState`, `AuthState`, `FavoritesState`)**: Freezed immutable state classes with automatic copyWith generation
+- **BLoCs (`MapBloc`, `AuthBloc`, `FavoritesBloc`)**: Handle events and emit new states
+
+**Authentication Flow:**
+- `AuthBloc` manages user login/logout using Firebase Authentication
+- Supports multi-provider auth: Google, GitHub, Email, Phone, Guest (Anonymous)
+- Auth state is persisted and checked on app startup
+
+**Favorites Management:**
+- `FavoritesBloc` manages favorite locations stored in Firestore
+- Syncs with authenticated user's Firestore collection
+- Persists locally and updates on user actions
 
 ```dart
 // Example: Handling a map tap
@@ -587,9 +693,16 @@ on<MapTapped>((event, emit) async {
   final score = await _apiService.analyzeLocation(event.position);
   emit(state.copyWith(currentScore: score, isLoading: false));
 });
+
+// Example: Handling authentication
+on<GoogleSignIn>((event, emit) async {
+  emit(AuthState.loading());
+  final user = await _authService.signInWithGoogle();
+  emit(AuthState.authenticated(user: user));
+});
 ```
 
-**View (`MapScreen`)** uses `BlocBuilder<MapBloc, MapState>` to rebuild on state changes.
+**View (BlocBuilder)** uses `BlocBuilder<MapBloc, MapState>` to rebuild on state changes.
 
 ### User Interface (Glassmorphism & Theming)
 
@@ -618,6 +731,7 @@ The application uses a **Liquid Glass** design system supported by a centralized
 
 Located in `backend/tests/`:
 
+**Run tests:**
 ```bash
 cd backend
 source venv/bin/activate
@@ -634,6 +748,8 @@ Coverage configuration is in `backend/pyproject.toml`:
 - **Minimum threshold:** 50%
 - **HTML report:** `backend/htmlcov/`
 
+**Coverage Summary:**
+
 | Module | Coverage |
 |--------|----------|
 | `app/models.py` | 100% |
@@ -649,27 +765,37 @@ Coverage configuration is in `backend/pyproject.toml`:
 The project employs a comprehensive testing strategy using `flutter_test`, `bloc_test`, and `mockito`.
 
 **Test Types:**
-- **Unit Tests**: For core logic, models, and services (mocking external dependencies like `Dio`).
-- **Widget Tests**: For UI components and screens.
-- **Bloc Tests**: For state management logic.
+- **Unit Tests**: For core logic, models, and services (mocking external dependencies like `Dio`)
+- **Widget Tests**: For UI components and screens
+- **BLoC Tests**: For state management logic (Map, Auth, Favorites)
+- **Integration Tests**: For complete user workflows
 
 Located in `frontend/bli/test/`:
 
 ```
 test/
 ├── core/
-│   ├── services/           # api_service_test.dart
-│   ├── theme/              # app_theme_test.dart
-│   ├── utils/              # feature_styles_test.dart
+│   ├── services/           # api_service_test.dart, auth_service_test.dart
+│   ├── theme/              # app_theme_test.dart (15 tests)
+│   ├── utils/              # feature_styles_test.dart (25 tests)
 │   └── widgets/            # glass_container, loading_overlay tests
 └── features/
+    ├── auth/
+    │   └── bloc/           # auth_bloc_test.dart (15+ tests)
     ├── map/
-    │   ├── bloc/           # map_bloc_test.dart
-    │   ├── screens/        # map_screen_test.dart
-    │   └── widgets/        # address_search, score_card, etc.
+    │   ├── bloc/           # map_bloc_test.dart (20+ tests)
+    │   ├── screens/        # map_screen_test.dart (~25 tests)
+    │   └── widgets/        # address_search, score_card, nearby_features, etc. (40+ tests)
+    ├── favorites/
+    │   └── bloc/           # favorites_bloc_test.dart (10+ tests)
     └── onboarding/
-        └── screens/        # start_screen_test.dart
+        └── screens/        # start_screen_test.dart (5+ tests)
 ```
+
+**Test Statistics:**
+- **Total Tests**: 140+ 
+- **Execution Time**: ~30-40 seconds
+- **Status**: ✅ All passing
 
 **Run tests:**
 ```bash
@@ -684,6 +810,8 @@ genhtml coverage/lcov.info -o coverage/html
 open coverage/html/index.html
 ```
 
+**Coverage Summary:**
+
 | Module | Coverage |
 |--------|----------|
 | `features/map/widgets/score_card.dart` | 100% |
@@ -696,11 +824,14 @@ open coverage/html/index.html
 | `features/map/models/factor.dart` | 100% |
 | `features/map/models/location.dart` | 100% |
 | `features/map/widgets/nearby_feature_layers.dart` | 100% |
+| `core/utils/feature_styles.dart` | 100% |
 | `features/map/screens/map_screen.dart` | ~90% |
 | `core/services/api_service.dart` | ~69% |
 | `features/map/bloc/map_bloc.dart` | ~95% |
-| `core/utils/feature_styles.dart` | 100% |
+| `features/auth/bloc/auth_bloc.dart` | ~90% |
+| `features/auth/services/auth_service.dart` | ~85% |
 | **Overall** | **~88%** |
+| **Total Tests** | **140+ tests** |
 
 ### CI/CD Coverage
 

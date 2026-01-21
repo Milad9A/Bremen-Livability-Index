@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$LocationMarker {
   LatLng get position => throw _privateConstructorUsedError;
   double? get score => throw _privateConstructorUsedError;
+  String? get address => throw _privateConstructorUsedError;
   DateTime? get timestamp => throw _privateConstructorUsedError;
 
   /// Create a copy of LocationMarker
@@ -35,7 +36,12 @@ abstract class $LocationMarkerCopyWith<$Res> {
     $Res Function(LocationMarker) then,
   ) = _$LocationMarkerCopyWithImpl<$Res, LocationMarker>;
   @useResult
-  $Res call({LatLng position, double? score, DateTime? timestamp});
+  $Res call({
+    LatLng position,
+    double? score,
+    String? address,
+    DateTime? timestamp,
+  });
 }
 
 /// @nodoc
@@ -55,6 +61,7 @@ class _$LocationMarkerCopyWithImpl<$Res, $Val extends LocationMarker>
   $Res call({
     Object? position = null,
     Object? score = freezed,
+    Object? address = freezed,
     Object? timestamp = freezed,
   }) {
     return _then(
@@ -67,6 +74,10 @@ class _$LocationMarkerCopyWithImpl<$Res, $Val extends LocationMarker>
                 ? _value.score
                 : score // ignore: cast_nullable_to_non_nullable
                       as double?,
+            address: freezed == address
+                ? _value.address
+                : address // ignore: cast_nullable_to_non_nullable
+                      as String?,
             timestamp: freezed == timestamp
                 ? _value.timestamp
                 : timestamp // ignore: cast_nullable_to_non_nullable
@@ -86,7 +97,12 @@ abstract class _$$LocationMarkerImplCopyWith<$Res>
   ) = __$$LocationMarkerImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({LatLng position, double? score, DateTime? timestamp});
+  $Res call({
+    LatLng position,
+    double? score,
+    String? address,
+    DateTime? timestamp,
+  });
 }
 
 /// @nodoc
@@ -105,6 +121,7 @@ class __$$LocationMarkerImplCopyWithImpl<$Res>
   $Res call({
     Object? position = null,
     Object? score = freezed,
+    Object? address = freezed,
     Object? timestamp = freezed,
   }) {
     return _then(
@@ -117,6 +134,10 @@ class __$$LocationMarkerImplCopyWithImpl<$Res>
             ? _value.score
             : score // ignore: cast_nullable_to_non_nullable
                   as double?,
+        address: freezed == address
+            ? _value.address
+            : address // ignore: cast_nullable_to_non_nullable
+                  as String?,
         timestamp: freezed == timestamp
             ? _value.timestamp
             : timestamp // ignore: cast_nullable_to_non_nullable
@@ -132,6 +153,7 @@ class _$LocationMarkerImpl implements _LocationMarker {
   const _$LocationMarkerImpl({
     required this.position,
     this.score,
+    this.address,
     this.timestamp,
   });
 
@@ -140,11 +162,13 @@ class _$LocationMarkerImpl implements _LocationMarker {
   @override
   final double? score;
   @override
+  final String? address;
+  @override
   final DateTime? timestamp;
 
   @override
   String toString() {
-    return 'LocationMarker(position: $position, score: $score, timestamp: $timestamp)';
+    return 'LocationMarker(position: $position, score: $score, address: $address, timestamp: $timestamp)';
   }
 
   @override
@@ -155,12 +179,14 @@ class _$LocationMarkerImpl implements _LocationMarker {
             (identical(other.position, position) ||
                 other.position == position) &&
             (identical(other.score, score) || other.score == score) &&
+            (identical(other.address, address) || other.address == address) &&
             (identical(other.timestamp, timestamp) ||
                 other.timestamp == timestamp));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, position, score, timestamp);
+  int get hashCode =>
+      Object.hash(runtimeType, position, score, address, timestamp);
 
   /// Create a copy of LocationMarker
   /// with the given fields replaced by the non-null parameter values.
@@ -178,6 +204,7 @@ abstract class _LocationMarker implements LocationMarker {
   const factory _LocationMarker({
     required final LatLng position,
     final double? score,
+    final String? address,
     final DateTime? timestamp,
   }) = _$LocationMarkerImpl;
 
@@ -185,6 +212,8 @@ abstract class _LocationMarker implements LocationMarker {
   LatLng get position;
   @override
   double? get score;
+  @override
+  String? get address;
   @override
   DateTime? get timestamp;
 

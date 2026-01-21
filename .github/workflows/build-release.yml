@@ -49,6 +49,37 @@ jobs:
           channel: 'stable'
           cache: true
       
+      - name: Decode keystore
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > frontend/bli/android/app/upload-keystore.jks
+      
+      - name: Create key.properties
+        if: ${{ env.KEY_ALIAS != '' }}
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+        run: |
+          cat > frontend/bli/android/key.properties << EOF
+          storePassword=$STORE_PASSWORD
+          keyPassword=$KEY_PASSWORD
+          keyAlias=$KEY_ALIAS
+          storeFile=app/upload-keystore.jks
+          EOF
+      
+      - name: Print SHA fingerprints (for Firebase)
+        if: ${{ env.STORE_PASSWORD != '' }}
+        env:
+          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
+        run: |
+          echo "🔐 SHA Fingerprints for Firebase Console:"
+          keytool -list -v -alias ${{ secrets.KEY_ALIAS }} \
+            -keystore frontend/bli/android/app/upload-keystore.jks \
+            -storepass $STORE_PASSWORD 2>/dev/null | grep -E "SHA1:|SHA256:" || echo "Could not extract fingerprints"
+      
       - name: Install dependencies
         working-directory: frontend/bli
         run: flutter pub get

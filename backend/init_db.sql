@@ -251,4 +251,25 @@ CREATE INDEX IF NOT EXISTS idx_power_infrastructure_type ON gis_data.power_infra
 CREATE INDEX IF NOT EXISTS idx_parking_lots_type ON gis_data.parking_lots(parking_type);
 CREATE INDEX IF NOT EXISTS idx_airports_type ON gis_data.airports(airport_type);
 
+-- Table for users (for authentication and favorites)
+CREATE TABLE IF NOT EXISTS gis_data.users (
+    id VARCHAR(128) PRIMARY KEY,  -- Firebase UID
+    email VARCHAR(255),
+    display_name VARCHAR(255),
+    provider VARCHAR(50) NOT NULL,  -- google, github, email, phone, guest
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
 
+-- Table for user favorite addresses
+CREATE TABLE IF NOT EXISTS gis_data.favorite_addresses (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(128) REFERENCES gis_data.users(id) ON DELETE CASCADE,
+    label VARCHAR(255) NOT NULL,
+    latitude DOUBLE PRECISION NOT NULL,
+    longitude DOUBLE PRECISION NOT NULL,
+    address TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index for favorites lookup by user
+CREATE INDEX IF NOT EXISTS idx_favorites_user_id ON gis_data.favorite_addresses(user_id);

@@ -1,0 +1,14 @@
+# Android Release Signing Configuration
+# 
+# This file is used for local release builds.
+# For CI/CD (GitHub Actions), these values come from secrets.
+#
+# To create a keystore:
+#   keytool -genkey -v -keystore upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# Then fill in the values below:
+
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upload
+storeFile=upload-keystore.jks

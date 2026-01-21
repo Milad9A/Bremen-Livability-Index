@@ -7,7 +7,15 @@ import 'package:flutter/material.dart';
 class ScoreCard extends StatefulWidget {
   final LivabilityScore score;
 
-  const ScoreCard({super.key, required this.score});
+  final bool isFavorite;
+  final VoidCallback? onFavoriteToggle;
+
+  const ScoreCard({
+    super.key,
+    required this.score,
+    this.isFavorite = false,
+    this.onFavoriteToggle,
+  });
 
   @override
   State<ScoreCard> createState() => _ScoreCardState();
@@ -91,6 +99,30 @@ class _ScoreCardState extends State<ScoreCard> {
                       ],
                     ),
                   ),
+
+                  if (widget.onFavoriteToggle != null) ...[
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: () {
+                        widget.onFavoriteToggle?.call();
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          widget.isFavorite
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: AppColors.white,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(width: 8),
                   AnimatedRotation(
                     turns: _isExpanded ? 0.5 : 0,
                     duration: const Duration(milliseconds: 300),

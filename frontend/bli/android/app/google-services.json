@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "402145256946",
+    "project_id": "bremen-livability-index",
+    "storage_bucket": "bremen-livability-index.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402145256946:android:108cf6fda1eda670f0b76b",
+        "android_client_info": {
+          "package_name": "com.example.bli"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "402145256946-4siurt3n0396di09m6622ttcj4u35s5o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1KBuReBqA4wa5ReVcknBmUkBbk3RscbQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "402145256946-4siurt3n0396di09m6622ttcj4u35s5o.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bli"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

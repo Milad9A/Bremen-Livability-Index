@@ -94,7 +94,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     emit(
       MapState(
         isLoading: true,
-        selectedMarker: LocationMarker(position: event.position),
+        selectedMarker: LocationMarker(position: event.position, address: null),
         showSlowLoadingMessage: false,
       ),
     );
@@ -144,7 +144,10 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     emit(
       MapState(
         isLoading: true,
-        selectedMarker: LocationMarker(position: event.location),
+        selectedMarker: LocationMarker(
+          position: event.location,
+          address: event.addressName,
+        ),
         showSlowLoadingMessage: false,
         showSearch: false,
       ),
@@ -171,6 +174,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         selectedMarker: LocationMarker(
           position: event.position,
           score: event.score.score,
+          address: state.selectedMarker?.address,
         ),
         isLoading: false,
         showSlowLoadingMessage: false,

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCsNUA4Wh5ZUFJQkPFaRqGKqLQjY2D9gXM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>402145256946</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.bli</string>
+	<key>PROJECT_ID</key>
+	<string>bremen-livability-index</string>
+	<key>STORAGE_BUCKET</key>
+	<string>bremen-livability-index.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:402145256946:ios:6e26df3ff0e0d7cef0b76b</string>
+</dict>
+</plist>

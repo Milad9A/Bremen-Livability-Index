@@ -47,5 +47,23 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+
+		<key>GIDClientID</key>
+		<string>402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt.apps.googleusercontent.com</string>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleTypeRole</key>
+				<string>Editor</string>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>com.googleusercontent.apps.402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt</string>
+				</array>
+			</dict>
+		</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>remote-notification</string>
+	</array>
 	</dict>
 </plist>
