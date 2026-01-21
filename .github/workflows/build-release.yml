@@ -198,6 +198,16 @@ jobs:
         working-directory: frontend/bli
         run: flutter pub get
       
+      - name: Cache CocoaPods
+        uses: actions/cache@v4
+        with:
+          path: |
+            frontend/bli/macos/Pods
+            ~/Library/Caches/CocoaPods
+          key: ${{ runner.os }}-pods-${{ hashFiles('frontend/bli/macos/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+      
       - name: Build macOS
         working-directory: frontend/bli
         run: flutter build macos --release
