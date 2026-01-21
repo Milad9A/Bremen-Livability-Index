@@ -210,7 +210,12 @@ jobs:
       
       - name: Build macOS
         working-directory: frontend/bli
-        run: flutter build macos --release --no-codesign
+        env:
+          # Disable code signing during build - we'll ad-hoc sign afterwards
+          EXPANDED_CODE_SIGN_IDENTITY: "-"
+          CODE_SIGNING_REQUIRED: "NO"
+          CODE_SIGN_IDENTITY: "-"
+        run: flutter build macos --release
       
       - name: Ad-hoc sign the app
         run: codesign -s - --deep --force "frontend/bli/build/macos/Build/Products/Release/bli.app"
