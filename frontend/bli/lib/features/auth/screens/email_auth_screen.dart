@@ -104,28 +104,40 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
             style: TextStyle(fontSize: 16, color: AppColors.greyMedium),
           ),
           const SizedBox(height: 32),
-          TextFormField(
-            controller: _emailController,
-            keyboardType: TextInputType.emailAddress,
-            autocorrect: false,
-            validator: _validateEmail,
-            decoration: InputDecoration(
-              labelText: 'Email address',
-              labelStyle: TextStyle(color: AppColors.greyMedium),
-              floatingLabelStyle: TextStyle(color: AppColors.primary),
-              hintText: 'you@example.com',
-              prefixIcon: Icon(Icons.email_outlined, color: AppColors.primary),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.greyLight),
+          Theme(
+            data: Theme.of(context).copyWith(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: AppColors.primary,
+                selectionColor: AppColors.primary.withOpacity(0.3),
+                selectionHandleColor: AppColors.primary,
               ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.primary, width: 2),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.error),
+            ),
+            child: TextFormField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              autocorrect: false,
+              validator: _validateEmail,
+              decoration: InputDecoration(
+                labelText: 'Email address',
+                labelStyle: TextStyle(color: AppColors.greyMedium),
+                floatingLabelStyle: TextStyle(color: AppColors.primary),
+                hintText: 'you@example.com',
+                prefixIcon: Icon(
+                  Icons.email_outlined,
+                  color: AppColors.primary,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.greyLight),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.primary, width: 2),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.error),
+                ),
               ),
             ),
           ),

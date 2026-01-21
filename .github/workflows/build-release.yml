@@ -210,7 +210,10 @@ jobs:
       
       - name: Build macOS
         working-directory: frontend/bli
-        run: flutter build macos --release
+        run: flutter build macos --release --no-codesign
+      
+      - name: Ad-hoc sign the app
+        run: codesign -s - --deep --force "frontend/bli/build/macos/Build/Products/Release/bli.app"
       
       - name: Create ZIP archive
         working-directory: frontend/bli/build/macos/Build/Products/Release

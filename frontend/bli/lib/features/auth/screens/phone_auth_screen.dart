@@ -147,38 +147,47 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             style: TextStyle(fontSize: 16, color: AppColors.greyMedium),
           ),
           const SizedBox(height: 32),
-          TextFormField(
-            controller: _phoneController,
-            keyboardType: TextInputType.phone,
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            autocorrect: false,
-            validator: _validatePhone,
-            decoration: InputDecoration(
-              labelText: 'Phone number',
-              labelStyle: TextStyle(color: AppColors.greyMedium),
-              floatingLabelStyle: TextStyle(color: AppColors.primary),
-              hintText: '176 12345678',
-              prefixIcon: CountryCodePicker(
-                selectedCountry: _selectedCountry,
-                onChanged: (value) {
-                  setState(() => _selectedCountry = value);
-                },
+          Theme(
+            data: Theme.of(context).copyWith(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: AppColors.primary,
+                selectionColor: AppColors.primary.withOpacity(0.3),
+                selectionHandleColor: AppColors.primary,
               ),
-              prefixIconConstraints: const BoxConstraints(
-                minWidth: 0,
-                minHeight: 0,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.greyLight),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.primary, width: 2),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.error),
+            ),
+            child: TextFormField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              autocorrect: false,
+              validator: _validatePhone,
+              decoration: InputDecoration(
+                labelText: 'Phone number',
+                labelStyle: TextStyle(color: AppColors.greyMedium),
+                floatingLabelStyle: TextStyle(color: AppColors.primary),
+                hintText: '176 12345678',
+                prefixIcon: CountryCodePicker(
+                  selectedCountry: _selectedCountry,
+                  onChanged: (value) {
+                    setState(() => _selectedCountry = value);
+                  },
+                ),
+                prefixIconConstraints: const BoxConstraints(
+                  minWidth: 0,
+                  minHeight: 0,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.greyLight),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.primary, width: 2),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppColors.error),
+                ),
               ),
             ),
           ),
@@ -239,40 +248,49 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
           style: TextStyle(fontSize: 16, color: AppColors.greyMedium),
         ),
         const SizedBox(height: 32),
-        TextFormField(
-          controller: _codeController,
-          keyboardType: TextInputType.number,
-          maxLength: 6,
-          textAlign: TextAlign.center,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: const TextStyle(
-            fontSize: 32,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 8,
+        Theme(
+          data: Theme.of(context).copyWith(
+            textSelectionTheme: TextSelectionThemeData(
+              cursorColor: AppColors.primary,
+              selectionColor: AppColors.primary.withOpacity(0.3),
+              selectionHandleColor: AppColors.primary,
+            ),
           ),
-          decoration: InputDecoration(
-            counterText: '',
-            hintText: '000000',
-            hintStyle: TextStyle(
+          child: TextFormField(
+            controller: _codeController,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            textAlign: TextAlign.center,
+            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            style: const TextStyle(
               fontSize: 32,
               fontWeight: FontWeight.bold,
               letterSpacing: 8,
-              color: AppColors.greyLight,
             ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.greyLight),
+            decoration: InputDecoration(
+              counterText: '',
+              hintText: '000000',
+              hintStyle: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 8,
+                color: AppColors.greyLight,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.greyLight),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.primary, width: 2),
+              ),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.primary, width: 2),
-            ),
+            onChanged: (value) {
+              if (value.length == 6) {
+                _verifyCode(state.phoneVerificationId!);
+              }
+            },
           ),
-          onChanged: (value) {
-            if (value.length == 6) {
-              _verifyCode(state.phoneVerificationId!);
-            }
-          },
         ),
         const SizedBox(height: 24),
         SizedBox(

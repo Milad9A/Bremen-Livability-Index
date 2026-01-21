@@ -105,27 +105,36 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
         GlassContainer(
           borderRadius: 30,
           padding: EdgeInsets.zero,
-          child: TextField(
-            controller: _searchController,
-            focusNode: _focusNode,
-            autofocus: true,
-            onChanged: _onSearchChanged,
-            style: Theme.of(context).textTheme.bodyLarge,
-            decoration: InputDecoration(
-              hintText: 'Search for an address...',
-              hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
-              prefixIcon: Icon(
-                Icons.search,
-                color: Theme.of(context).iconTheme.color,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              textSelectionTheme: TextSelectionThemeData(
+                cursorColor: AppColors.primary,
+                selectionColor: AppColors.primary.withOpacity(0.3),
+                selectionHandleColor: AppColors.primary,
               ),
-              suffixIcon: IconButton(
-                icon: Icon(Icons.close, color: AppColors.greyMedium),
-                onPressed: widget.onClose,
-              ),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 14,
+            ),
+            child: TextField(
+              controller: _searchController,
+              focusNode: _focusNode,
+              autofocus: true,
+              onChanged: _onSearchChanged,
+              style: Theme.of(context).textTheme.bodyLarge,
+              decoration: InputDecoration(
+                hintText: 'Search for an address...',
+                hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(Icons.close, color: AppColors.greyMedium),
+                  onPressed: widget.onClose,
+                ),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 14,
+                ),
               ),
             ),
           ),

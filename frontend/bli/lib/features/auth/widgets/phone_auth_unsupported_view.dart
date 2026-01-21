@@ -35,21 +35,18 @@ class PhoneAuthUnsupportedView extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               height: 56,
-              child: OutlinedButton(
+              child: ElevatedButton(
                 onPressed: onBackPressed,
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: AppColors.primary),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
+                child: const Text(
                   'Choose Another Method',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

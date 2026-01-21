@@ -81,6 +81,12 @@ class AppTheme {
         prefixIconColor: AppColors.primaryDark,
         suffixIconColor: AppColors.greyMedium,
       ),
+
+      textSelectionTheme: TextSelectionThemeData(
+        cursorColor: AppColors.primary,
+        selectionColor: AppColors.primary.withOpacity(0.3),
+        selectionHandleColor: AppColors.primary,
+      ),
     );
   }
 }
