@@ -16,6 +16,10 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.emailLinkVerified(String email, String link) =
       EmailLinkVerified;
 
+  /// When email link is detected but no stored email (cross-device flow)
+  const factory AuthEvent.emailLinkPendingEmail(String link) =
+      EmailLinkPendingEmail;
+
   const factory AuthEvent.phoneSignInRequested(String phoneNumber) =
       PhoneSignInRequested;
 

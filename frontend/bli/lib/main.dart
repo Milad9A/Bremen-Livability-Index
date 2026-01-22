@@ -1,6 +1,7 @@
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/bloc/auth_event.dart';
 import 'package:bli/features/auth/bloc/auth_state.dart';
+import 'package:bli/features/auth/screens/email_link_prompt_screen.dart';
 import 'package:bli/features/auth/services/auth_service.dart';
 import 'package:bli/features/onboarding/screens/start_screen.dart';
 import 'package:bli/core/theme/app_theme.dart';
@@ -34,6 +35,7 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
   late FavoritesService _favoritesService;
   late FavoritesBloc _favoritesBloc;
   late DeepLinkService _deepLinkService;
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   @override
   void initState() {
@@ -84,9 +86,26 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
         child: MaterialApp(
           title: 'Bremen Livability Index',
           theme: AppTheme.lightTheme,
+          navigatorKey: _navigatorKey,
           initialRoute: '/',
-          routes: {'/': (context) => const StartScreen()},
+          routes: {
+            '/': (context) => const StartScreen(),
+            '/email-link-prompt': (context) => const EmailLinkPromptScreen(),
+          },
           debugShowCheckedModeBanner: false,
+          builder: (context, child) {
+            return BlocListener<AuthBloc, AuthState>(
+              listenWhen: (previous, current) =>
+                  previous.pendingEmailLink == null &&
+                  current.pendingEmailLink != null,
+              listener: (context, state) {
+                if (state.needsEmailForLink) {
+                  _navigatorKey.currentState?.pushNamed('/email-link-prompt');
+                }
+              },
+              child: child,
+            );
+          },
         ),
       ),
     );

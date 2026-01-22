@@ -354,6 +354,46 @@ The backend exposes a comprehensive REST API with the following endpoints:
   - Firestore rules ensure users can only access their own favorites
   - Backend verifies user ownership before allowing delete operations
 
+### Email Magic Link Flow (Deep Links)
+
+The email sign-in flow uses Firebase Hosting to redirect users back to the app:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                      EMAIL MAGIC LINK FLOW                          │
+└─────────────────────────────────────────────────────────────────────┘
+
+1. User enters email → App calls sendSignInLinkToEmail()
+                              │
+                              ▼
+2. Firebase sends email with link:
+   https://bremen-livability-index.firebaseapp.com/login?oobCode=xxx
+                              │
+                              ▼
+3. User clicks link → Firebase Hosting serves redirect page
+                              │
+         ┌────────────────────┼────────────────────┐
+         │                    │                    │
+         ▼                    ▼                    ▼
+    [iOS App]           [Android App]          [Web App]
+    Universal Links     App Links              JavaScript redirect
+    directly opens      directly opens         to Render.com
+    app                 app                    deployment
+                              │
+                              ▼
+4. App receives link → signInWithEmailLink(email, link)
+                              │
+                              ▼
+5. User is authenticated ✓
+```
+
+**Configuration Files**:
+- `firebase_hosting/.well-known/apple-app-site-association` - iOS Universal Links
+- `firebase_hosting/.well-known/assetlinks.json` - Android App Links (SHA256 fingerprint)
+- `firebase_hosting/login/index.html` - Redirect page for web fallback
+- `ios/Runner/Runner.entitlements` - iOS associated domains
+- `android/app/src/main/AndroidManifest.xml` - Android intent filters
+
 ---
 
 ## Data Ingestion Pipeline
@@ -884,11 +924,20 @@ Render deployments only proceed after relevant CI checks pass.
          ▼                                      ▼
 ┌─────────────────┐                ┌────────────────────────┐
 │   NEON.TECH     │                │    GITHUB RELEASES     │
-│   PostgreSQL    │                │  - Android APK         │
+│   PostgreSQL    │                │  - Android APK (signed)│
 │   + PostGIS     │                │  - Windows .exe        │
 │                 │                │  - macOS .app          │
 │                 │                │  - Linux bundle        │
 └─────────────────┘                └────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│                    FIREBASE HOSTING                         │
+│              (Email Magic Link Redirects)                   │
+├─────────────────────────────────────────────────────────────┤
+│  /.well-known/apple-app-site-association → iOS Universal   │
+│  /.well-known/assetlinks.json → Android App Links          │
+│  /login/ → Redirect page (web fallback)                    │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ### Auto-Deployment Flow
@@ -903,6 +952,42 @@ Render deployments only proceed after relevant CI checks pass.
    - Triggered by `workflow_run` after Frontend Tests pass
    - Builds Android, Windows, Linux, macOS apps
    - Creates GitHub Release with all artifacts
+
+### Android Release Signing
+
+Production APKs are signed using GitHub Actions secrets:
+
+| Secret | Description |
+|--------|-------------|
+| `KEYSTORE_BASE64` | Base64-encoded upload keystore (`.jks` file) |
+| `KEY_ALIAS` | Keystore alias name |
+| `KEY_PASSWORD` | Key password |
+| `STORE_PASSWORD` | Keystore password |
+
+**Build process** (`build-release.yml`):
+1. Decode keystore from `KEYSTORE_BASE64` secret
+2. Create `key.properties` with credentials
+3. Build signed APK with `flutter build apk --release`
+
+### macOS Build Notes
+
+- **CocoaPods Caching**: Firebase dependencies are cached to reduce build time (~20 min savings)
+- **Ad-hoc Signing**: Builds are signed with `codesign -s -` for distribution
+- **Gatekeeper**: Users must right-click → Open to bypass Gatekeeper on first launch
+
+### Firebase Hosting Deployment
+
+Email magic link redirects are hosted on Firebase Hosting:
+
+```bash
+cd frontend/bli/firebase_hosting
+firebase deploy --only hosting --project bremen-livability-index
+```
+
+**Deployed files**:
+- `/.well-known/apple-app-site-association` - iOS app verification
+- `/.well-known/assetlinks.json` - Android app verification (SHA256)
+- `/login/index.html` - Redirect page with mobile/web detection
 
 3. **Render Deployment Process** (`entrypoint.sh`):
    ```bash

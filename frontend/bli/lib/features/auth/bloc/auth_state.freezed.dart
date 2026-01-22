@@ -26,6 +26,9 @@ mixin _$AuthState {
   bool get emailLinkSent => throw _privateConstructorUsedError;
   String? get pendingEmail => throw _privateConstructorUsedError;
 
+  /// Set when an email link is detected but no email is stored (cross-device flow)
+  String? get pendingEmailLink => throw _privateConstructorUsedError;
+
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -47,6 +50,7 @@ abstract class $AuthStateCopyWith<$Res> {
     String? phoneVerificationId,
     bool emailLinkSent,
     String? pendingEmail,
+    String? pendingEmailLink,
   });
 
   $AppUserCopyWith<$Res>? get user;
@@ -75,6 +79,7 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
     Object? phoneVerificationId = freezed,
     Object? emailLinkSent = null,
     Object? pendingEmail = freezed,
+    Object? pendingEmailLink = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -109,6 +114,10 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
             pendingEmail: freezed == pendingEmail
                 ? _value.pendingEmail
                 : pendingEmail // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            pendingEmailLink: freezed == pendingEmailLink
+                ? _value.pendingEmailLink
+                : pendingEmailLink // ignore: cast_nullable_to_non_nullable
                       as String?,
           )
           as $Val,
@@ -148,6 +157,7 @@ abstract class _$$AuthStateImplCopyWith<$Res>
     String? phoneVerificationId,
     bool emailLinkSent,
     String? pendingEmail,
+    String? pendingEmailLink,
   });
 
   @override
@@ -176,6 +186,7 @@ class __$$AuthStateImplCopyWithImpl<$Res>
     Object? phoneVerificationId = freezed,
     Object? emailLinkSent = null,
     Object? pendingEmail = freezed,
+    Object? pendingEmailLink = freezed,
   }) {
     return _then(
       _$AuthStateImpl(
@@ -211,6 +222,10 @@ class __$$AuthStateImplCopyWithImpl<$Res>
             ? _value.pendingEmail
             : pendingEmail // ignore: cast_nullable_to_non_nullable
                   as String?,
+        pendingEmailLink: freezed == pendingEmailLink
+            ? _value.pendingEmailLink
+            : pendingEmailLink // ignore: cast_nullable_to_non_nullable
+                  as String?,
       ),
     );
   }
@@ -228,6 +243,7 @@ class _$AuthStateImpl extends _AuthState {
     this.phoneVerificationId,
     this.emailLinkSent = false,
     this.pendingEmail,
+    this.pendingEmailLink,
   }) : super._();
 
   @override
@@ -250,9 +266,13 @@ class _$AuthStateImpl extends _AuthState {
   @override
   final String? pendingEmail;
 
+  /// Set when an email link is detected but no email is stored (cross-device flow)
+  @override
+  final String? pendingEmailLink;
+
   @override
   String toString() {
-    return 'AuthState(user: $user, isLoading: $isLoading, loadingProvider: $loadingProvider, isInitialized: $isInitialized, error: $error, phoneVerificationId: $phoneVerificationId, emailLinkSent: $emailLinkSent, pendingEmail: $pendingEmail)';
+    return 'AuthState(user: $user, isLoading: $isLoading, loadingProvider: $loadingProvider, isInitialized: $isInitialized, error: $error, phoneVerificationId: $phoneVerificationId, emailLinkSent: $emailLinkSent, pendingEmail: $pendingEmail, pendingEmailLink: $pendingEmailLink)';
   }
 
   @override
@@ -273,7 +293,9 @@ class _$AuthStateImpl extends _AuthState {
             (identical(other.emailLinkSent, emailLinkSent) ||
                 other.emailLinkSent == emailLinkSent) &&
             (identical(other.pendingEmail, pendingEmail) ||
-                other.pendingEmail == pendingEmail));
+                other.pendingEmail == pendingEmail) &&
+            (identical(other.pendingEmailLink, pendingEmailLink) ||
+                other.pendingEmailLink == pendingEmailLink));
   }
 
   @override
@@ -287,6 +309,7 @@ class _$AuthStateImpl extends _AuthState {
     phoneVerificationId,
     emailLinkSent,
     pendingEmail,
+    pendingEmailLink,
   );
 
   /// Create a copy of AuthState
@@ -308,6 +331,7 @@ abstract class _AuthState extends AuthState {
     final String? phoneVerificationId,
     final bool emailLinkSent,
     final String? pendingEmail,
+    final String? pendingEmailLink,
   }) = _$AuthStateImpl;
   const _AuthState._() : super._();
 
@@ -327,6 +351,10 @@ abstract class _AuthState extends AuthState {
   bool get emailLinkSent;
   @override
   String? get pendingEmail;
+
+  /// Set when an email link is detected but no email is stored (cross-device flow)
+  @override
+  String? get pendingEmailLink;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.

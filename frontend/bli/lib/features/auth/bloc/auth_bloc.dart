@@ -18,6 +18,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<GitHubSignInRequested>(_onGitHubSignInRequested);
     on<EmailSignInRequested>(_onEmailSignInRequested);
     on<EmailLinkVerified>(_onEmailLinkVerified);
+    on<EmailLinkPendingEmail>(_onEmailLinkPendingEmail);
     on<PhoneSignInRequested>(_onPhoneSignInRequested);
     on<PhoneCodeVerified>(_onPhoneCodeVerified);
     on<GuestSignInRequested>(_onGuestSignInRequested);
@@ -187,7 +188,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     EmailLinkVerified event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(isLoading: true, error: null));
+    emit(state.copyWith(isLoading: true, error: null, pendingEmailLink: null));
 
     try {
       final user = await _authService.signInWithEmailLink(
@@ -201,6 +202,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             isLoading: false,
             emailLinkSent: false,
             pendingEmail: null,
+            pendingEmailLink: null,
             loadingProvider: null,
           ),
         );
@@ -217,6 +219,16 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         ),
       );
     }
+  }
+
+  /// Called when an email link is detected but no stored email is found.
+  /// This happens in cross-device/cross-browser flows.
+  Future<void> _onEmailLinkPendingEmail(
+    EmailLinkPendingEmail event,
+    Emitter<AuthState> emit,
+  ) async {
+    // Store the link and wait for user to provide email
+    emit(state.copyWith(pendingEmailLink: event.link));
   }
 
   Future<void> _onPhoneSignInRequested(

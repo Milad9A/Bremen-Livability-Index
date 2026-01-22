@@ -21,6 +21,9 @@ class AuthState with _$AuthState {
     @Default(false) bool emailLinkSent,
 
     String? pendingEmail,
+
+    /// Set when an email link is detected but no email is stored (cross-device flow)
+    String? pendingEmailLink,
   }) = _AuthState;
 
   const AuthState._();
@@ -30,4 +33,7 @@ class AuthState with _$AuthState {
   bool get isLoggedIn => user != null && !user!.isAnonymous;
 
   bool get isGuest => user?.isAnonymous ?? false;
+
+  /// True when we need to prompt user for email to complete sign-in
+  bool get needsEmailForLink => pendingEmailLink != null;
 }

@@ -6,10 +6,5 @@
 	<array>
 		<string>$(AppIdentifierPrefix)com.example.bli</string>
 	</array>
-	<key>com.apple.developer.associated-domains</key>
-	<array>
-		<string>applinks:bremen-livability-index.firebaseapp.com</string>
-		<string>applinks:bremen-livability-index.web.app</string>
-	</array>
 </dict>
 </plist>

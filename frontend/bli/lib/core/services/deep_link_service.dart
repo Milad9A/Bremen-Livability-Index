@@ -24,6 +24,13 @@ class DeepLinkService {
   }
 
   Future<void> _initDeepLinks() async {
+    // On web, check the current URL for email link parameters
+    if (kIsWeb) {
+      await _handleWebEmailLink();
+      return;
+    }
+
+    // On mobile, use app_links package
     try {
       final initialLink = await _appLinks.getInitialLink();
       if (initialLink != null) {
@@ -41,6 +48,35 @@ class DeepLinkService {
         debugPrint('DeepLinkService: Error in link stream: $err');
       },
     );
+  }
+
+  Future<void> _handleWebEmailLink() async {
+    try {
+      // Uri.base gives us the current page URL on web
+      final currentUrl = Uri.base.toString();
+      debugPrint('DeepLinkService: Checking web URL: $currentUrl');
+      
+      final uri = Uri.base;
+      
+      // Check if this is an email sign-in link
+      if (uri.queryParameters.containsKey('oobCode') ||
+          uri.queryParameters.containsKey('mode')) {
+        debugPrint('DeepLinkService: Found email link parameters');
+        
+        final email = await _authService.getPendingEmail();
+        debugPrint('DeepLinkService: Pending email: $email');
+        
+        if (email != null) {
+          _authBloc.add(AuthEvent.emailLinkVerified(email, currentUrl));
+        } else {
+          // Cross-device flow: prompt user for email
+          debugPrint('DeepLinkService: No pending email, will prompt user');
+          _authBloc.add(AuthEvent.emailLinkPendingEmail(currentUrl));
+        }
+      }
+    } catch (e) {
+      debugPrint('DeepLinkService: Error handling web email link: $e');
+    }
   }
 
   Future<void> _handleLink(Uri uri) async {
