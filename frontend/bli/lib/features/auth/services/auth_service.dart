@@ -27,11 +27,7 @@ class AuthService {
                accessibility: KeychainAccessibility.first_unlock,
              ),
              aOptions: AndroidOptions(encryptedSharedPreferences: true),
-           ) {
-    if (defaultTargetPlatform == TargetPlatform.macOS) {
-      _auth.setPersistence(Persistence.NONE);
-    }
-  }
+           );
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 

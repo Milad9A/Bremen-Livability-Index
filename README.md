@@ -1,5 +1,5 @@
 
-![Bremen Livability Index Icon](frontend/bli/assets/app_icon_rounded.png)
+<img src="frontend/bli/assets/app_icon_rounded.png" alt="Bremen Livability Index Icon" width="120">
 
 # Bremen Livability Index (BLI)
 
