@@ -18,26 +18,31 @@ class StartScreenTitle extends StatelessWidget {
       right: 0,
       top: 0,
       bottom: MediaQuery.of(context).size.height * 0.7,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          SlideTransition(
-            position: textSlide,
-            child: FadeTransition(
-              opacity: textOpacity,
-              child: const Text(
-                'Bremen Livability Index',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
-                  letterSpacing: 0.5,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SlideTransition(
+                position: textSlide,
+                child: FadeTransition(
+                  opacity: textOpacity,
+                  child: const Text(
+                    'Bremen Livability Index',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.white,
+                      letterSpacing: 0.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
