@@ -1,9 +1,9 @@
 
 <div align="center">
   <img src="frontend/bli/assets/app_icon_rounded.png" alt="Bremen Livability Index Icon" width="120">
-</div>
 
-# Bremen Livability Index (BLI)
+  # Bremen Livability Index (BLI)
+</div>
 
 [![Backend Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml)
 [![Frontend Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/frontend-tests.yml)
