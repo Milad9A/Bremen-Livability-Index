@@ -166,6 +166,7 @@ CREATE INDEX idx_parks_geometry ON gis_data.parks USING GIST(geometry);
 ```
 
 Additional B-tree indexes on type columns:
+
 ```sql
 CREATE INDEX idx_amenities_type ON gis_data.amenities(amenity_type);
 CREATE INDEX idx_public_transport_type ON gis_data.public_transport(transport_type);
@@ -282,6 +283,7 @@ The backend exposes a comprehensive REST API with the following endpoints:
 | `/analyze` | POST | `{latitude: float, longitude: float}` | `LivabilityScoreResponse` | Calculate livability score for location (20 spatial factors) |
 
 **Example Response:**
+
 ```json
 {
   "score": 72.5,
@@ -308,6 +310,7 @@ The backend exposes a comprehensive REST API with the following endpoints:
 | `/geocode` | POST | `{query: string, limit?: int}` | `GeocodeResponse` | Search addresses and get coordinates |
 
 **Example Response:**
+
 ```json
 {
   "results": [
@@ -332,6 +335,7 @@ The backend exposes a comprehensive REST API with the following endpoints:
 | `/users/{user_id}/favorites/{favorite_id}` | DELETE | - | - | 204 | Delete a favorite location |
 
 **Favorite Location Response Example:**
+
 ```json
 {
   "id": 42,
@@ -398,12 +402,14 @@ The email sign-in flow uses Firebase Hosting to redirect users back to the app:
 ```
 
 **Cross-Device Flow Implementation**:
+
 - `DeepLinkService` detects email link parameters (`oobCode`, `mode`) in the URL
 - If no stored email is found (cross-device scenario), dispatches `EmailLinkPendingEmail` event
 - `AuthBloc` sets `pendingEmailLink` in state, triggering navigation to `EmailLinkPromptScreen`
 - User enters email → `EmailLinkVerified` event completes authentication
 
 **Configuration Files**:
+
 - `firebase_hosting/.well-known/apple-app-site-association` - iOS Universal Links (requires paid account)
 - `firebase_hosting/.well-known/assetlinks.json` - Android App Links (SHA256 fingerprint)
 - `firebase_hosting/login/index.html` - Redirect page for web fallback
@@ -484,6 +490,7 @@ def query_with_retry(api, query, max_retries=5):
 ```
 
 **Geometry Handling**:
+
 - **Points**: Trees, amenities, transport stops → stored as `GEOGRAPHY(POINT, 4326)`
 - **Lines**: Roads, cycleways, footways → stored as `GEOGRAPHY(LINESTRING, 4326)`
 - **Polygons**: Parks, industrial areas → stored as `GEOGRAPHY(POLYGON, 4326)`
@@ -598,7 +605,8 @@ For count-based factors, logarithmic scaling (`log1p`) prevents diminishing retu
 tree_score = min(9.0, math.log1p(tree_count) * 2.0)
 ```
 
-**Example**: 
+**Example**:
+
 - 5 trees → `log1p(5) * 2.0 = 3.6 points`
 - 50 trees → `log1p(50) * 2.0 = 7.8 points`
 - 500 trees → `log1p(500) * 2.0 = 9.0 points` (capped)
@@ -645,21 +653,23 @@ frontend/bli/lib/
 ```
 
 ### Code Generation
- 
+
 The project uses `freezed` and `json_serializable` to generate immutable data models and JSON serialization logic. Code generation is required whenever you modify models in `lib/models/`.
- 
+
 **Run build runner:**
+
 ```bash
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
- 
+
 **Watch mode (auto-rebuild on change):**
+
 ```bash
 flutter pub run build_runner watch --delete-conflicting-outputs
 ```
- 
+
 Generated files (`*.freezed.dart`, `*.g.dart`) are checked into the repository to ensure the app is buildable immediately after cloning.
- 
+
 ### Splash Screen & Start Screen
 
 The app uses a two-stage launch experience:
@@ -768,19 +778,18 @@ on<GoogleSignIn>((event, emit) async {
 The application uses a **Liquid Glass** design system supported by a centralized `AppTheme`:
 
 - **Design System (`AppTheme`)**:
-    - **Palette**: Centralized `AppColors` (Teal primary, specific semantic colors).
-    - **Typography**: Unified `AppTextStyles` for consistency.
-    - **Standardization**: Widgets access styles via `Theme.of(context)` or `AppColors`.
+  - **Palette**: Centralized `AppColors` (Teal primary, specific semantic colors).
+  - **Typography**: Unified `AppTextStyles` for consistency.
+  - **Standardization**: Widgets access styles via `Theme.of(context)` or `AppColors`.
 
 - **Visual Style**:
-    - **Immersive Map**: Full-screen map with no app bar.
-    - **Floating Controls**: Search bar and buttons float above the map.
-    - **Glass Effect**: UI elements use `BackdropFilter` with blur (`sigmaX/Y: 10`) and semi-transparent backgrounds to blend with the map.
+  - **Immersive Map**: Full-screen map with no app bar.
+  - **Floating Controls**: Search bar and buttons float above the map.
+  - **Glass Effect**: UI elements use `BackdropFilter` with blur (`sigmaX/Y: 10`) and semi-transparent backgrounds to blend with the map.
 - **Components**:
-    - `GlassContainer`: Core widget providing the frosted glass look.
-    - `FloatingSearchBar`: Collapsed state of the search bar.
-    - `LoadingOverlay`: Glass-morphic loading indicator.
-
+  - `GlassContainer`: Core widget providing the frosted glass look.
+  - `FloatingSearchBar`: Collapsed state of the search bar.
+  - `LoadingOverlay`: Glass-morphic loading indicator.
 
 ---
 
@@ -791,6 +800,7 @@ The application uses a **Liquid Glass** design system supported by a centralized
 Located in `backend/tests/`:
 
 **Run tests:**
+
 ```bash
 cd backend
 source venv/bin/activate
@@ -798,11 +808,13 @@ pytest tests/ -v
 ```
 
 **Run with coverage:**
+
 ```bash
 pytest tests/ --cov --cov-report=html --cov-report=term
 ```
 
 Coverage configuration is in `backend/pyproject.toml`:
+
 - **Source directories:** `app/`, `core/`, `services/`
 - **Minimum threshold:** 50%
 - **HTML report:** `backend/htmlcov/`
@@ -824,6 +836,7 @@ Coverage configuration is in `backend/pyproject.toml`:
 The project employs a comprehensive testing strategy using `flutter_test`, `bloc_test`, and `mockito`.
 
 **Test Types:**
+
 - **Unit Tests**: For core logic, models, and services (mocking external dependencies like `Dio`)
 - **Widget Tests**: For UI components and screens
 - **BLoC Tests**: For state management logic (Map, Auth, Favorites)
@@ -852,17 +865,20 @@ test/
 ```
 
 **Test Statistics:**
-- **Total Tests**: 140+ 
+
+- **Total Tests**: 140+
 - **Execution Time**: ~30-40 seconds
 - **Status**: ✅ All passing
 
 **Run tests:**
+
 ```bash
 cd frontend/bli
 flutter test
 ```
 
 **Run with coverage:**
+
 ```bash
 flutter test --coverage
 genhtml coverage/lcov.info -o coverage/html
@@ -897,11 +913,13 @@ open coverage/html/index.html
 Test coverage is automatically collected on every push via GitHub Actions and uploaded to [Codecov](https://codecov.io/gh/Milad9A/Bremen-Livability-Index).
 
 **Workflow files:**
+
 - `.github/workflows/backend-tests.yml` - Runs on `backend/**` changes
 - `.github/workflows/frontend-tests.yml` - Runs on `frontend/**` changes
 - `.github/workflows/build-release.yml` - Builds apps after Frontend Tests pass
 
 **Coverage collection:**
+
 1. **Backend tests** with `pytest-cov` → uploads `coverage.xml`
 2. **Frontend tests** with `flutter test --coverage` → uploads `lcov.info`
 
@@ -984,6 +1002,7 @@ Production APKs are signed using GitHub Actions secrets:
 | `STORE_PASSWORD` | Keystore password |
 
 **Build process** (`build-release.yml`):
+
 1. Decode keystore from `KEYSTORE_BASE64` secret
 2. Create `key.properties` with credentials
 3. Build signed APK with `flutter build apk --release`
@@ -1004,11 +1023,13 @@ firebase deploy --only hosting --project bremen-livability-index
 ```
 
 **Deployed files**:
+
 - `/.well-known/apple-app-site-association` - iOS app verification
 - `/.well-known/assetlinks.json` - Android app verification (SHA256)
 - `/login/index.html` - Redirect page with mobile/web detection
 
-3. **Render Deployment Process** (`entrypoint.sh`):
+1. **Render Deployment Process** (`entrypoint.sh`):
+
    ```bash
    # 1. Initialize database schema (safe to run repeatedly - uses IF NOT EXISTS)
    python -m scripts.initialize_db
@@ -1027,7 +1048,7 @@ firebase deploy --only hosting --project bremen-livability-index
    # 3. Start server
    uvicorn app.main:app --host 0.0.0.0 --port $PORT
    ```
-   
+
    **Key Points:**
    - Database schema is idempotent (`CREATE TABLE IF NOT EXISTS`)
    - Data ingestion only runs on first deploy, after database reset, or when any required table is empty
@@ -1068,6 +1089,7 @@ Tests run in isolated environments with their own databases (GitHub Actions Post
 ### API Response Size
 
 The `/analyze` endpoint returns full GeoJSON for each nearby feature. For dense areas:
+
 - Trees: ~5-50 features
 - Amenities: ~50-150 features
 - Transport: ~5-20 features
@@ -1106,6 +1128,7 @@ engine = create_engine(
 | **License Info** | dl-de/by-2-0 | [datenlizenz-deutschland.de](https://www.govdata.de/dl-de/by-2-0) |
 
 **Data Fields Used**:
+
 - `XGCSWGS84`, `YGCSWGS84`: WGS84 coordinates
 - `UKATEGORIE`: Accident severity (1=fatal, 2=serious injury, 3=minor injury)
 - `UJAHR`: Year (2019-2023)
@@ -1149,7 +1172,6 @@ Key PostGIS functions used in the scoring algorithm:
 
 ## License
 
-This project is developed as part of the Geodatenverarbeitung course at the University of Bremen. 
-OpenStreetMap data is licensed under [ODbL 1.0](https://opendatacommons.org/licenses/odbl/). 
+This project is developed as part of the Geodatenverarbeitung course at the University of Bremen.
+OpenStreetMap data is licensed under [ODbL 1.0](https://opendatacommons.org/licenses/odbl/).
 Unfallatlas data is licensed under [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0).
-

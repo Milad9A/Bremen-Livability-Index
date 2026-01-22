@@ -1,7 +1,8 @@
 <div align="center">
   <img src="frontend/bli/assets/app_icon_rounded.png" alt="Bremen Livability Index Icon" width="128" height="128">
 
-  # Bremen Livability Index (BLI)
+# Bremen Livability Index (BLI)
+
 </div>
 
 [![Backend Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml)
@@ -18,10 +19,12 @@ A comprehensive geospatial platform featuring a **Flutter mobile & web applicati
 Access the Bremen Livability Index on multiple platforms:
 
 ### 🕸️ Web Application
+
 **Live App:** [bremen-livability-frontend.onrender.com](https://bremen-livability-frontend.onrender.com)  
 Run the full app directly in your browser—no installation required.
 
 ### 📡 API Endpoint
+
 **Live API:** [bremen-livability-backend.onrender.com](https://bremen-livability-backend.onrender.com)  
 **Docs:** [bremen-livability-backend.onrender.com/docs](https://bremen-livability-backend.onrender.com/docs)  
 RESTful API for livability analysis and geocoding.
@@ -68,11 +71,13 @@ Livability is calculated from **20 spatial factors** using proximity-based analy
 ## 🚀 Quick Start
 
 ### 1. Start Database
+
 ```bash
 cd backend && docker-compose up -d
 ```
 
 ### 2. Setup Backend
+
 ```bash
 cd backend
 python3 -m venv venv
@@ -81,16 +86,19 @@ pip install -r requirements.txt
 ```
 
 ### 3. Initialize Database Schema
+
 ```bash
 python -m scripts.initialize_db
 ```
 
 ### 4. Ingest Data
+
 ```bash
 python -m scripts.ingest_all_data
 ```
 
 ### 5. Start Server
+
 ```bash
 ./start_server.sh
 ```
@@ -98,6 +106,7 @@ python -m scripts.ingest_all_data
 API: `http://localhost:8000` | Docs: `http://localhost:8000/docs`
 
 ### 6. Run Flutter App
+
 ```bash
 cd frontend/bli
 flutter pub get
@@ -128,11 +137,13 @@ flutter run
 ## ☁️ Deployment
 
 **Cloud Stack (Free Forever)**:
+
 - [Neon.tech](https://neon.tech) (PostgreSQL + PostGIS)
 - [Render.com](https://render.com) (Backend & Frontend)
 - [Firebase Hosting](https://firebase.google.com/docs/hosting) (Email magic link redirects)
 
 **CI/CD Pipeline:**
+
 - **Backend changes** → Backend Tests run on GitHub Actions → Render deploys on commit
 - **Frontend changes** → Frontend Tests run → Build workflow creates app releases → Render deploys on commit
 
@@ -166,6 +177,7 @@ The app uses Firebase for authentication and favorites sync:
 **Authentication Providers**: Google, GitHub, Email (Magic Link), Phone, Anonymous (Guest)
 
 **Email Deep Links Setup**:
+
 - Firebase Hosting serves a redirect page at `bremen-livability-index.firebaseapp.com/login`
 - Android: App Links configured in `AndroidManifest.xml` with SHA256 verification
 - iOS: Falls back to web app (Universal Links require paid Apple Developer account)
@@ -180,6 +192,7 @@ The API URL is configured in `lib/core/services/api_service.dart`.
 **Default**: Production Backend (`https://bremen-livability-backend.onrender.com`)
 
 **To use local backend:**
+
 1. Open `lib/core/services/api_service.dart`
 2. Uncomment the localhost line and comment out the Render URL
 
@@ -192,7 +205,6 @@ If you modify data models (`lib/features/map/models/*.dart`), you must run the b
 ```bash
 flutter pub run build_runner build --delete-conflicting-outputs
 ```
-
 
 ## 🧪 Testing
 
