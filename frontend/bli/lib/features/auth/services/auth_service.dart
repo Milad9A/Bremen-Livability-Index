@@ -39,7 +39,27 @@ class AuthService {
 
   Future<AppUser?> signInWithGoogle() async {
     try {
-      final userCredential = await _auth.signInWithPopup(GoogleAuthProvider());
+      final UserCredential userCredential;
+
+      if (kIsWeb) {
+        // Web: Use popup-based sign-in
+        userCredential = await _auth.signInWithPopup(GoogleAuthProvider());
+      } else {
+        // Mobile/Desktop: Use Google Sign-In package
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          return null; // User cancelled
+        }
+
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        userCredential = await _auth.signInWithCredential(credential);
+      }
+
       return _mapFirebaseUser(userCredential.user, AppAuthProvider.google);
     } catch (e) {
       debugPrint('Google sign in error: $e');
@@ -49,7 +69,16 @@ class AuthService {
 
   Future<AppUser?> signInWithGitHub() async {
     try {
-      final userCredential = await _auth.signInWithPopup(GithubAuthProvider());
+      final UserCredential userCredential;
+
+      if (kIsWeb) {
+        // Web: Use popup-based sign-in
+        userCredential = await _auth.signInWithPopup(GithubAuthProvider());
+      } else {
+        // Mobile/Desktop: Use provider-based sign-in with redirect
+        userCredential = await _auth.signInWithProvider(GithubAuthProvider());
+      }
+
       return _mapFirebaseUser(userCredential.user, AppAuthProvider.github);
     } catch (e) {
       debugPrint('GitHub sign in error: $e');
