@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/bloc/auth_state.dart';
 import 'package:bli/features/auth/screens/auth_screen.dart';

@@ -791,6 +791,49 @@ The application uses a **Liquid Glass** design system supported by a centralized
   - `FloatingSearchBar`: Collapsed state of the search bar.
   - `LoadingOverlay`: Glass-morphic loading indicator.
 
+### Firebase Setup
+
+The app uses Firebase for authentication and favorites sync:
+
+1. **Web**: Uses Firebase OAuth popup authentication (`signInWithPopup`) for Google/GitHub
+2. **Mobile**: Uses native authentication packages with deep link handling
+3. **Email Magic Links**: Firebase Hosting redirects email links to the web/mobile app
+4. **Cross-Device Email Flow**: When a user clicks an email link on a different device/browser, the app prompts them to re-enter their email to complete authentication
+5. **Android Release Signing**: Production builds are signed via GitHub Actions using repository secrets
+
+**Authentication Providers**: Google, GitHub, Email (Magic Link), Anonymous (Guest)
+
+**Email Deep Links Setup**:
+- Firebase Hosting serves a redirect page at `bremen-livability-index.firebaseapp.com/login`
+- Android: App Links configured in `AndroidManifest.xml` with SHA256 verification
+- iOS: Falls back to web app (Universal Links require paid Apple Developer account)
+- Cross-device: `DeepLinkService` detects missing email and shows `EmailLinkPromptScreen`
+
+### API Configuration
+
+The API URL is configured in `lib/core/services/api_service.dart`.
+
+**Default**: Production Backend (`https://bremen-livability-backend.onrender.com`)
+
+**To use local backend:**
+1. Open `lib/core/services/api_service.dart`
+2. Uncomment the localhost line and comment out the Render URL
+
+### Code Generation
+
+If you modify data models (`lib/features/map/models/*.dart`), you must run the build runner to regenerate JSON serialization code:
+
+```bash
+flutter pub run build_runner build --delete-conflicting-outputs
+```
+
+### Responsive UI
+- The application uses `LayoutBuilder` and `MediaQuery` to adapt to different screen sizes.
+- **Constraints**:
+  - `AuthScreen` limits content width to 600px on tablet/desktop for better readability.
+  - `FavoritesScreen` adapts list view padding and card dimensions.
+  - `StartScreen` scales illustrations and text based on available height.
+
 ---
 
 ## Testing
@@ -798,6 +841,22 @@ The application uses a **Liquid Glass** design system supported by a centralized
 ### Backend Tests
 
 Located in `backend/tests/`:
+
+### Frontend Tests
+
+Located in `frontend/bli/test/`:
+
+- **Auth Feature (`test/features/auth/`)**:
+  - `auth_bloc_test.dart`: 100% coverage of authentication logic (Google, GitHub, Email, Guest).
+  - `auth_screen_test.dart`: Widget tests for UI rendering and responsiveness.
+  - `email_auth_screen_test.dart`: Tests for email input and validation.
+  
+- **Favorites Feature (`test/features/favorites/`)**:
+  - `favorites_screen_test.dart`: Tests for loading states, empty states, list rendering, and interactions.
+  - `favorites_bloc_test.dart`: (If implemented) Logic tests for adding/removing favorites.
+
+- **Map Feature (`test/features/map/`)**: Tests for map markers and interactions.
+
 
 **Run tests:**
 

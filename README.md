@@ -61,9 +61,9 @@ RESTful API for livability analysis and geocoding.
 
 Livability is calculated from **20 spatial factors** using proximity-based analysis. Score range: **0-100**.
 
-**Positive Factors (9):** Greenery (trees & parks), Amenities, Public Transport, Healthcare, Bike Infrastructure, Education, Sports & Leisure, Pedestrian Infrastructure, Cultural Venues
-
-**Negative Factors (11):** Traffic Accidents, Industrial Areas, Major Roads, Noise Sources, Railways, Gas Stations, Waste Facilities, Power Infrastructure, Large Parking Lots, Airports/Helipads, Construction Sites
+**Factors:**
+- **Positive (9):** Greenery, Amenities, Public Transport, Healthcare, Bike Infra, Education, Sports, Pedestrian, Culture
+- **Negative (11):** Accidents, Industry, Major Roads, Noise, Railways, Gas Stations, Waste, Power, Parking, Airports, Construction
 
 > 📖 **Details:** [Scoring Algorithm](TECHNICAL.md#scoring-algorithm) in TECHNICAL.md
 
@@ -163,73 +163,21 @@ flutter run -d emulator-5554  # Android emulator
 flutter run -d "iPhone"  # iOS Device (requires Xcode)
 ```
 
-### Firebase Setup
-
-The app uses Firebase for authentication and favorites sync:
-
-1. **Web**: Uses Firebase OAuth popup authentication (`signInWithPopup`) for Google/GitHub
-2. **Mobile**: Uses native authentication packages with deep link handling
-3. **Email Magic Links**: Firebase Hosting redirects email links to the web/mobile app
-4. **Cross-Device Email Flow**: When a user clicks an email link on a different device/browser, the app prompts them to re-enter their email to complete authentication
-5. **Android Release Signing**: Production builds are signed via GitHub Actions using repository secrets
-
-**Authentication Providers**: Google, GitHub, Email (Magic Link), Anonymous (Guest)
-
-**Email Deep Links Setup**:
-
-- Firebase Hosting serves a redirect page at `bremen-livability-index.firebaseapp.com/login`
-- Android: App Links configured in `AndroidManifest.xml` with SHA256 verification
-- iOS: Falls back to web app (Universal Links require paid Apple Developer account)
-- Cross-device: `DeepLinkService` detects missing email and shows `EmailLinkPromptScreen`
-
-> See `firestore.rules` for database security rules
-
-### API Configuration
-
-The API URL is configured in `lib/core/services/api_service.dart`.
-
-**Default**: Production Backend (`https://bremen-livability-backend.onrender.com`)
-
-**To use local backend:**
-
-1. Open `lib/core/services/api_service.dart`
-2. Uncomment the localhost line and comment out the Render URL
-
-> 📖 **Details:** [Frontend Implementation](TECHNICAL.md#frontend-implementation) in TECHNICAL.md
-
-### Code Generation
-
-If you modify data models (`lib/features/map/models/*.dart`), you must run the build runner to regenerate JSON serialization code:
-
-```bash
-flutter pub run build_runner build --delete-conflicting-outputs
-```
+> 📖 **Configuration & Data Models:** See [Frontend Implementation](TECHNICAL.md#frontend-implementation) in TECHNICAL.md for API configs, Firebase setup, and code generation.
 
 ## 🧪 Testing
 
 ### Run Tests
 
 ```bash
-# Backend (Python)
-cd backend
-source venv/bin/activate
-pytest tests/ -v
+# Backend
+cd backend && pytest
 
-# Backend with coverage
-pytest tests/ --cov --cov-report=html
-open htmlcov/index.html
-
-# Frontend (Flutter)
-cd frontend/bli
-flutter test
-
-# Frontend with coverage
-flutter test --coverage
-genhtml coverage/lcov.info -o coverage/html
-open coverage/html/index.html
+# Frontend
+cd frontend/bli && flutter test
 ```
 
-Coverage reports are automatically uploaded to [Codecov](https://codecov.io/gh/Milad9A/Bremen-Livability-Index) on every push.
+> 📖 **Full Testing Guide:** See [Testing in TECHNICAL.md](TECHNICAL.md#testing) for coverage reports and test details.
 
 ## 🗃️ Data Sources & Resources
 
