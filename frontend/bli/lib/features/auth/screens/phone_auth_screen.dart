@@ -110,15 +110,20 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 }
               },
               child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) {
-                      if (state.phoneVerificationId != null) {
-                        return _buildCodeInputView(state);
-                      }
-                      return _buildPhoneInputView(state);
-                    },
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          if (state.phoneVerificationId != null) {
+                            return _buildCodeInputView(state);
+                          }
+                          return _buildPhoneInputView(state);
+                        },
+                      ),
+                    ),
                   ),
                 ),
               ),

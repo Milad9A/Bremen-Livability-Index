@@ -42,21 +42,26 @@ class AuthScreen extends StatelessWidget {
           }
         },
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: [
-                const Spacer(flex: 1),
-                const AuthHeader(),
-                const Spacer(flex: 1),
-                AuthButtonsGroup(
-                  onEmailTap: () => _navigateToEmailAuth(context),
-                  onPhoneTap: () => _navigateToPhoneAuth(context),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    const Spacer(flex: 1),
+                    const AuthHeader(),
+                    const Spacer(flex: 1),
+                    AuthButtonsGroup(
+                      onEmailTap: () => _navigateToEmailAuth(context),
+                      onPhoneTap: () => _navigateToPhoneAuth(context),
+                    ),
+                    const SizedBox(height: 24),
+                    const GuestOptionButton(),
+                    const SizedBox(height: 48),
+                  ],
                 ),
-                const SizedBox(height: 24),
-                const GuestOptionButton(),
-                const SizedBox(height: 48),
-              ],
+              ),
             ),
           ),
         ),

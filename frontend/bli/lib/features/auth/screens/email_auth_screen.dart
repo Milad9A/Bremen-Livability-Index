@@ -66,15 +66,18 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
         },
         child: SafeArea(
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: BlocBuilder<AuthBloc, AuthState>(
-                builder: (context, state) {
-                  if (state.emailLinkSent) {
-                    return _buildEmailSentView(state.pendingEmail ?? '');
-                  }
-                  return _buildEmailInputView(state);
-                },
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: BlocBuilder<AuthBloc, AuthState>(
+                  builder: (context, state) {
+                    if (state.emailLinkSent) {
+                      return _buildEmailSentView(state.pendingEmail ?? '');
+                    }
+                    return _buildEmailInputView(state);
+                  },
+                ),
               ),
             ),
           ),
