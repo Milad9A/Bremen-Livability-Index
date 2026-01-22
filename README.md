@@ -114,18 +114,9 @@ flutter run
 
 ## 📡 API Endpoints
 
-| Endpoint                        | Method | Description                          |
-| ------------------------------- | ------ | ------------------------------------ |
-| `/`                             | GET    | API info and available endpoints      |
-| `/health`                       | GET    | Health check (API & database status) |
-| `/analyze`                      | POST   | Analyze location livability score    |
-| `/geocode`                      | POST   | Search and geocode addresses         |
-| `/users`                        | POST   | Create or update user (Firebase UID) |
-| `/users/{user_id}/favorites`     | GET    | Get all user's favorite locations    |
-| `/users/{user_id}/favorites`     | POST   | Add new favorite location            |
-| `/users/{user_id}/favorites/{favorite_id}` | DELETE | Delete a favorite location         |
-
 **Interactive Docs:** [/docs](https://bremen-livability-backend.onrender.com/docs) (Swagger UI)
+
+> 📖 **Full Endpoint Reference:** See [API Endpoints](TECHNICAL.md#api-endpoints) in TECHNICAL.md for request/response examples and authentication details.
 
 ## 🏗️ Architecture
 
