@@ -12,7 +12,7 @@ void main() {
       expect(state.loadingProvider, isNull);
       expect(state.isInitialized, false);
       expect(state.error, isNull);
-      expect(state.phoneVerificationId, isNull);
+
       expect(state.emailLinkSent, false);
       expect(state.pendingEmail, isNull);
       expect(state.pendingEmailLink, isNull);

@@ -20,14 +20,6 @@ class AuthEvent with _$AuthEvent {
   const factory AuthEvent.emailLinkPendingEmail(String link) =
       EmailLinkPendingEmail;
 
-  const factory AuthEvent.phoneSignInRequested(String phoneNumber) =
-      PhoneSignInRequested;
-
-  const factory AuthEvent.phoneCodeVerified(
-    String verificationId,
-    String code,
-  ) = PhoneCodeVerified;
-
   const factory AuthEvent.guestSignInRequested() = GuestSignInRequested;
 
   const factory AuthEvent.signOutRequested() = SignOutRequested;

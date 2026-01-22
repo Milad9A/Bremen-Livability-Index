@@ -25,9 +25,6 @@ mixin _$AuthEvent {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) => throw _privateConstructorUsedError;
@@ -39,8 +36,6 @@ mixin _$AuthEvent {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) => throw _privateConstructorUsedError;
@@ -52,8 +47,6 @@ mixin _$AuthEvent {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -69,8 +62,6 @@ mixin _$AuthEvent {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) => throw _privateConstructorUsedError;
@@ -82,8 +73,6 @@ mixin _$AuthEvent {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) => throw _privateConstructorUsedError;
@@ -95,8 +84,6 @@ mixin _$AuthEvent {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),
@@ -172,9 +159,6 @@ class _$AuthCheckRequestedImpl implements AuthCheckRequested {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) {
@@ -190,8 +174,6 @@ class _$AuthCheckRequestedImpl implements AuthCheckRequested {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) {
@@ -207,8 +189,6 @@ class _$AuthCheckRequestedImpl implements AuthCheckRequested {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -231,8 +211,6 @@ class _$AuthCheckRequestedImpl implements AuthCheckRequested {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) {
@@ -248,8 +226,6 @@ class _$AuthCheckRequestedImpl implements AuthCheckRequested {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) {
@@ -265,8 +241,6 @@ class _$AuthCheckRequestedImpl implements AuthCheckRequested {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),
@@ -332,9 +306,6 @@ class _$GoogleSignInRequestedImpl implements GoogleSignInRequested {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) {
@@ -350,8 +321,6 @@ class _$GoogleSignInRequestedImpl implements GoogleSignInRequested {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) {
@@ -367,8 +336,6 @@ class _$GoogleSignInRequestedImpl implements GoogleSignInRequested {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -391,8 +358,6 @@ class _$GoogleSignInRequestedImpl implements GoogleSignInRequested {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) {
@@ -408,8 +373,6 @@ class _$GoogleSignInRequestedImpl implements GoogleSignInRequested {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) {
@@ -425,8 +388,6 @@ class _$GoogleSignInRequestedImpl implements GoogleSignInRequested {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),
@@ -492,9 +453,6 @@ class _$GitHubSignInRequestedImpl implements GitHubSignInRequested {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) {
@@ -510,8 +468,6 @@ class _$GitHubSignInRequestedImpl implements GitHubSignInRequested {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) {
@@ -527,8 +483,6 @@ class _$GitHubSignInRequestedImpl implements GitHubSignInRequested {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -551,8 +505,6 @@ class _$GitHubSignInRequestedImpl implements GitHubSignInRequested {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) {
@@ -568,8 +520,6 @@ class _$GitHubSignInRequestedImpl implements GitHubSignInRequested {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) {
@@ -585,8 +535,6 @@ class _$GitHubSignInRequestedImpl implements GitHubSignInRequested {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),
@@ -682,9 +630,6 @@ class _$EmailSignInRequestedImpl implements EmailSignInRequested {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) {
@@ -700,8 +645,6 @@ class _$EmailSignInRequestedImpl implements EmailSignInRequested {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) {
@@ -717,8 +660,6 @@ class _$EmailSignInRequestedImpl implements EmailSignInRequested {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -741,8 +682,6 @@ class _$EmailSignInRequestedImpl implements EmailSignInRequested {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) {
@@ -758,8 +697,6 @@ class _$EmailSignInRequestedImpl implements EmailSignInRequested {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) {
@@ -775,8 +712,6 @@ class _$EmailSignInRequestedImpl implements EmailSignInRequested {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),
@@ -887,9 +822,6 @@ class _$EmailLinkVerifiedImpl implements EmailLinkVerified {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) {
@@ -905,8 +837,6 @@ class _$EmailLinkVerifiedImpl implements EmailLinkVerified {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) {
@@ -922,8 +852,6 @@ class _$EmailLinkVerifiedImpl implements EmailLinkVerified {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -946,8 +874,6 @@ class _$EmailLinkVerifiedImpl implements EmailLinkVerified {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) {
@@ -963,8 +889,6 @@ class _$EmailLinkVerifiedImpl implements EmailLinkVerified {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) {
@@ -980,8 +904,6 @@ class _$EmailLinkVerifiedImpl implements EmailLinkVerified {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),
@@ -1087,9 +1009,6 @@ class _$EmailLinkPendingEmailImpl implements EmailLinkPendingEmail {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) {
@@ -1105,8 +1024,6 @@ class _$EmailLinkPendingEmailImpl implements EmailLinkPendingEmail {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) {
@@ -1122,8 +1039,6 @@ class _$EmailLinkPendingEmailImpl implements EmailLinkPendingEmail {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -1146,8 +1061,6 @@ class _$EmailLinkPendingEmailImpl implements EmailLinkPendingEmail {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) {
@@ -1163,8 +1076,6 @@ class _$EmailLinkPendingEmailImpl implements EmailLinkPendingEmail {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) {
@@ -1180,8 +1091,6 @@ class _$EmailLinkPendingEmailImpl implements EmailLinkPendingEmail {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),
@@ -1204,415 +1113,6 @@ abstract class EmailLinkPendingEmail implements AuthEvent {
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$EmailLinkPendingEmailImplCopyWith<_$EmailLinkPendingEmailImpl>
   get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$PhoneSignInRequestedImplCopyWith<$Res> {
-  factory _$$PhoneSignInRequestedImplCopyWith(
-    _$PhoneSignInRequestedImpl value,
-    $Res Function(_$PhoneSignInRequestedImpl) then,
-  ) = __$$PhoneSignInRequestedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String phoneNumber});
-}
-
-/// @nodoc
-class __$$PhoneSignInRequestedImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$PhoneSignInRequestedImpl>
-    implements _$$PhoneSignInRequestedImplCopyWith<$Res> {
-  __$$PhoneSignInRequestedImplCopyWithImpl(
-    _$PhoneSignInRequestedImpl _value,
-    $Res Function(_$PhoneSignInRequestedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? phoneNumber = null}) {
-    return _then(
-      _$PhoneSignInRequestedImpl(
-        null == phoneNumber
-            ? _value.phoneNumber
-            : phoneNumber // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$PhoneSignInRequestedImpl implements PhoneSignInRequested {
-  const _$PhoneSignInRequestedImpl(this.phoneNumber);
-
-  @override
-  final String phoneNumber;
-
-  @override
-  String toString() {
-    return 'AuthEvent.phoneSignInRequested(phoneNumber: $phoneNumber)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$PhoneSignInRequestedImpl &&
-            (identical(other.phoneNumber, phoneNumber) ||
-                other.phoneNumber == phoneNumber));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, phoneNumber);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$PhoneSignInRequestedImplCopyWith<_$PhoneSignInRequestedImpl>
-  get copyWith =>
-      __$$PhoneSignInRequestedImplCopyWithImpl<_$PhoneSignInRequestedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkRequested,
-    required TResult Function() googleSignInRequested,
-    required TResult Function() gitHubSignInRequested,
-    required TResult Function(String email) emailSignInRequested,
-    required TResult Function(String email, String link) emailLinkVerified,
-    required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
-    required TResult Function() guestSignInRequested,
-    required TResult Function() signOutRequested,
-  }) {
-    return phoneSignInRequested(phoneNumber);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkRequested,
-    TResult? Function()? googleSignInRequested,
-    TResult? Function()? gitHubSignInRequested,
-    TResult? Function(String email)? emailSignInRequested,
-    TResult? Function(String email, String link)? emailLinkVerified,
-    TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
-    TResult? Function()? guestSignInRequested,
-    TResult? Function()? signOutRequested,
-  }) {
-    return phoneSignInRequested?.call(phoneNumber);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkRequested,
-    TResult Function()? googleSignInRequested,
-    TResult Function()? gitHubSignInRequested,
-    TResult Function(String email)? emailSignInRequested,
-    TResult Function(String email, String link)? emailLinkVerified,
-    TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
-    TResult Function()? guestSignInRequested,
-    TResult Function()? signOutRequested,
-    required TResult orElse(),
-  }) {
-    if (phoneSignInRequested != null) {
-      return phoneSignInRequested(phoneNumber);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(AuthCheckRequested value) checkRequested,
-    required TResult Function(GoogleSignInRequested value)
-    googleSignInRequested,
-    required TResult Function(GitHubSignInRequested value)
-    gitHubSignInRequested,
-    required TResult Function(EmailSignInRequested value) emailSignInRequested,
-    required TResult Function(EmailLinkVerified value) emailLinkVerified,
-    required TResult Function(EmailLinkPendingEmail value)
-    emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
-    required TResult Function(GuestSignInRequested value) guestSignInRequested,
-    required TResult Function(SignOutRequested value) signOutRequested,
-  }) {
-    return phoneSignInRequested(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(AuthCheckRequested value)? checkRequested,
-    TResult? Function(GoogleSignInRequested value)? googleSignInRequested,
-    TResult? Function(GitHubSignInRequested value)? gitHubSignInRequested,
-    TResult? Function(EmailSignInRequested value)? emailSignInRequested,
-    TResult? Function(EmailLinkVerified value)? emailLinkVerified,
-    TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
-    TResult? Function(GuestSignInRequested value)? guestSignInRequested,
-    TResult? Function(SignOutRequested value)? signOutRequested,
-  }) {
-    return phoneSignInRequested?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(AuthCheckRequested value)? checkRequested,
-    TResult Function(GoogleSignInRequested value)? googleSignInRequested,
-    TResult Function(GitHubSignInRequested value)? gitHubSignInRequested,
-    TResult Function(EmailSignInRequested value)? emailSignInRequested,
-    TResult Function(EmailLinkVerified value)? emailLinkVerified,
-    TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
-    TResult Function(GuestSignInRequested value)? guestSignInRequested,
-    TResult Function(SignOutRequested value)? signOutRequested,
-    required TResult orElse(),
-  }) {
-    if (phoneSignInRequested != null) {
-      return phoneSignInRequested(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class PhoneSignInRequested implements AuthEvent {
-  const factory PhoneSignInRequested(final String phoneNumber) =
-      _$PhoneSignInRequestedImpl;
-
-  String get phoneNumber;
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$PhoneSignInRequestedImplCopyWith<_$PhoneSignInRequestedImpl>
-  get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$PhoneCodeVerifiedImplCopyWith<$Res> {
-  factory _$$PhoneCodeVerifiedImplCopyWith(
-    _$PhoneCodeVerifiedImpl value,
-    $Res Function(_$PhoneCodeVerifiedImpl) then,
-  ) = __$$PhoneCodeVerifiedImplCopyWithImpl<$Res>;
-  @useResult
-  $Res call({String verificationId, String code});
-}
-
-/// @nodoc
-class __$$PhoneCodeVerifiedImplCopyWithImpl<$Res>
-    extends _$AuthEventCopyWithImpl<$Res, _$PhoneCodeVerifiedImpl>
-    implements _$$PhoneCodeVerifiedImplCopyWith<$Res> {
-  __$$PhoneCodeVerifiedImplCopyWithImpl(
-    _$PhoneCodeVerifiedImpl _value,
-    $Res Function(_$PhoneCodeVerifiedImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? verificationId = null, Object? code = null}) {
-    return _then(
-      _$PhoneCodeVerifiedImpl(
-        null == verificationId
-            ? _value.verificationId
-            : verificationId // ignore: cast_nullable_to_non_nullable
-                  as String,
-        null == code
-            ? _value.code
-            : code // ignore: cast_nullable_to_non_nullable
-                  as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$PhoneCodeVerifiedImpl implements PhoneCodeVerified {
-  const _$PhoneCodeVerifiedImpl(this.verificationId, this.code);
-
-  @override
-  final String verificationId;
-  @override
-  final String code;
-
-  @override
-  String toString() {
-    return 'AuthEvent.phoneCodeVerified(verificationId: $verificationId, code: $code)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$PhoneCodeVerifiedImpl &&
-            (identical(other.verificationId, verificationId) ||
-                other.verificationId == verificationId) &&
-            (identical(other.code, code) || other.code == code));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, verificationId, code);
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$PhoneCodeVerifiedImplCopyWith<_$PhoneCodeVerifiedImpl> get copyWith =>
-      __$$PhoneCodeVerifiedImplCopyWithImpl<_$PhoneCodeVerifiedImpl>(
-        this,
-        _$identity,
-      );
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function() checkRequested,
-    required TResult Function() googleSignInRequested,
-    required TResult Function() gitHubSignInRequested,
-    required TResult Function(String email) emailSignInRequested,
-    required TResult Function(String email, String link) emailLinkVerified,
-    required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
-    required TResult Function() guestSignInRequested,
-    required TResult Function() signOutRequested,
-  }) {
-    return phoneCodeVerified(verificationId, code);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function()? checkRequested,
-    TResult? Function()? googleSignInRequested,
-    TResult? Function()? gitHubSignInRequested,
-    TResult? Function(String email)? emailSignInRequested,
-    TResult? Function(String email, String link)? emailLinkVerified,
-    TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
-    TResult? Function()? guestSignInRequested,
-    TResult? Function()? signOutRequested,
-  }) {
-    return phoneCodeVerified?.call(verificationId, code);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function()? checkRequested,
-    TResult Function()? googleSignInRequested,
-    TResult Function()? gitHubSignInRequested,
-    TResult Function(String email)? emailSignInRequested,
-    TResult Function(String email, String link)? emailLinkVerified,
-    TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
-    TResult Function()? guestSignInRequested,
-    TResult Function()? signOutRequested,
-    required TResult orElse(),
-  }) {
-    if (phoneCodeVerified != null) {
-      return phoneCodeVerified(verificationId, code);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(AuthCheckRequested value) checkRequested,
-    required TResult Function(GoogleSignInRequested value)
-    googleSignInRequested,
-    required TResult Function(GitHubSignInRequested value)
-    gitHubSignInRequested,
-    required TResult Function(EmailSignInRequested value) emailSignInRequested,
-    required TResult Function(EmailLinkVerified value) emailLinkVerified,
-    required TResult Function(EmailLinkPendingEmail value)
-    emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
-    required TResult Function(GuestSignInRequested value) guestSignInRequested,
-    required TResult Function(SignOutRequested value) signOutRequested,
-  }) {
-    return phoneCodeVerified(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(AuthCheckRequested value)? checkRequested,
-    TResult? Function(GoogleSignInRequested value)? googleSignInRequested,
-    TResult? Function(GitHubSignInRequested value)? gitHubSignInRequested,
-    TResult? Function(EmailSignInRequested value)? emailSignInRequested,
-    TResult? Function(EmailLinkVerified value)? emailLinkVerified,
-    TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
-    TResult? Function(GuestSignInRequested value)? guestSignInRequested,
-    TResult? Function(SignOutRequested value)? signOutRequested,
-  }) {
-    return phoneCodeVerified?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(AuthCheckRequested value)? checkRequested,
-    TResult Function(GoogleSignInRequested value)? googleSignInRequested,
-    TResult Function(GitHubSignInRequested value)? gitHubSignInRequested,
-    TResult Function(EmailSignInRequested value)? emailSignInRequested,
-    TResult Function(EmailLinkVerified value)? emailLinkVerified,
-    TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
-    TResult Function(GuestSignInRequested value)? guestSignInRequested,
-    TResult Function(SignOutRequested value)? signOutRequested,
-    required TResult orElse(),
-  }) {
-    if (phoneCodeVerified != null) {
-      return phoneCodeVerified(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class PhoneCodeVerified implements AuthEvent {
-  const factory PhoneCodeVerified(
-    final String verificationId,
-    final String code,
-  ) = _$PhoneCodeVerifiedImpl;
-
-  String get verificationId;
-  String get code;
-
-  /// Create a copy of AuthEvent
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$PhoneCodeVerifiedImplCopyWith<_$PhoneCodeVerifiedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -1665,9 +1165,6 @@ class _$GuestSignInRequestedImpl implements GuestSignInRequested {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) {
@@ -1683,8 +1180,6 @@ class _$GuestSignInRequestedImpl implements GuestSignInRequested {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) {
@@ -1700,8 +1195,6 @@ class _$GuestSignInRequestedImpl implements GuestSignInRequested {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -1724,8 +1217,6 @@ class _$GuestSignInRequestedImpl implements GuestSignInRequested {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) {
@@ -1741,8 +1232,6 @@ class _$GuestSignInRequestedImpl implements GuestSignInRequested {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) {
@@ -1758,8 +1247,6 @@ class _$GuestSignInRequestedImpl implements GuestSignInRequested {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),
@@ -1824,9 +1311,6 @@ class _$SignOutRequestedImpl implements SignOutRequested {
     required TResult Function(String email) emailSignInRequested,
     required TResult Function(String email, String link) emailLinkVerified,
     required TResult Function(String link) emailLinkPendingEmail,
-    required TResult Function(String phoneNumber) phoneSignInRequested,
-    required TResult Function(String verificationId, String code)
-    phoneCodeVerified,
     required TResult Function() guestSignInRequested,
     required TResult Function() signOutRequested,
   }) {
@@ -1842,8 +1326,6 @@ class _$SignOutRequestedImpl implements SignOutRequested {
     TResult? Function(String email)? emailSignInRequested,
     TResult? Function(String email, String link)? emailLinkVerified,
     TResult? Function(String link)? emailLinkPendingEmail,
-    TResult? Function(String phoneNumber)? phoneSignInRequested,
-    TResult? Function(String verificationId, String code)? phoneCodeVerified,
     TResult? Function()? guestSignInRequested,
     TResult? Function()? signOutRequested,
   }) {
@@ -1859,8 +1341,6 @@ class _$SignOutRequestedImpl implements SignOutRequested {
     TResult Function(String email)? emailSignInRequested,
     TResult Function(String email, String link)? emailLinkVerified,
     TResult Function(String link)? emailLinkPendingEmail,
-    TResult Function(String phoneNumber)? phoneSignInRequested,
-    TResult Function(String verificationId, String code)? phoneCodeVerified,
     TResult Function()? guestSignInRequested,
     TResult Function()? signOutRequested,
     required TResult orElse(),
@@ -1883,8 +1363,6 @@ class _$SignOutRequestedImpl implements SignOutRequested {
     required TResult Function(EmailLinkVerified value) emailLinkVerified,
     required TResult Function(EmailLinkPendingEmail value)
     emailLinkPendingEmail,
-    required TResult Function(PhoneSignInRequested value) phoneSignInRequested,
-    required TResult Function(PhoneCodeVerified value) phoneCodeVerified,
     required TResult Function(GuestSignInRequested value) guestSignInRequested,
     required TResult Function(SignOutRequested value) signOutRequested,
   }) {
@@ -1900,8 +1378,6 @@ class _$SignOutRequestedImpl implements SignOutRequested {
     TResult? Function(EmailSignInRequested value)? emailSignInRequested,
     TResult? Function(EmailLinkVerified value)? emailLinkVerified,
     TResult? Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult? Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult? Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult? Function(GuestSignInRequested value)? guestSignInRequested,
     TResult? Function(SignOutRequested value)? signOutRequested,
   }) {
@@ -1917,8 +1393,6 @@ class _$SignOutRequestedImpl implements SignOutRequested {
     TResult Function(EmailSignInRequested value)? emailSignInRequested,
     TResult Function(EmailLinkVerified value)? emailLinkVerified,
     TResult Function(EmailLinkPendingEmail value)? emailLinkPendingEmail,
-    TResult Function(PhoneSignInRequested value)? phoneSignInRequested,
-    TResult Function(PhoneCodeVerified value)? phoneCodeVerified,
     TResult Function(GuestSignInRequested value)? guestSignInRequested,
     TResult Function(SignOutRequested value)? signOutRequested,
     required TResult orElse(),

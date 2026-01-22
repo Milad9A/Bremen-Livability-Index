@@ -19,10 +19,6 @@ class AuthScreen extends StatelessWidget {
     NavigationService.navigateToEmailAuth(context);
   }
 
-  void _navigateToPhoneAuth(BuildContext context) {
-    NavigationService.navigateToPhoneAuth(context);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +50,6 @@ class AuthScreen extends StatelessWidget {
                     const Spacer(flex: 1),
                     AuthButtonsGroup(
                       onEmailTap: () => _navigateToEmailAuth(context),
-                      onPhoneTap: () => _navigateToPhoneAuth(context),
                     ),
                     const SizedBox(height: 24),
                     const GuestOptionButton(),

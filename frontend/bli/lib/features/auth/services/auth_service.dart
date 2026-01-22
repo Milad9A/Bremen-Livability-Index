@@ -117,43 +117,6 @@ class AuthService {
     }
   }
 
-  Future<void> sendPhoneVerification(
-    String phoneNumber, {
-    required Function(String verificationId) onCodeSent,
-    required Function(String error) onError,
-  }) async {
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: (phoneAuthCredential) async {
-        await _auth.signInWithCredential(phoneAuthCredential);
-      },
-      verificationFailed: (e) {
-        onError(e.message ?? 'Phone verification failed');
-      },
-      codeSent: (verificationId, resendToken) {
-        onCodeSent(verificationId);
-      },
-      codeAutoRetrievalTimeout: (verificationId) {},
-    );
-  }
-
-  Future<AppUser?> verifyPhoneCode(
-    String verificationId,
-    String smsCode,
-  ) async {
-    try {
-      final credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: smsCode,
-      );
-      final userCredential = await _auth.signInWithCredential(credential);
-      return _mapFirebaseUser(userCredential.user, AppAuthProvider.phone);
-    } catch (e) {
-      debugPrint('Phone verification error: $e');
-      rethrow;
-    }
-  }
-
   Future<AppUser?> signInAsGuest() async {
     try {
       final userCredential = await _auth.signInAnonymously();
@@ -200,9 +163,7 @@ class AuthService {
         case 'github.com':
           provider = AppAuthProvider.github;
           break;
-        case 'phone':
-          provider = AppAuthProvider.phone;
-          break;
+
         case 'password':
         case 'emailLink':
           provider = AppAuthProvider.email;

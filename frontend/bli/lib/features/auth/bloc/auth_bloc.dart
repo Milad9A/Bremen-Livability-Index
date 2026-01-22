@@ -19,8 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<EmailSignInRequested>(_onEmailSignInRequested);
     on<EmailLinkVerified>(_onEmailLinkVerified);
     on<EmailLinkPendingEmail>(_onEmailLinkPendingEmail);
-    on<PhoneSignInRequested>(_onPhoneSignInRequested);
-    on<PhoneCodeVerified>(_onPhoneCodeVerified);
+
     on<GuestSignInRequested>(_onGuestSignInRequested);
     on<SignOutRequested>(_onSignOutRequested);
   }
@@ -229,78 +228,6 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     // Store the link and wait for user to provide email
     emit(state.copyWith(pendingEmailLink: event.link));
-  }
-
-  Future<void> _onPhoneSignInRequested(
-    PhoneSignInRequested event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(isLoading: true, error: null));
-
-    try {
-      final completer = Completer<String>();
-
-      await _authService.sendPhoneVerification(
-        event.phoneNumber,
-        onCodeSent: (id) {
-          if (!completer.isCompleted) {
-            completer.complete(id);
-          }
-        },
-        onError: (error) {
-          if (!completer.isCompleted) {
-            completer.completeError(error);
-          }
-        },
-      );
-
-      final verificationId = await completer.future;
-      emit(
-        state.copyWith(isLoading: false, phoneVerificationId: verificationId),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          error: 'Phone verification failed: ${e.toString()}',
-        ),
-      );
-    }
-  }
-
-  Future<void> _onPhoneCodeVerified(
-    PhoneCodeVerified event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(isLoading: true, error: null));
-
-    try {
-      final user = await _authService.verifyPhoneCode(
-        event.verificationId,
-        event.code,
-      );
-      if (user != null) {
-        emit(
-          state.copyWith(
-            user: user,
-            isLoading: false,
-            phoneVerificationId: null,
-            loadingProvider: null,
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(isLoading: false, error: 'Phone verification failed'),
-        );
-      }
-    } catch (e) {
-      emit(
-        state.copyWith(
-          isLoading: false,
-          error: 'Phone verification failed: ${e.toString()}',
-        ),
-      );
-    }
   }
 
   Future<void> _onGuestSignInRequested(

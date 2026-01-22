@@ -12,7 +12,7 @@ class User(SQLModel, table=True):
     id: str = Field(primary_key=True)  # Firebase UID
     email: Optional[str] = Field(default=None, max_length=255)
     display_name: Optional[str] = Field(default=None, max_length=255)
-    provider: str = Field(max_length=50)  # google, github, email, phone, guest
+    provider: str = Field(max_length=50)  # google, github, email, guest
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 

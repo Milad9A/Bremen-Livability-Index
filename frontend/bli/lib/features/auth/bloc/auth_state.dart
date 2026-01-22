@@ -16,8 +16,6 @@ class AuthState with _$AuthState {
 
     String? error,
 
-    String? phoneVerificationId,
-
     @Default(false) bool emailLinkSent,
 
     String? pendingEmail,

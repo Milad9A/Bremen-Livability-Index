@@ -22,7 +22,6 @@ mixin _$AuthState {
   AppAuthProvider? get loadingProvider => throw _privateConstructorUsedError;
   bool get isInitialized => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
-  String? get phoneVerificationId => throw _privateConstructorUsedError;
   bool get emailLinkSent => throw _privateConstructorUsedError;
   String? get pendingEmail => throw _privateConstructorUsedError;
 
@@ -47,7 +46,6 @@ abstract class $AuthStateCopyWith<$Res> {
     AppAuthProvider? loadingProvider,
     bool isInitialized,
     String? error,
-    String? phoneVerificationId,
     bool emailLinkSent,
     String? pendingEmail,
     String? pendingEmailLink,
@@ -76,7 +74,6 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
     Object? loadingProvider = freezed,
     Object? isInitialized = null,
     Object? error = freezed,
-    Object? phoneVerificationId = freezed,
     Object? emailLinkSent = null,
     Object? pendingEmail = freezed,
     Object? pendingEmailLink = freezed,
@@ -102,10 +99,6 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState>
             error: freezed == error
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
-                      as String?,
-            phoneVerificationId: freezed == phoneVerificationId
-                ? _value.phoneVerificationId
-                : phoneVerificationId // ignore: cast_nullable_to_non_nullable
                       as String?,
             emailLinkSent: null == emailLinkSent
                 ? _value.emailLinkSent
@@ -154,7 +147,6 @@ abstract class _$$AuthStateImplCopyWith<$Res>
     AppAuthProvider? loadingProvider,
     bool isInitialized,
     String? error,
-    String? phoneVerificationId,
     bool emailLinkSent,
     String? pendingEmail,
     String? pendingEmailLink,
@@ -183,7 +175,6 @@ class __$$AuthStateImplCopyWithImpl<$Res>
     Object? loadingProvider = freezed,
     Object? isInitialized = null,
     Object? error = freezed,
-    Object? phoneVerificationId = freezed,
     Object? emailLinkSent = null,
     Object? pendingEmail = freezed,
     Object? pendingEmailLink = freezed,
@@ -209,10 +200,6 @@ class __$$AuthStateImplCopyWithImpl<$Res>
         error: freezed == error
             ? _value.error
             : error // ignore: cast_nullable_to_non_nullable
-                  as String?,
-        phoneVerificationId: freezed == phoneVerificationId
-            ? _value.phoneVerificationId
-            : phoneVerificationId // ignore: cast_nullable_to_non_nullable
                   as String?,
         emailLinkSent: null == emailLinkSent
             ? _value.emailLinkSent
@@ -240,7 +227,6 @@ class _$AuthStateImpl extends _AuthState {
     this.loadingProvider,
     this.isInitialized = false,
     this.error,
-    this.phoneVerificationId,
     this.emailLinkSent = false,
     this.pendingEmail,
     this.pendingEmailLink,
@@ -259,8 +245,6 @@ class _$AuthStateImpl extends _AuthState {
   @override
   final String? error;
   @override
-  final String? phoneVerificationId;
-  @override
   @JsonKey()
   final bool emailLinkSent;
   @override
@@ -272,7 +256,7 @@ class _$AuthStateImpl extends _AuthState {
 
   @override
   String toString() {
-    return 'AuthState(user: $user, isLoading: $isLoading, loadingProvider: $loadingProvider, isInitialized: $isInitialized, error: $error, phoneVerificationId: $phoneVerificationId, emailLinkSent: $emailLinkSent, pendingEmail: $pendingEmail, pendingEmailLink: $pendingEmailLink)';
+    return 'AuthState(user: $user, isLoading: $isLoading, loadingProvider: $loadingProvider, isInitialized: $isInitialized, error: $error, emailLinkSent: $emailLinkSent, pendingEmail: $pendingEmail, pendingEmailLink: $pendingEmailLink)';
   }
 
   @override
@@ -288,8 +272,6 @@ class _$AuthStateImpl extends _AuthState {
             (identical(other.isInitialized, isInitialized) ||
                 other.isInitialized == isInitialized) &&
             (identical(other.error, error) || other.error == error) &&
-            (identical(other.phoneVerificationId, phoneVerificationId) ||
-                other.phoneVerificationId == phoneVerificationId) &&
             (identical(other.emailLinkSent, emailLinkSent) ||
                 other.emailLinkSent == emailLinkSent) &&
             (identical(other.pendingEmail, pendingEmail) ||
@@ -306,7 +288,6 @@ class _$AuthStateImpl extends _AuthState {
     loadingProvider,
     isInitialized,
     error,
-    phoneVerificationId,
     emailLinkSent,
     pendingEmail,
     pendingEmailLink,
@@ -328,7 +309,6 @@ abstract class _AuthState extends AuthState {
     final AppAuthProvider? loadingProvider,
     final bool isInitialized,
     final String? error,
-    final String? phoneVerificationId,
     final bool emailLinkSent,
     final String? pendingEmail,
     final String? pendingEmailLink,
@@ -345,8 +325,6 @@ abstract class _AuthState extends AuthState {
   bool get isInitialized;
   @override
   String? get error;
-  @override
-  String? get phoneVerificationId;
   @override
   bool get emailLinkSent;
   @override

@@ -61,18 +61,6 @@ class AuthButton extends StatelessWidget {
     );
   }
 
-  factory AuthButton.phone({VoidCallback? onPressed, bool isLoading = false}) {
-    return AuthButton(
-      label: 'Continue with Phone',
-      icon: const Icon(Icons.phone_outlined, size: 20),
-      backgroundColor: AppColors.transparent,
-      textColor: AppColors.primary,
-      borderColor: AppColors.primary,
-      onPressed: onPressed,
-      isLoading: isLoading,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(

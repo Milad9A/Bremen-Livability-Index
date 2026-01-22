@@ -351,7 +351,7 @@ The backend exposes a comprehensive REST API with the following endpoints:
 
 - **User Creation**: Triggered via Firebase Authentication (on client side)
   - Firebase UID is used as the primary identifier (`user_id`)
-  - Multiple auth providers supported: Google, GitHub, Email/Password, Phone, Anonymous
+  - Multiple auth providers supported: Google, GitHub, Email/Password, Anonymous
   - Backend receives user metadata and stores it in the `users` table
 
 - **Favorites Sync**: Authenticated via Firebase ID Token (client passes in Authorization header)
@@ -746,7 +746,7 @@ The application uses the **BLoC (Business Logic Component)** pattern with `flutt
 
 **Authentication Flow:**
 - `AuthBloc` manages user login/logout using Firebase Authentication
-- Supports multi-provider auth: Google, GitHub, Email, Phone, Guest (Anonymous)
+- Supports multi-provider auth: Google, GitHub, Email, Guest (Anonymous)
 - Auth state is persisted and checked on app startup
 - Cross-device email flow: `pendingEmailLink` state triggers `EmailLinkPromptScreen`
 

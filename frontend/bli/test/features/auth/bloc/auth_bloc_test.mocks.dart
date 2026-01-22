@@ -74,35 +74,6 @@ class MockAuthService extends _i1.Mock implements _i2.AuthService {
           as _i3.Future<_i5.AppUser?>);
 
   @override
-  _i3.Future<void> sendPhoneVerification(
-    String? phoneNumber, {
-    required dynamic Function(String)? onCodeSent,
-    required dynamic Function(String)? onError,
-  }) =>
-      (super.noSuchMethod(
-            Invocation.method(
-              #sendPhoneVerification,
-              [phoneNumber],
-              {#onCodeSent: onCodeSent, #onError: onError},
-            ),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
-          )
-          as _i3.Future<void>);
-
-  @override
-  _i3.Future<_i5.AppUser?> verifyPhoneCode(
-    String? verificationId,
-    String? smsCode,
-  ) =>
-      (super.noSuchMethod(
-            Invocation.method(#verifyPhoneCode, [verificationId, smsCode]),
-            returnValue: _i3.Future<_i5.AppUser?>.value(),
-            returnValueForMissingStub: _i3.Future<_i5.AppUser?>.value(),
-          )
-          as _i3.Future<_i5.AppUser?>);
-
-  @override
   _i3.Future<_i5.AppUser?> signInAsGuest() =>
       (super.noSuchMethod(
             Invocation.method(#signInAsGuest, []),

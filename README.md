@@ -54,7 +54,7 @@ RESTful API for livability analysis and geocoding.
 - 🚀 **Splash & Start Screen** – Animated launch experience
 - 📍 **Tap-to-Analyze** – Instant livability scoring for any location
 - 🔍 **Address Search** – Find streets, landmarks, or neighborhoods
-- 🔐 **Firebase Authentication** – Multi-provider login (Google, GitHub, Email, Phone, Guest)
+- 🔐 **Firebase Authentication** – Multi-provider login (Google, GitHub, Email, Guest)
 - ❤️ **Save Favorites** – Store and manage favorite locations with backend sync
 
 ## 📊 Scoring System
@@ -173,7 +173,7 @@ The app uses Firebase for authentication and favorites sync:
 4. **Cross-Device Email Flow**: When a user clicks an email link on a different device/browser, the app prompts them to re-enter their email to complete authentication
 5. **Android Release Signing**: Production builds are signed via GitHub Actions using repository secrets
 
-**Authentication Providers**: Google, GitHub, Email (Magic Link), Phone, Anonymous (Guest)
+**Authentication Providers**: Google, GitHub, Email (Magic Link), Anonymous (Guest)
 
 **Email Deep Links Setup**:
 

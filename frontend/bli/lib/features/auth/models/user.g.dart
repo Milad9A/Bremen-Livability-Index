@@ -30,6 +30,5 @@ const _$AppAuthProviderEnumMap = {
   AppAuthProvider.google: 'google',
   AppAuthProvider.github: 'github',
   AppAuthProvider.email: 'email',
-  AppAuthProvider.phone: 'phone',
   AppAuthProvider.guest: 'guest',
 };

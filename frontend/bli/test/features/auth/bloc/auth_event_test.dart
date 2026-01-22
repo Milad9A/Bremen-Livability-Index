@@ -75,23 +75,6 @@ void main() {
       });
     });
 
-    group('PhoneSignInRequested', () {
-      test('creates event with phone number', () {
-        const event = AuthEvent.phoneSignInRequested('+1234567890');
-        expect(event, isA<PhoneSignInRequested>());
-        expect((event as PhoneSignInRequested).phoneNumber, '+1234567890');
-      });
-    });
-
-    group('PhoneCodeVerified', () {
-      test('creates event with verification id and code', () {
-        const event = AuthEvent.phoneCodeVerified('verification-id', '123456');
-        expect(event, isA<PhoneCodeVerified>());
-        expect((event as PhoneCodeVerified).verificationId, 'verification-id');
-        expect(event.code, '123456');
-      });
-    });
-
     group('GuestSignInRequested', () {
       test('creates event correctly', () {
         const event = AuthEvent.guestSignInRequested();

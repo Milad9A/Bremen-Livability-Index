@@ -10,8 +10,7 @@ enum AppAuthProvider {
   github,
   @JsonValue('email')
   email,
-  @JsonValue('phone')
-  phone,
+
   @JsonValue('guest')
   guest,
 }

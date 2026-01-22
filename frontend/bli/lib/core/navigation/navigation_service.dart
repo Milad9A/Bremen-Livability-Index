@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:bli/features/map/screens/map_screen.dart';
 import 'package:bli/features/auth/screens/auth_screen.dart';
 import 'package:bli/features/auth/screens/email_auth_screen.dart';
-import 'package:bli/features/auth/screens/phone_auth_screen.dart';
 
 class NavigationService {
   static const _transitionDuration = Duration(milliseconds: 250);
@@ -34,12 +33,6 @@ class NavigationService {
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (context) => const EmailAuthScreen()));
-  }
-
-  static void navigateToPhoneAuth(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const PhoneAuthScreen()));
   }
 
   static void pop(BuildContext context) {

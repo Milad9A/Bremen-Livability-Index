@@ -190,16 +190,15 @@ void main() {
       expect(AppAuthProvider.google.name, 'google');
       expect(AppAuthProvider.github.name, 'github');
       expect(AppAuthProvider.email.name, 'email');
-      expect(AppAuthProvider.phone.name, 'phone');
+
       expect(AppAuthProvider.guest.name, 'guest');
     });
 
     test('values contains all providers', () {
-      expect(AppAuthProvider.values.length, 5);
+      expect(AppAuthProvider.values.length, 4);
       expect(AppAuthProvider.values, contains(AppAuthProvider.google));
       expect(AppAuthProvider.values, contains(AppAuthProvider.github));
       expect(AppAuthProvider.values, contains(AppAuthProvider.email));
-      expect(AppAuthProvider.values, contains(AppAuthProvider.phone));
       expect(AppAuthProvider.values, contains(AppAuthProvider.guest));
     });
   });

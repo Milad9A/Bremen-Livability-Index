@@ -9,13 +9,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthButtonsGroup extends StatelessWidget {
   final VoidCallback onEmailTap;
-  final VoidCallback onPhoneTap;
 
-  const AuthButtonsGroup({
-    super.key,
-    required this.onEmailTap,
-    required this.onPhoneTap,
-  });
+  const AuthButtonsGroup({super.key, required this.onEmailTap});
 
   @override
   Widget build(BuildContext context) {
@@ -62,11 +57,6 @@ class AuthButtonsGroup extends StatelessWidget {
             AuthButton.email(
               onPressed: state.isLoading ? null : onEmailTap,
               isLoading: state.loadingProvider == AppAuthProvider.email,
-            ),
-            const SizedBox(height: 12),
-            AuthButton.phone(
-              onPressed: state.isLoading ? null : onPhoneTap,
-              isLoading: state.loadingProvider == AppAuthProvider.phone,
             ),
           ],
         );

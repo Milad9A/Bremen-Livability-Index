@@ -36,7 +36,7 @@ class UserCreateRequest(BaseModel):
     id: str = Field(..., description="Firebase UID")
     email: Optional[str] = None
     display_name: Optional[str] = None
-    provider: str = Field(..., description="Auth provider: google, github, email, phone, guest")
+    provider: str = Field(..., description="Auth provider: google, github, email, guest")
 
 
 class FavoriteCreateRequest(BaseModel):
