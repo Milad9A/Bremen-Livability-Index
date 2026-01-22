@@ -72,7 +72,7 @@ This document provides a comprehensive technical overview of the Bremen Livabili
 ### Technology Stack
 
 | Layer | Technology | Purpose |
-|-------|------------|---------|
+| ------- | ------------ | --------- |
 | **Frontend** | Flutter 3.x | Cross-platform mobile & web app |
 | **HTTP Client** | Dio 5.x | HTTP client with interceptors and error handling |
 | **State Management** | flutter_bloc 9.x | BLoC pattern for reactive state management |

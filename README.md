@@ -1,9 +1,7 @@
-<div align="center">
-  <img src="frontend/bli/assets/app_icon_rounded.png" alt="Bremen Livability Index Icon" width="128" height="128">
+
+![Bremen Livability Index Icon](frontend/bli/assets/app_icon_rounded.png)
 
 # Bremen Livability Index (BLI)
-
-</div>
 
 [![Backend Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml)
 [![Frontend Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/frontend-tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/frontend-tests.yml)
@@ -33,20 +31,19 @@ RESTful API for livability analysis and geocoding.
 
 **Download the latest version for all platforms from [GitHub Releases](https://github.com/Milad9A/Bremen-Livability-Index/releases/latest).**
 
-| Platform | File | Instructions |
-|----------|------|--------------|
-| **iOS** | `Runner.app` / Source | Run via Xcode / Flutter |
-| **Android** | `BLI-Android.apk` | Install APK on device. |
-| **Windows** | `BLI-Windows.zip` | Extract and run `bli.exe`. |
-| **macOS** | `BLI-macOS.zip` | Extract and run `bli.app`. |
-| **Linux** | `BLI-Linux.tar.gz` | Extract and run `./bundle/bli`. |
+| Platform   | File                  | Instructions                |
+| ---------- | --------------------- | --------------------------- |
+| **iOS**    | `Runner.app` / Source | Run via Xcode / Flutter     |
+| **Android**| `BLI-Android.apk`     | Install APK on device.      |
+| **Windows**| `BLI-Windows.zip`     | Extract and run `bli.exe`.  |
+| **macOS**  | `BLI-macOS.zip`       | Extract and run `bli.app`.  |
+| **Linux**  | `BLI-Linux.tar.gz`    | Extract and run `./bundle/bli`. |
 
 > ⚠️ **Note:** Desktop builds are unsigned. You may need to verify them in your system security settings:
 >
 > - **Windows**: Click "More Info" → "Run anyway" in Windows Defender SmartScreen
 > - **macOS**: Right-click the app → "Open" → "Open" (bypasses Gatekeeper)
 > - **Linux**: Run `chmod +x bli` before running
-
 > All platforms use the same backend API and provide the same core functionality.
 
 ## ✨ Features
@@ -115,16 +112,16 @@ flutter run
 
 ## 📡 API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/` | GET | API info and available endpoints |
-| `/health` | GET | Health check (API & database status) |
-| `/analyze` | POST | Analyze location livability score |
-| `/geocode` | POST | Search and geocode addresses |
-| `/users` | POST | Create or update user (Firebase UID) |
-| `/users/{user_id}/favorites` | GET | Get all user's favorite locations |
-| `/users/{user_id}/favorites` | POST | Add new favorite location |
-| `/users/{user_id}/favorites/{favorite_id}` | DELETE | Delete a favorite location |
+| Endpoint                        | Method | Description                          |
+| ------------------------------- | ------ | ------------------------------------ |
+| `/`                             | GET    | API info and available endpoints      |
+| `/health`                       | GET    | Health check (API & database status) |
+| `/analyze`                      | POST   | Analyze location livability score    |
+| `/geocode`                      | POST   | Search and geocode addresses         |
+| `/users`                        | POST   | Create or update user (Firebase UID) |
+| `/users/{user_id}/favorites`     | GET    | Get all user's favorite locations    |
+| `/users/{user_id}/favorites`     | POST   | Add new favorite location            |
+| `/users/{user_id}/favorites/{favorite_id}` | DELETE | Delete a favorite location         |
 
 **Interactive Docs:** [/docs](https://bremen-livability-backend.onrender.com/docs) (Swagger UI)
 
@@ -234,10 +231,10 @@ Coverage reports are automatically uploaded to [Codecov](https://codecov.io/gh/M
 
 ## 🗃️ Data Sources & Resources
 
-| Source | Description | License |
-|--------|-------------|---------|
-| [OpenStreetMap](https://www.openstreetmap.org) | Trees, parks, amenities, transport, healthcare, cycling, pedestrian infrastructure, education, sports, cultural venues | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/) |
-| [Unfallatlas](https://unfallatlas.statistikportal.de) | German traffic accident data (2019-2023) | [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0) |
+| Source                                              | Description                                                                 | License                                                      |
+| --------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| [OpenStreetMap](https://www.openstreetmap.org)      | Trees, parks, amenities, transport, healthcare, cycling, pedestrian infrastructure, education, sports, cultural venues | [ODbL 1.0](https://opendatacommons.org/licenses/odbl/)       |
+| [Unfallatlas](https://unfallatlas.statistikportal.de) | German traffic accident data (2019-2023)                                   | [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0)          |
 
 > 📖 **Full Details:** [External Resources & References](TECHNICAL.md#external-resources--references) in TECHNICAL.md
 
