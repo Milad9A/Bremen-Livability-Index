@@ -1,0 +1,245 @@
+00:00 +0: loading /Users/milad/development/Masterstudium/Semester 3/Geodatenverarbeitung/Bremen Livability Index/frontend/bli/test/features/auth/screens/auth_screen_test.dart                         00:01 +0: loading /Users/milad/development/Masterstudium/Semester 3/Geodatenverarbeitung/Bremen Livability Index/frontend/bli/test/features/auth/screens/auth_screen_test.dart                         00:01 +0: AuthScreen renders correctly                                                                                                                                                                 00:01 +0: AuthScreen renders correctly                                                                                                                                                                 
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 74 pixels on the bottom.
+
+The relevant error-causing widget was:
+  Column
+  Column:file:///Users/milad/development/Masterstudium/Semester%203/Geodatenverarbeitung/Bremen%20Livability%20Index/frontend/bli/lib/features/auth/screens/auth_screen.dart:50:24
+
+The overflowing RenderFlex has an orientation of Axis.vertical.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#d07bd relayoutBoundary=up5 OVERFLOWING:
+  creator: Column ← Padding ← ConstrainedBox ← Center ← MediaQuery ← Padding ← SafeArea ←
+    BlocListener<AuthBloc, AuthState> ← KeyedSubtree-[GlobalKey#9a4e4] ← _BodyBuilder ← MediaQuery ←
+    LayoutId-[<_ScaffoldSlot.body>] ← ⋯
+  parentData: offset=Offset(24.0, 0.0) (can use size)
+  constraints: BoxConstraints(0.0<=w<=552.0, 0.0<=h<=600.0)
+  size: Size(552.0, 600.0)
+  direction: vertical
+  mainAxisAlignment: start
+  mainAxisSize: max
+  crossAxisAlignment: center
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
+The following FormatException was thrown while resolving an image:
+Message corrupted
+
+When the exception was thrown, this was the stack:
+#0      StandardMessageCodec.readValueOfType (package:flutter/src/services/message_codecs.dart:533:9)
+#1      StandardMessageCodec.readValue (package:flutter/src/services/message_codecs.dart:477:12)
+#2      StandardMessageCodec.decodeMessage (package:flutter/src/services/message_codecs.dart:339:28)
+#3      new _AssetManifestBin.fromStandardMessageCodecMessage (package:flutter/src/services/asset_manifest.dart:87:55)
+<asynchronous suspension>
+#9      CachingAssetBundle.loadStructuredBinaryData.<anonymous closure> (package:flutter/src/services/asset_bundle.dart:273:11)
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+Image provider: ScrollAwareImageProvider<Object>()
+Image configuration: ImageConfiguration(bundle: TestAssetBundle#a69fe(), devicePixelRatio: 3.0,
+  locale: en_US, textDirection: TextDirection.ltr, size: Size(104.0, 104.0), platform: android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
+The following FormatException was thrown while resolving an image:
+Message corrupted
+
+When the exception was thrown, this was the stack:
+#0      StandardMessageCodec.readValueOfType (package:flutter/src/services/message_codecs.dart:533:9)
+#1      StandardMessageCodec.readValue (package:flutter/src/services/message_codecs.dart:477:12)
+#2      StandardMessageCodec.decodeMessage (package:flutter/src/services/message_codecs.dart:339:28)
+#3      new _AssetManifestBin.fromStandardMessageCodecMessage (package:flutter/src/services/asset_manifest.dart:87:55)
+<asynchronous suspension>
+#9      CachingAssetBundle.loadStructuredBinaryData.<anonymous closure> (package:flutter/src/services/asset_bundle.dart:273:11)
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+Image provider: ScrollAwareImageProvider<Object>()
+Image configuration: ImageConfiguration(bundle: TestAssetBundle#a69fe(), devicePixelRatio: 3.0,
+  locale: en_US, textDirection: TextDirection.ltr, size: Size(20.0, 20.0), platform: android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 497 pixels on the right.
+
+The relevant error-causing widget was:
+  Row
+  Row:file:///Users/milad/development/Masterstudium/Semester%203/Geodatenverarbeitung/Bremen%20Livability%20Index/frontend/bli/lib/features/auth/widgets/auth_button.dart:104:15
+
+The overflowing RenderFlex has an orientation of Axis.horizontal.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#b13d9 relayoutBoundary=up1 OVERFLOWING:
+  creator: Row ← Align ← Padding ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ←
+    DefaultSelectionStyle ← Builder ← MouseRegion ← Semantics ← _FocusInheritedScope ← ⋯
+  parentData: offset=Offset(0.0, 12.0) (can use size)
+  constraints: BoxConstraints(0.0<=w<=304.0, 0.0<=h<=52.0)
+  size: Size(304.0, 28.0)
+  direction: horizontal
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: center
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 30 pixels on the right.
+
+The relevant error-causing widget was:
+  Row
+  Row:file:///Users/milad/development/Masterstudium/Semester%203/Geodatenverarbeitung/Bremen%20Livability%20Index/frontend/bli/lib/features/auth/widgets/auth_button.dart:104:15
+
+The overflowing RenderFlex has an orientation of Axis.horizontal.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#16c60 relayoutBoundary=up1 OVERFLOWING:
+  creator: Row ← Align ← Padding ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ←
+    DefaultSelectionStyle ← Builder ← MouseRegion ← Semantics ← _FocusInheritedScope ← ⋯
+  parentData: offset=Offset(0.0, 15.5) (can use size)
+  constraints: BoxConstraints(0.0<=w<=304.0, 0.0<=h<=52.0)
+  size: Size(304.0, 21.0)
+  direction: horizontal
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: center
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 15 pixels on the right.
+
+The relevant error-causing widget was:
+  Row
+  Row:file:///Users/milad/development/Masterstudium/Semester%203/Geodatenverarbeitung/Bremen%20Livability%20Index/frontend/bli/lib/features/auth/widgets/auth_button.dart:104:15
+
+The overflowing RenderFlex has an orientation of Axis.horizontal.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#ee406 relayoutBoundary=up1 OVERFLOWING:
+  creator: Row ← Align ← Padding ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ←
+    DefaultSelectionStyle ← Builder ← MouseRegion ← Semantics ← _FocusInheritedScope ← ⋯
+  parentData: offset=Offset(0.0, 15.5) (can use size)
+  constraints: BoxConstraints(0.0<=w<=304.0, 0.0<=h<=52.0)
+  size: Size(304.0, 21.0)
+  direction: horizontal
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: center
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY RENDERING LIBRARY ╞═════════════════════════════════════════════════════════
+The following assertion was thrown during layout:
+A RenderFlex overflowed by 15 pixels on the right.
+
+The relevant error-causing widget was:
+  Row
+  Row:file:///Users/milad/development/Masterstudium/Semester%203/Geodatenverarbeitung/Bremen%20Livability%20Index/frontend/bli/lib/features/auth/widgets/auth_button.dart:104:15
+
+The overflowing RenderFlex has an orientation of Axis.horizontal.
+The edge of the RenderFlex that is overflowing has been marked in the rendering with a yellow and
+black striped pattern. This is usually caused by the contents being too big for the RenderFlex.
+Consider applying a flex factor (e.g. using an Expanded widget) to force the children of the
+RenderFlex to fit within the available space instead of being sized to their natural size.
+This is considered an error condition because it indicates that there is content that cannot be
+seen. If the content is legitimately bigger than the available space, consider clipping it with a
+ClipRect widget before putting it in the flex, or using a scrollable container rather than a Flex,
+like a ListView.
+The specific RenderFlex in question is: RenderFlex#cd706 relayoutBoundary=up1 OVERFLOWING:
+  creator: Row ← Align ← Padding ← Listener ← RawGestureDetector ← GestureDetector ← Semantics ←
+    DefaultSelectionStyle ← Builder ← MouseRegion ← Semantics ← _FocusInheritedScope ← ⋯
+  parentData: offset=Offset(0.0, 15.5) (can use size)
+  constraints: BoxConstraints(0.0<=w<=304.0, 0.0<=h<=52.0)
+  size: Size(304.0, 21.0)
+  direction: horizontal
+  mainAxisAlignment: center
+  mainAxisSize: max
+  crossAxisAlignment: center
+  textDirection: ltr
+  verticalDirection: down
+  spacing: 0.0
+◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤◢◤
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
+The following FormatException was thrown while resolving an image:
+Message corrupted
+
+When the exception was thrown, this was the stack:
+#0      StandardMessageCodec.readValueOfType (package:flutter/src/services/message_codecs.dart:533:9)
+#1      StandardMessageCodec.readValue (package:flutter/src/services/message_codecs.dart:477:12)
+#2      StandardMessageCodec.decodeMessage (package:flutter/src/services/message_codecs.dart:339:28)
+#3      new _AssetManifestBin.fromStandardMessageCodecMessage (package:flutter/src/services/asset_manifest.dart:87:55)
+<asynchronous suspension>
+#9      CachingAssetBundle.loadStructuredBinaryData.<anonymous closure> (package:flutter/src/services/asset_bundle.dart:273:11)
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+Image provider: ScrollAwareImageProvider<Object>()
+Image configuration: ImageConfiguration(bundle: TestAssetBundle#0e279(), devicePixelRatio: 3.0,
+  locale: en_US, textDirection: TextDirection.ltr, size: Size(20.0, 20.0), platform: android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY IMAGE RESOURCE SERVICE ╞════════════════════════════════════════════════════
+The following FormatException was thrown while resolving an image:
+Message corrupted
+
+When the exception was thrown, this was the stack:
+#0      StandardMessageCodec.readValueOfType (package:flutter/src/services/message_codecs.dart:533:9)
+#1      StandardMessageCodec.readValue (package:flutter/src/services/message_codecs.dart:477:12)
+#2      StandardMessageCodec.decodeMessage (package:flutter/src/services/message_codecs.dart:339:28)
+#3      new _AssetManifestBin.fromStandardMessageCodecMessage (package:flutter/src/services/asset_manifest.dart:87:55)
+<asynchronous suspension>
+#9      CachingAssetBundle.loadStructuredBinaryData.<anonymous closure> (package:flutter/src/services/asset_bundle.dart:273:11)
+<asynchronous suspension>
+(elided 5 frames from dart:async and package:stack_trace)
+
+Image provider: ScrollAwareImageProvider<Object>()
+Image configuration: ImageConfiguration(bundle: TestAssetBundle#0e279(), devicePixelRatio: 3.0,
+  locale: en_US, textDirection: TextDirection.ltr, size: Size(104.0, 104.0), platform: android)
+════════════════════════════════════════════════════════════════════════════════════════════════════
+══╡ EXCEPTION CAUGHT BY FLUTTER TEST FRAMEWORK ╞════════════════════════════════════════════════════
+The following message was thrown:
+Multiple exceptions (9) were detected during the running of the current test, and at least one was
+unexpected.
+════════════════════════════════════════════════════════════════════════════════════════════════════
+00:01 +0 -1: AuthScreen renders correctly [E]                                                                                                                                                          
+  Test failed. See exception logs above.
+  The test description was: renders correctly
+  
+
+To run this test again: /Users/milad/development/flutter/bin/cache/dart-sdk/bin/dart test /Users/milad/development/Masterstudium/Semester 3/Geodatenverarbeitung/Bremen Livability Index/frontend/bli/test/features/auth/screens/auth_screen_test.dart -p vm --plain-name 'AuthScreen renders correctly'
+00:01 +0 -1: Some tests failed.                                                                                                                                                                        
