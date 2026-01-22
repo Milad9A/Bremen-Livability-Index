@@ -34,10 +34,11 @@ void main() {
   group('StartScreen', () {
     testWidgets('renders correctly', (tester) async {
       await tester.pumpWidget(_buildTestWidget(mockAuthService));
+      await tester.pump(const Duration(seconds: 2));
 
       expect(find.byType(Scaffold), findsOneWidget);
       expect(find.byType(Image), findsOneWidget);
-    }, skip: true);
+    });
 
     testWidgets('navigates to MapScreen on button tap', (tester) async {
       final navigatorObserver = MockNavigatorObserver();
@@ -52,8 +53,9 @@ void main() {
           navigatorObservers: [navigatorObserver],
         ),
       );
+      await tester.pump(const Duration(seconds: 2));
 
       expect(find.byType(Scaffold), findsOneWidget);
-    }, skip: true);
+    });
   });
 }
