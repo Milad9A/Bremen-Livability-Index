@@ -111,7 +111,9 @@ class _EmailLinkPromptScreenState extends State<EmailLinkPromptScreen> {
                         data: Theme.of(context).copyWith(
                           textSelectionTheme: TextSelectionThemeData(
                             cursorColor: AppColors.primary,
-                            selectionColor: AppColors.primary.withValues(alpha: 0.3),
+                            selectionColor: AppColors.primary.withValues(
+                              alpha: 0.3,
+                            ),
                             selectionHandleColor: AppColors.primary,
                           ),
                         ),
@@ -123,7 +125,9 @@ class _EmailLinkPromptScreenState extends State<EmailLinkPromptScreen> {
                           decoration: InputDecoration(
                             labelText: 'Email address',
                             labelStyle: TextStyle(color: AppColors.greyMedium),
-                            floatingLabelStyle: TextStyle(color: AppColors.primary),
+                            floatingLabelStyle: TextStyle(
+                              color: AppColors.primary,
+                            ),
                             hintText: 'you@example.com',
                             prefixIcon: Icon(
                               Icons.email_outlined,
@@ -131,7 +135,9 @@ class _EmailLinkPromptScreenState extends State<EmailLinkPromptScreen> {
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: AppColors.greyLight),
+                              borderSide: BorderSide(
+                                color: AppColors.greyLight,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),

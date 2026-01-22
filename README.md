@@ -160,14 +160,16 @@ The app uses Firebase for authentication and favorites sync:
 1. **Web**: Uses Firebase OAuth popup authentication (`signInWithPopup`) for Google/GitHub
 2. **Mobile**: Uses native authentication packages with deep link handling
 3. **Email Magic Links**: Firebase Hosting redirects email links to the web/mobile app
-4. **Android Release Signing**: Production builds are signed via GitHub Actions using repository secrets
+4. **Cross-Device Email Flow**: When a user clicks an email link on a different device/browser, the app prompts them to re-enter their email to complete authentication
+5. **Android Release Signing**: Production builds are signed via GitHub Actions using repository secrets
 
 **Authentication Providers**: Google, GitHub, Email (Magic Link), Phone, Anonymous (Guest)
 
 **Email Deep Links Setup**:
 - Firebase Hosting serves a redirect page at `bremen-livability-index.firebaseapp.com/login`
-- iOS: Universal Links configured in `Runner.entitlements`
 - Android: App Links configured in `AndroidManifest.xml` with SHA256 verification
+- iOS: Falls back to web app (Universal Links require paid Apple Developer account)
+- Cross-device: `DeepLinkService` detects missing email and shows `EmailLinkPromptScreen`
 
 > See `firestore.rules` for database security rules
 

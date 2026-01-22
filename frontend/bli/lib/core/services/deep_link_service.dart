@@ -55,17 +55,17 @@ class DeepLinkService {
       // Uri.base gives us the current page URL on web
       final currentUrl = Uri.base.toString();
       debugPrint('DeepLinkService: Checking web URL: $currentUrl');
-      
+
       final uri = Uri.base;
-      
+
       // Check if this is an email sign-in link
       if (uri.queryParameters.containsKey('oobCode') ||
           uri.queryParameters.containsKey('mode')) {
         debugPrint('DeepLinkService: Found email link parameters');
-        
+
         final email = await _authService.getPendingEmail();
         debugPrint('DeepLinkService: Pending email: $email');
-        
+
         if (email != null) {
           _authBloc.add(AuthEvent.emailLinkVerified(email, currentUrl));
         } else {

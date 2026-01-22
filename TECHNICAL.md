@@ -375,24 +375,41 @@ The email sign-in flow uses Firebase Hosting to redirect users back to the app:
          ┌────────────────────┼────────────────────┐
          │                    │                    │
          ▼                    ▼                    ▼
-    [iOS App]           [Android App]          [Web App]
-    Universal Links     App Links              JavaScript redirect
-    directly opens      directly opens         to Render.com
-    app                 app                    deployment
+    [iOS Safari]        [Android App]          [Web App]
+    Falls back to       App Links              JavaScript redirect
+    web app             directly opens         to Render.com
+                        app                    deployment
                               │
                               ▼
-4. App receives link → signInWithEmailLink(email, link)
+4. App receives link → Check for stored email
                               │
-                              ▼
+         ┌────────────────────┼────────────────────┐
+         ▼                    ▼                    ▼
+   [Email Found]        [No Email Found]     (Cross-device flow)
+   Same device          Different device/    User clicked link on
+                        browser              different device
+         │                    │
+         ▼                    ▼
+   signInWithEmailLink   Show EmailLinkPromptScreen
+   (email, link)         → User enters email
+         │                    │
+         ▼                    ▼
 5. User is authenticated ✓
 ```
 
+**Cross-Device Flow Implementation**:
+- `DeepLinkService` detects email link parameters (`oobCode`, `mode`) in the URL
+- If no stored email is found (cross-device scenario), dispatches `EmailLinkPendingEmail` event
+- `AuthBloc` sets `pendingEmailLink` in state, triggering navigation to `EmailLinkPromptScreen`
+- User enters email → `EmailLinkVerified` event completes authentication
+
 **Configuration Files**:
-- `firebase_hosting/.well-known/apple-app-site-association` - iOS Universal Links
+- `firebase_hosting/.well-known/apple-app-site-association` - iOS Universal Links (requires paid account)
 - `firebase_hosting/.well-known/assetlinks.json` - Android App Links (SHA256 fingerprint)
 - `firebase_hosting/login/index.html` - Redirect page for web fallback
-- `ios/Runner/Runner.entitlements` - iOS associated domains
 - `android/app/src/main/AndroidManifest.xml` - Android intent filters
+
+**Note**: iOS Universal Links require a paid Apple Developer account ($99/year). Without it, iOS users are redirected to the web app which handles the cross-device flow.
 
 ---
 
@@ -605,13 +622,14 @@ tree_score = min(9.0, math.log1p(tree_count) * 2.0)
 ```
 frontend/bli/lib/
 ├── core/                   # Global / Shared
-│   ├── services/           # ApiService
+│   ├── services/           # ApiService, DeepLinkService
 │   ├── theme/              # AppTheme
 │   ├── utils/              # FeatureStyles
 │   └── widgets/            # Shared widgets (GlassContainer, LoadingOverlay)
 ├── features/
 │   ├── auth/               # Authentication Feature
 │   │   ├── bloc/           # AuthBloc, AuthEvent, AuthState
+│   │   ├── screens/        # AuthScreen, EmailLinkPromptScreen
 │   │   └── services/       # AuthService (Firebase integration)
 │   ├── map/                # Map Feature
 │   │   ├── bloc/           # MapBloc, MapEvent, MapState
@@ -720,6 +738,7 @@ The application uses the **BLoC (Business Logic Component)** pattern with `flutt
 - `AuthBloc` manages user login/logout using Firebase Authentication
 - Supports multi-provider auth: Google, GitHub, Email, Phone, Guest (Anonymous)
 - Auth state is persisted and checked on app startup
+- Cross-device email flow: `pendingEmailLink` state triggers `EmailLinkPromptScreen`
 
 **Favorites Management:**
 - `FavoritesBloc` manages favorite locations stored in Firestore
