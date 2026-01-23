@@ -112,21 +112,14 @@ void main() {
     ) async {
       await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
 
-      // ScoreCard should not be visible when no location is selected
       expect(find.text('Livability Score'), findsNothing);
     });
 
     testWidgets('shows score card when score is loaded', (
       WidgetTester tester,
     ) async {
-      // Note: Testing bloc state changes in widget tests is complex.
-      // This test verifies that MapScreen properly renders when provided
-      // with a bloc that has a score. In a real scenario, you'd want to use
-      // integration tests or mock the MapBloc state directly.
-
       await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
 
-      // At minimum, verify the screen renders without errors
       expect(find.byType(Scaffold), findsOneWidget);
       expect(find.byType(FlutterMap), findsOneWidget);
     }, skip: true);
@@ -154,24 +147,15 @@ void main() {
       bloc.onShowMessage?.call(message);
 
       await tester.pump(); // Trigger animation
-      await tester.pump(
-        const Duration(milliseconds: 500),
-      ); // Wait for animation
-
+      await tester.pump(const Duration(milliseconds: 500));
       expect(find.text(message), findsOneWidget);
     });
 
     testWidgets('shows nearby features on map when score has features', (
       WidgetTester tester,
     ) async {
-      // Note: Testing bloc state changes in widget tests is complex.
-      // This test verifies that MapScreen properly renders nearby features layer
-      // when configured. In a real scenario, you'd want to use integration tests
-      // or mock the MapBloc state directly.
-
       await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
 
-      // At minimum, verify the screen renders without errors
       expect(find.byType(Scaffold), findsOneWidget);
       expect(find.byType(FlutterMap), findsOneWidget);
     }, skip: true);

@@ -168,7 +168,7 @@ cd backend && pytest
 cd frontend/bli && flutter test
 ```
 
-> 📖 **Full Testing Guide:** See [Testing in TECHNICAL.md](TECHNICAL.md#testing) for coverage reports and test details.
+> 📖 **Full Testing Guide:** See [Testing](TECHNICAL.md#testing)  in TECHNICAL.md for coverage reports and test details.
 
 ## 🗃️ Data Sources & Resources
 

@@ -916,7 +916,8 @@ test/
     ├── map/
     │   ├── bloc/           # map_bloc_test.dart (20+ tests)
     │   ├── screens/        # map_screen_test.dart (~25 tests)
-    │   └── widgets/        # address_search, score_card, nearby_features, etc. (40+ tests)
+    │   └── widgets/        # ScoreCard, FloatingSearchBar, AddressSearch, NearbyFeatures,
+    │                       # MapControlButtons, ProfileSheet, SmartScoreCard tests (50+ tests)
     ├── favorites/
     │   └── bloc/           # favorites_bloc_test.dart (10+ tests)
     └── onboarding/
@@ -925,7 +926,7 @@ test/
 
 **Test Statistics:**
 
-- **Total Tests**: 140+
+- **Total Tests**: 295+
 - **Execution Time**: ~30-40 seconds
 - **Status**: ✅ All passing
 
@@ -964,8 +965,11 @@ open coverage/html/index.html
 | `features/map/bloc/map_bloc.dart` | ~95% |
 | `features/auth/bloc/auth_bloc.dart` | ~90% |
 | `features/auth/services/auth_service.dart` | ~85% |
-| **Overall** | **~88%** |
-| **Total Tests** | **140+ tests** |
+| `features/map/widgets/map_control_buttons.dart` | 100% |
+| `features/map/widgets/profile_sheet.dart` | ~90% |
+| `features/map/widgets/smart_score_card.dart` | ~90% |
+| **Overall** | **~90%** |
+| **Total Tests** | **295+ tests** |
 
 ### CI/CD Coverage
 
