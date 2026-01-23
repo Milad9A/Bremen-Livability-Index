@@ -141,21 +141,6 @@ Render deploys automatically on every push to `master`. GitHub Actions runs test
 
 > 📖 **Details:** [Deployment Architecture](TECHNICAL.md#deployment-architecture) in TECHNICAL.md
 
-## 💻 Flutter Development
-
-### Running the App
-
-```bash
-cd frontend/bli
-flutter pub get
-flutter run              # Default device
-flutter run -d chrome    # Web
-flutter run -d emulator-5554  # Android emulator
-flutter run -d "iPhone"  # iOS Device (requires Xcode)
-```
-
-> 📖 **Configuration & Data Models:** See [Frontend Implementation](TECHNICAL.md#frontend-implementation) in TECHNICAL.md for API configs, Firebase setup, and code generation.
-
 ## 🧪 Testing
 
 ### Run Tests
