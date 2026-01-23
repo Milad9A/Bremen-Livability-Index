@@ -173,8 +173,321 @@ void main() {
         expect(result!.isAnonymous, true);
         expect(result.provider, AppAuthProvider.guest);
       });
+
+      test('returns Google user based on providerData', () async {
+        final mockFirebaseUser = MockUser();
+        final mockUserInfo = MockUserInfo();
+
+        when(mockFirebaseAuth.currentUser).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.isAnonymous).thenReturn(false);
+        when(mockFirebaseUser.uid).thenReturn('google-uid');
+        when(mockFirebaseUser.email).thenReturn('google@example.com');
+        when(mockFirebaseUser.displayName).thenReturn('Google User');
+        when(mockFirebaseUser.photoURL).thenReturn('https://photo.url');
+        when(mockUserInfo.providerId).thenReturn('google.com');
+        when(mockFirebaseUser.providerData).thenReturn([mockUserInfo]);
+
+        final result = await authService.getCurrentUser();
+
+        expect(result, isNotNull);
+        expect(result!.provider, AppAuthProvider.google);
+        expect(result.email, 'google@example.com');
+      });
+
+      test('returns GitHub user based on providerData', () async {
+        final mockFirebaseUser = MockUser();
+        final mockUserInfo = MockUserInfo();
+
+        when(mockFirebaseAuth.currentUser).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.isAnonymous).thenReturn(false);
+        when(mockFirebaseUser.uid).thenReturn('github-uid');
+        when(mockFirebaseUser.email).thenReturn('github@example.com');
+        when(mockFirebaseUser.displayName).thenReturn('GitHub User');
+        when(mockFirebaseUser.photoURL).thenReturn(null);
+        when(mockUserInfo.providerId).thenReturn('github.com');
+        when(mockFirebaseUser.providerData).thenReturn([mockUserInfo]);
+
+        final result = await authService.getCurrentUser();
+
+        expect(result, isNotNull);
+        expect(result!.provider, AppAuthProvider.github);
+      });
+
+      test('returns email user for password provider', () async {
+        final mockFirebaseUser = MockUser();
+        final mockUserInfo = MockUserInfo();
+
+        when(mockFirebaseAuth.currentUser).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.isAnonymous).thenReturn(false);
+        when(mockFirebaseUser.uid).thenReturn('email-uid');
+        when(mockFirebaseUser.email).thenReturn('email@example.com');
+        when(mockFirebaseUser.displayName).thenReturn(null);
+        when(mockFirebaseUser.photoURL).thenReturn(null);
+        when(mockUserInfo.providerId).thenReturn('password');
+        when(mockFirebaseUser.providerData).thenReturn([mockUserInfo]);
+
+        final result = await authService.getCurrentUser();
+
+        expect(result, isNotNull);
+        expect(result!.provider, AppAuthProvider.email);
+      });
+
+      test('returns email user for emailLink provider', () async {
+        final mockFirebaseUser = MockUser();
+        final mockUserInfo = MockUserInfo();
+
+        when(mockFirebaseAuth.currentUser).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.isAnonymous).thenReturn(false);
+        when(mockFirebaseUser.uid).thenReturn('emaillink-uid');
+        when(mockFirebaseUser.email).thenReturn('emaillink@example.com');
+        when(mockFirebaseUser.displayName).thenReturn(null);
+        when(mockFirebaseUser.photoURL).thenReturn(null);
+        when(mockUserInfo.providerId).thenReturn('emailLink');
+        when(mockFirebaseUser.providerData).thenReturn([mockUserInfo]);
+
+        final result = await authService.getCurrentUser();
+
+        expect(result, isNotNull);
+        expect(result!.provider, AppAuthProvider.email);
+      });
+
+      test('returns guest provider for user with no providerData', () async {
+        final mockFirebaseUser = MockUser();
+
+        when(mockFirebaseAuth.currentUser).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.isAnonymous).thenReturn(false);
+        when(mockFirebaseUser.uid).thenReturn('no-provider-uid');
+        when(mockFirebaseUser.email).thenReturn(null);
+        when(mockFirebaseUser.displayName).thenReturn(null);
+        when(mockFirebaseUser.photoURL).thenReturn(null);
+        when(mockFirebaseUser.providerData).thenReturn([]);
+
+        final result = await authService.getCurrentUser();
+
+        expect(result, isNotNull);
+        expect(result!.provider, AppAuthProvider.guest);
+      });
     });
 
-    // Add more tests for other methods as needed: sendEmailLink, verifyPhoneCode, etc.
+    group('signInAsGuest', () {
+      test('returns AppUser when anonymous sign in successful', () async {
+        final mockUserCredential = MockUserCredential();
+        final mockFirebaseUser = MockUser();
+
+        when(
+          mockFirebaseAuth.signInAnonymously(),
+        ).thenAnswer((_) async => mockUserCredential);
+        when(mockUserCredential.user).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.uid).thenReturn('guest-uid');
+        when(mockFirebaseUser.email).thenReturn(null);
+        when(mockFirebaseUser.displayName).thenReturn(null);
+        when(mockFirebaseUser.photoURL).thenReturn(null);
+        when(mockFirebaseUser.isAnonymous).thenReturn(true);
+
+        final result = await authService.signInAsGuest();
+
+        expect(result, isNotNull);
+        expect(result!.id, 'guest-uid');
+        expect(result.isAnonymous, true);
+        expect(result.provider, AppAuthProvider.guest);
+        verify(mockFirebaseAuth.signInAnonymously()).called(1);
+      });
+
+      test('rethrows exception when anonymous sign in fails', () async {
+        when(
+          mockFirebaseAuth.signInAnonymously(),
+        ).thenThrow(Exception('Anonymous sign in failed'));
+
+        expect(() => authService.signInAsGuest(), throwsException);
+      });
+    });
+
+    group('sendEmailLink', () {
+      test('sends email link and saves pending email', () async {
+        when(
+          mockFirebaseAuth.sendSignInLinkToEmail(
+            email: anyNamed('email'),
+            actionCodeSettings: anyNamed('actionCodeSettings'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          mockSecureStorage.write(
+            key: anyNamed('key'),
+            value: anyNamed('value'),
+          ),
+        ).thenAnswer((_) async {});
+
+        await authService.sendEmailLink('test@example.com');
+
+        verify(
+          mockFirebaseAuth.sendSignInLinkToEmail(
+            email: 'test@example.com',
+            actionCodeSettings: anyNamed('actionCodeSettings'),
+          ),
+        ).called(1);
+        verify(
+          mockSecureStorage.write(
+            key: 'pending_email_link',
+            value: 'test@example.com',
+          ),
+        ).called(1);
+      });
+    });
+
+    group('signInWithEmailLink', () {
+      test('returns AppUser when sign in successful', () async {
+        final mockUserCredential = MockUserCredential();
+        final mockFirebaseUser = MockUser();
+
+        when(mockFirebaseAuth.isSignInWithEmailLink(any)).thenReturn(true);
+        when(
+          mockFirebaseAuth.signInWithEmailLink(
+            email: anyNamed('email'),
+            emailLink: anyNamed('emailLink'),
+          ),
+        ).thenAnswer((_) async => mockUserCredential);
+        when(mockUserCredential.user).thenReturn(mockFirebaseUser);
+        when(mockFirebaseUser.uid).thenReturn('email-uid');
+        when(mockFirebaseUser.email).thenReturn('test@example.com');
+        when(mockFirebaseUser.displayName).thenReturn(null);
+        when(mockFirebaseUser.photoURL).thenReturn(null);
+        when(mockFirebaseUser.isAnonymous).thenReturn(false);
+        when(
+          mockSecureStorage.delete(key: anyNamed('key')),
+        ).thenAnswer((_) async {});
+
+        final result = await authService.signInWithEmailLink(
+          'test@example.com',
+          'https://example.com/link',
+        );
+
+        expect(result, isNotNull);
+        expect(result!.email, 'test@example.com');
+        expect(result.provider, AppAuthProvider.email);
+        verify(mockSecureStorage.delete(key: 'pending_email_link')).called(1);
+      });
+
+      test('throws exception for invalid email link', () async {
+        when(mockFirebaseAuth.isSignInWithEmailLink(any)).thenReturn(false);
+
+        expect(
+          () => authService.signInWithEmailLink(
+            'test@example.com',
+            'invalid-link',
+          ),
+          throwsException,
+        );
+      });
+
+      test('rethrows exception when email link sign in fails', () async {
+        when(mockFirebaseAuth.isSignInWithEmailLink(any)).thenReturn(true);
+        when(
+          mockFirebaseAuth.signInWithEmailLink(
+            email: anyNamed('email'),
+            emailLink: anyNamed('emailLink'),
+          ),
+        ).thenThrow(Exception('Email link sign in failed'));
+
+        expect(
+          () => authService.signInWithEmailLink(
+            'test@example.com',
+            'https://example.com/link',
+          ),
+          throwsException,
+        );
+      });
+    });
+
+    group('pending email storage', () {
+      test('savePendingEmail writes to secure storage', () async {
+        when(
+          mockSecureStorage.write(
+            key: anyNamed('key'),
+            value: anyNamed('value'),
+          ),
+        ).thenAnswer((_) async {});
+
+        await authService.savePendingEmail('pending@example.com');
+
+        verify(
+          mockSecureStorage.write(
+            key: 'pending_email_link',
+            value: 'pending@example.com',
+          ),
+        ).called(1);
+      });
+
+      test('getPendingEmail reads from secure storage', () async {
+        when(
+          mockSecureStorage.read(key: anyNamed('key')),
+        ).thenAnswer((_) async => 'pending@example.com');
+
+        final result = await authService.getPendingEmail();
+
+        expect(result, 'pending@example.com');
+        verify(mockSecureStorage.read(key: 'pending_email_link')).called(1);
+      });
+
+      test('getPendingEmail returns null when no email stored', () async {
+        when(
+          mockSecureStorage.read(key: anyNamed('key')),
+        ).thenAnswer((_) async => null);
+
+        final result = await authService.getPendingEmail();
+
+        expect(result, isNull);
+      });
+
+      test('clearPendingEmail deletes from secure storage', () async {
+        when(
+          mockSecureStorage.delete(key: anyNamed('key')),
+        ).thenAnswer((_) async {});
+
+        await authService.clearPendingEmail();
+
+        verify(mockSecureStorage.delete(key: 'pending_email_link')).called(1);
+      });
+    });
+
+    group('signInWithGitHub error handling', () {
+      test('rethrows exception when GitHub sign in fails', () async {
+        when(
+          mockFirebaseAuth.signInWithProvider(any),
+        ).thenThrow(Exception('GitHub sign in failed'));
+
+        expect(() => authService.signInWithGitHub(), throwsException);
+      });
+    });
+
+    group('authStateChanges', () {
+      test('returns auth state stream', () {
+        final mockStream = Stream<firebase_auth.User?>.value(null);
+        when(mockFirebaseAuth.authStateChanges()).thenAnswer((_) => mockStream);
+
+        final result = authService.authStateChanges;
+
+        expect(result, isA<Stream<firebase_auth.User?>>());
+        verify(mockFirebaseAuth.authStateChanges()).called(1);
+      });
+    });
+
+    group('currentUser', () {
+      test('returns current user from auth', () {
+        final mockFirebaseUser = MockUser();
+        when(mockFirebaseAuth.currentUser).thenReturn(mockFirebaseUser);
+
+        final result = authService.currentUser;
+
+        expect(result, mockFirebaseUser);
+      });
+
+      test('returns null when no user', () {
+        when(mockFirebaseAuth.currentUser).thenReturn(null);
+
+        final result = authService.currentUser;
+
+        expect(result, isNull);
+      });
+    });
   });
 }
