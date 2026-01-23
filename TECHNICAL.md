@@ -921,13 +921,14 @@ test/
     ├── favorites/
     │   └── bloc/           # favorites_bloc_test.dart (10+ tests)
     └── onboarding/
-        └── screens/        # start_screen_test.dart (5+ tests)
+        ├── screens/        # start_screen_test.dart
+        └── widgets/        # start_screen_title_test.dart, start_screen_actions_test.dart (20+ tests)
 ```
 
 **Test Statistics:**
 
-- **Total Tests**: 295+
-- **Execution Time**: ~30-40 seconds
+- **Total Tests**: 354+
+- **Execution Time**: ~15-20 seconds
 - **Status**: ✅ All passing
 
 **Run tests:**
@@ -964,12 +965,14 @@ open coverage/html/index.html
 | `core/services/api_service.dart` | ~69% |
 | `features/map/bloc/map_bloc.dart` | ~95% |
 | `features/auth/bloc/auth_bloc.dart` | ~90% |
-| `features/auth/services/auth_service.dart` | ~85% |
+| `features/auth/services/auth_service.dart` | ~93% |
 | `features/map/widgets/map_control_buttons.dart` | 100% |
 | `features/map/widgets/profile_sheet.dart` | ~90% |
 | `features/map/widgets/smart_score_card.dart` | ~90% |
+| `features/onboarding/widgets/start_screen_title.dart` | 100% |
+| `features/onboarding/widgets/start_screen_actions.dart` | 100% |
 | **Overall** | **~90%** |
-| **Total Tests** | **295+ tests** |
+| **Total Tests** | **354+ tests** |
 
 ### CI/CD Coverage
 

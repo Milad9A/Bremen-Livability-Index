@@ -28,9 +28,8 @@ class MockApiService implements ApiService {
 class TestableAuthBloc extends AuthBloc {
   final AuthState _initialState;
 
-  TestableAuthBloc({required AuthService authService, AuthState? initialState})
-    : _initialState = initialState ?? const AuthState(),
-      super(authService: authService);
+  TestableAuthBloc({required super.authService, AuthState? initialState})
+    : _initialState = initialState ?? const AuthState();
 
   @override
   AuthState get state => _initialState;
