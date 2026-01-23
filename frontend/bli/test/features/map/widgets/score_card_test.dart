@@ -1,3 +1,4 @@
+import 'package:bli/core/theme/app_theme.dart';
 import 'package:bli/features/map/models/enums.dart';
 import 'package:bli/features/map/models/models.dart';
 import 'package:bli/features/map/widgets/score_card.dart';
@@ -181,6 +182,301 @@ void main() {
 
       expect(find.text('-8.0'), findsOneWidget);
       expect(find.byIcon(Icons.volume_up), findsOneWidget);
+    });
+
+    testWidgets(
+      'displays "No detailed features available" when features empty',
+      (WidgetTester tester) async {
+        final factor = const Factor(
+          factor: MetricCategory.greenery,
+          value: 10.0,
+          description: 'Parks nearby',
+          impact: 'positive',
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: ScoreFactorItem(factor: factor, nearbyFeatures: const {}),
+            ),
+          ),
+        );
+
+        // Tap to expand the ExpansionTile
+        await tester.tap(find.byType(ExpansionTile));
+        await tester.pumpAndSettle();
+
+        expect(find.text('No detailed features available.'), findsOneWidget);
+      },
+    );
+
+    testWidgets('displays nearby features with distance', (
+      WidgetTester tester,
+    ) async {
+      final factor = const Factor(
+        factor: MetricCategory.greenery,
+        value: 10.0,
+        description: 'Parks nearby',
+        impact: 'positive',
+      );
+
+      final nearbyFeatures = {
+        'parks': [
+          FeatureDetail(
+            type: FeatureType.park,
+            name: 'City Park',
+            distance: 150.0,
+            geometry: {
+              'type': 'Point',
+              'coordinates': [8.8, 53.0],
+            },
+          ),
+        ],
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ScoreFactorItem(
+              factor: factor,
+              nearbyFeatures: nearbyFeatures,
+            ),
+          ),
+        ),
+      );
+
+      // Tap to expand the ExpansionTile
+      await tester.tap(find.byType(ExpansionTile));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('City Park'), findsOneWidget);
+      expect(find.text('150m'), findsOneWidget);
+    });
+  });
+
+  group('ScoreCard expand/collapse', () {
+    testWidgets('starts expanded by default', (WidgetTester tester) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: ScoreCard(score: score)),
+          ),
+        ),
+      );
+
+      // Expanded content should show factors section
+      expect(find.text('Positive Factors'), findsOneWidget);
+    });
+
+    testWidgets('collapses when tapped', (WidgetTester tester) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: ScoreCard(score: score)),
+          ),
+        ),
+      );
+
+      // Find and tap the header GestureDetector (containing the score)
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+
+      // After collapsing, "Positive Factors" should not be visible
+      expect(find.text('Positive Factors'), findsNothing);
+    });
+
+    testWidgets('expands again when tapped twice', (WidgetTester tester) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: ScoreCard(score: score)),
+          ),
+        ),
+      );
+
+      // Collapse
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+      expect(find.text('Positive Factors'), findsNothing);
+
+      // Expand again
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+      expect(find.text('Positive Factors'), findsOneWidget);
+    });
+  });
+
+  group('ScoreCard favorites', () {
+    testWidgets('shows filled heart when isFavorite is true', (
+      WidgetTester tester,
+    ) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ScoreCard(
+                score: score,
+                isFavorite: true,
+                onFavoriteToggle: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.favorite), findsOneWidget);
+      expect(find.byIcon(Icons.favorite_border), findsNothing);
+    });
+
+    testWidgets('shows outline heart when isFavorite is false', (
+      WidgetTester tester,
+    ) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ScoreCard(
+                score: score,
+                isFavorite: false,
+                onFavoriteToggle: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+      expect(find.byIcon(Icons.favorite), findsNothing);
+    });
+
+    testWidgets('calls onFavoriteToggle when favorite button tapped', (
+      WidgetTester tester,
+    ) async {
+      final score = createTestScore();
+      bool callbackInvoked = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ScoreCard(
+                score: score,
+                isFavorite: false,
+                onFavoriteToggle: () {
+                  callbackInvoked = true;
+                },
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byIcon(Icons.favorite_border));
+      await tester.pump();
+
+      expect(callbackInvoked, isTrue);
+    });
+
+    testWidgets('hides favorite button when onFavoriteToggle is null', (
+      WidgetTester tester,
+    ) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ScoreCard(score: score, onFavoriteToggle: null),
+            ),
+          ),
+        ),
+      );
+
+      // No favorite icons should be present
+      expect(find.byIcon(Icons.favorite), findsNothing);
+      expect(find.byIcon(Icons.favorite_border), findsNothing);
+    });
+  });
+
+  group('ScoreCard summary chips', () {
+    testWidgets('displays base score chip with tooltip', (
+      WidgetTester tester,
+    ) async {
+      final score = createTestScore(baseScore: 45.0);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: ScoreCard(score: score)),
+          ),
+        ),
+      );
+
+      expect(find.text('45'), findsOneWidget);
+      // Verify Tooltip is present
+      expect(find.byType(Tooltip), findsOneWidget);
+    });
+
+    testWidgets('displays positive and negative totals', (
+      WidgetTester tester,
+    ) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: ScoreCard(score: score)),
+          ),
+        ),
+      );
+
+      // Default test score has +15.0 positive and -10.0 negative
+      expect(find.text('+15.0'), findsWidgets);
+      expect(find.text('-10.0'), findsWidgets);
+    });
+
+    testWidgets('displays factor count', (WidgetTester tester) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: ScoreCard(score: score)),
+          ),
+        ),
+      );
+
+      expect(find.text('2 factors'), findsOneWidget);
+    });
+  });
+
+  group('getScoreColor', () {
+    test('returns high color for score >= 75', () {
+      expect(getScoreColor(75.0), equals(AppColors.scoreHigh));
+      expect(getScoreColor(100.0), equals(AppColors.scoreHigh));
+      expect(getScoreColor(85.5), equals(AppColors.scoreHigh));
+    });
+
+    test('returns medium color for score >= 50 and < 75', () {
+      expect(getScoreColor(50.0), equals(AppColors.scoreMedium));
+      expect(getScoreColor(74.9), equals(AppColors.scoreMedium));
+      expect(getScoreColor(60.0), equals(AppColors.scoreMedium));
+    });
+
+    test('returns low color for score < 50', () {
+      expect(getScoreColor(49.9), equals(AppColors.scoreLow));
+      expect(getScoreColor(0.0), equals(AppColors.scoreLow));
+      expect(getScoreColor(25.0), equals(AppColors.scoreLow));
     });
   });
 }

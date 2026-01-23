@@ -155,6 +155,128 @@ void main() {
       expect(polylineLayer.polylines.length, 1);
       expect(polylineLayer.polylines.first.points.length, 2);
     });
+
+    testWidgets('renders multiple polygons for MultiPolygon features', (
+      WidgetTester tester,
+    ) async {
+      final features = {
+        'industrial': [
+          FeatureDetail(
+            type: FeatureType.industrial,
+            distance: 100.0,
+            geometry: {
+              'type': 'MultiPolygon',
+              'coordinates': [
+                [
+                  [
+                    [8.80, 53.07],
+                    [8.81, 53.07],
+                    [8.81, 53.08],
+                    [8.80, 53.08],
+                    [8.80, 53.07],
+                  ],
+                ],
+                [
+                  [
+                    [8.82, 53.09],
+                    [8.83, 53.09],
+                    [8.83, 53.10],
+                    [8.82, 53.10],
+                    [8.82, 53.09],
+                  ],
+                ],
+              ],
+            },
+          ),
+        ],
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(53.085, 8.815),
+              initialZoom: 12.0,
+            ),
+            children: [NearbyFeatureLayers(nearbyFeatures: features)],
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      expect(find.byType(PolygonLayer), findsOneWidget);
+      final polygonLayer = tester.widget<PolygonLayer>(
+        find.byType(PolygonLayer),
+      );
+      // MultiPolygon with 2 polygons should create 2 polygon objects
+      expect(polygonLayer.polygons.length, 2);
+      expect(polygonLayer.polygons[0].points.length, 5);
+      expect(polygonLayer.polygons[1].points.length, 5);
+    });
+
+    testWidgets('renders mixed geometry types correctly', (
+      WidgetTester tester,
+    ) async {
+      final features = {
+        'mixed': [
+          FeatureDetail(
+            type: FeatureType.tree,
+            distance: 10.0,
+            geometry: {
+              'type': 'Point',
+              'coordinates': [8.8017, 53.0793],
+            },
+          ),
+          FeatureDetail(
+            type: FeatureType.park,
+            distance: 50.0,
+            geometry: {
+              'type': 'Polygon',
+              'coordinates': [
+                [
+                  [8.80, 53.07],
+                  [8.81, 53.07],
+                  [8.81, 53.08],
+                  [8.80, 53.08],
+                  [8.80, 53.07],
+                ],
+              ],
+            },
+          ),
+          FeatureDetail(
+            type: FeatureType.majorRoad,
+            distance: 20.0,
+            geometry: {
+              'type': 'LineString',
+              'coordinates': [
+                [8.80, 53.07],
+                [8.81, 53.08],
+              ],
+            },
+          ),
+        ],
+      };
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FlutterMap(
+            options: const MapOptions(
+              initialCenter: LatLng(53.075, 8.805),
+              initialZoom: 13.0,
+            ),
+            children: [NearbyFeatureLayers(nearbyFeatures: features)],
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      // All three layer types should be present
+      expect(find.byType(MarkerLayer), findsOneWidget);
+      expect(find.byType(PolygonLayer), findsOneWidget);
+      expect(find.byType(PolylineLayer), findsOneWidget);
+    });
   });
 
   group('NearbyFeatureLayers helper methods', () {

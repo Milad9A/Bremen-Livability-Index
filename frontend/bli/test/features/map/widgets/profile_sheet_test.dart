@@ -1,5 +1,7 @@
 import 'package:bli/core/services/api_service.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
+import 'package:bli/features/auth/bloc/auth_state.dart';
+import 'package:bli/features/auth/models/user.dart';
 import 'package:bli/features/auth/services/auth_service.dart';
 import 'package:bli/features/map/bloc/map_bloc.dart';
 import 'package:bli/features/map/widgets/profile_sheet.dart';
@@ -22,6 +24,18 @@ class MockApiService implements ApiService {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+// Testable AuthBloc that can be initialized with a specific state
+class TestableAuthBloc extends AuthBloc {
+  final AuthState _initialState;
+
+  TestableAuthBloc({required AuthService authService, AuthState? initialState})
+    : _initialState = initialState ?? const AuthState(),
+      super(authService: authService);
+
+  @override
+  AuthState get state => _initialState;
+}
+
 void main() {
   late MockAuthService mockAuthService;
   late MockApiService mockApiService;
@@ -37,8 +51,11 @@ void main() {
     mapBloc.close();
   });
 
-  Widget buildTestWidget() {
-    final authBloc = AuthBloc(authService: mockAuthService);
+  Widget buildTestWidget({AuthState? authState}) {
+    final authBloc = TestableAuthBloc(
+      authService: mockAuthService,
+      initialState: authState,
+    );
     return MaterialApp(
       home: MultiBlocProvider(
         providers: [
@@ -58,11 +75,12 @@ void main() {
       expect(find.byType(ProfileSheet), findsOneWidget);
     });
 
-    testWidgets('displays User text for unauthenticated state', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
+    testWidgets('displays User text for null user state', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: const AuthState(user: null)),
+      );
       await tester.pump();
 
-      // Profile sheet should show 'User' for null user
       expect(find.text('User'), findsOneWidget);
     });
 
@@ -72,8 +90,10 @@ void main() {
       expect(find.byType(CircleAvatar), findsOneWidget);
     });
 
-    testWidgets('shows person icon', (tester) async {
-      await tester.pumpWidget(buildTestWidget());
+    testWidgets('shows person icon for null user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: const AuthState(user: null)),
+      );
 
       expect(find.byIcon(Icons.person), findsOneWidget);
     });
@@ -81,17 +101,17 @@ void main() {
     testWidgets('has Container with BoxDecoration', (tester) async {
       await tester.pumpWidget(buildTestWidget());
 
-      // Find the Container and verify its decoration
       final container = tester.widget<Container>(find.byType(Container).first);
       expect(container.decoration, isA<BoxDecoration>());
     });
 
-    testWidgets('does not show Saved Places button for unauthenticated user', (
+    testWidgets('does not show Saved Places button for null user', (
       tester,
     ) async {
-      await tester.pumpWidget(buildTestWidget());
+      await tester.pumpWidget(
+        buildTestWidget(authState: const AuthState(user: null)),
+      );
 
-      // No user logged in, should not show Saved Places
       expect(find.text('Saved Places'), findsNothing);
     });
 
@@ -105,6 +125,146 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
 
       expect(find.byIcon(Icons.logout), findsOneWidget);
+    });
+
+    testWidgets('displays displayName for authenticated user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(
+          authState: AuthState(
+            user: const AppUser(
+              id: 'user-123',
+              displayName: 'John Doe',
+              email: 'john@example.com',
+              provider: AppAuthProvider.google,
+              isAnonymous: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('John Doe'), findsOneWidget);
+    });
+
+    testWidgets('displays email for authenticated user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(
+          authState: AuthState(
+            user: const AppUser(
+              id: 'user-123',
+              displayName: 'John Doe',
+              email: 'john@example.com',
+              provider: AppAuthProvider.google,
+              isAnonymous: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('john@example.com'), findsOneWidget);
+    });
+
+    testWidgets('displays Guest User for anonymous user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: AuthState(user: AppUser.guest())),
+      );
+      await tester.pump();
+
+      expect(find.text('Guest User'), findsOneWidget);
+    });
+
+    testWidgets('shows person_outline icon for guest user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: AuthState(user: AppUser.guest())),
+      );
+      await tester.pump();
+
+      expect(find.byIcon(Icons.person_outline), findsOneWidget);
+    });
+
+    testWidgets('shows sign-in hint for guest user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: AuthState(user: AppUser.guest())),
+      );
+      await tester.pump();
+
+      expect(
+        find.text('Sign in with an account to save your favorites'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('shows Saved Places button for authenticated user', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestWidget(
+          authState: AuthState(
+            user: const AppUser(
+              id: 'user-123',
+              provider: AppAuthProvider.google,
+              isAnonymous: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Saved Places'), findsOneWidget);
+      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+    });
+
+    testWidgets('hides Saved Places button for guest user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: AuthState(user: AppUser.guest())),
+      );
+      await tester.pump();
+
+      expect(find.text('Saved Places'), findsNothing);
+    });
+
+    testWidgets('shows Sign In with Account for guest user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: AuthState(user: AppUser.guest())),
+      );
+      await tester.pump();
+
+      expect(find.text('Sign In with Account'), findsOneWidget);
+    });
+
+    testWidgets('shows Sign Out for authenticated user', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(
+          authState: AuthState(
+            user: const AppUser(
+              id: 'user-123',
+              provider: AppAuthProvider.google,
+              isAnonymous: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Sign Out'), findsOneWidget);
+    });
+
+    testWidgets('OutlinedButton present for Saved Places', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(
+          authState: AuthState(
+            user: const AppUser(
+              id: 'user-123',
+              provider: AppAuthProvider.google,
+              isAnonymous: false,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(OutlinedButton), findsOneWidget);
     });
   });
 }
