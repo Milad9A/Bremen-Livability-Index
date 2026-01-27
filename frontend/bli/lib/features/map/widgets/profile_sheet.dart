@@ -73,16 +73,15 @@ class ProfileSheet extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () async {
-                  Navigator.pop(context);
-                  final result = await Navigator.push(
-                    context,
+                  final navigator = Navigator.of(context);
+                  final mapBloc = context.read<MapBloc>();
+                  navigator.pop();
+                  final result = await navigator.push(
                     MaterialPageRoute(builder: (_) => const FavoritesScreen()),
                   );
 
-                  if (result != null &&
-                      result is FavoriteAddress &&
-                      context.mounted) {
-                    context.read<MapBloc>().add(
+                  if (result != null && result is FavoriteAddress) {
+                    mapBloc.add(
                       MapEvent.locationSelected(
                         LatLng(result.latitude, result.longitude),
                         result.label,
