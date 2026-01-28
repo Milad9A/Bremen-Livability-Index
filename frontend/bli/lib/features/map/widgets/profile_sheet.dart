@@ -36,7 +36,7 @@ class ProfileSheet extends StatelessWidget {
           const SizedBox(height: 24),
           CircleAvatar(
             radius: 40,
-            backgroundColor: AppColors.primaryLight,
+            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
             child: Icon(
               user?.isAnonymous == true ? Icons.person_outline : Icons.person,
               size: 40,

@@ -118,7 +118,6 @@ class PreferencesScreen extends StatelessWidget {
 
           return ListView(
             children: [
-              // Info banner
               if (state.isCustomized)
                 Container(
                   margin: const EdgeInsets.all(16),
@@ -143,8 +142,6 @@ class PreferencesScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-
-              // Cloud sync indicator
               if (state.isSyncedToCloud)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -169,7 +166,6 @@ class PreferencesScreen extends StatelessWidget {
 
               const SizedBox(height: 8),
 
-              // Positive factors section
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: Text(
@@ -207,7 +203,6 @@ class PreferencesScreen extends StatelessWidget {
 
               const Divider(height: 32),
 
-              // Negative factors section
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Text(
@@ -245,12 +240,11 @@ class PreferencesScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // Legend
               Container(
                 margin: const EdgeInsets.all(16),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest,
+                  color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(

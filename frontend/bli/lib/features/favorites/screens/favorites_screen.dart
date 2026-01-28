@@ -12,14 +12,7 @@ class FavoritesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Saved Places'),
-        backgroundColor: AppColors.white,
-        foregroundColor: AppColors.black,
-        elevation: 0,
-        centerTitle: true,
-      ),
-      backgroundColor: AppColors.greyLight,
+      appBar: AppBar(title: const Text('Saved Places')),
       body: BlocBuilder<FavoritesBloc, FavoritesState>(
         builder: (context, state) {
           if (state.isLoading) {

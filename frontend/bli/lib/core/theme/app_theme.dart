@@ -91,10 +91,22 @@ class AppTextStyles {
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
-      primarySwatch: Colors.teal,
-      primaryColor: AppColors.primary,
-      scaffoldBackgroundColor: AppColors.white,
       useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        primary: AppColors.primary,
+        secondary: AppColors.primary,
+        surface: AppColors.white,
+      ),
+      scaffoldBackgroundColor: AppColors.white,
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.white,
+        surfaceTintColor: AppColors.transparent,
+        elevation: 0,
+        iconTheme: IconThemeData(color: AppColors.black),
+        titleTextStyle: AppTextStyles.heading,
+      ),
 
       iconTheme: IconThemeData(color: AppColors.primaryDark),
 
