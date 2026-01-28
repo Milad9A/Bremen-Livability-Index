@@ -605,8 +605,52 @@ Each metric captures a specific aspect of neighborhood livability:
 | **Large Parking Lots** | Surface parking lots create urban heat islands, generate traffic, and are visually unappealing. They indicate car-centric rather than pedestrian-friendly design. | Large parking facilities within 50m (binary detection) |
 | **Airports/Helipads** | Aircraft noise significantly impacts quality of life. Airports generate air pollution and constant traffic from departing/arriving passengers. | Airports, heliports, aerodromes within 600m (binary detection) |
 | **Construction Sites** | Active construction creates noise, dust, and traffic disruption. While temporary, they significantly impact short-term livability. | Active construction areas within 125m (binary detection) |
+### Dynamic Weight Preferences
 
-### Logarithmic Scaling
+The scoring system now supports personalized factor weighting, allowing users to adjust the influence of each metric on the final score.
+
+#### Preference Levels
+
+Users can assign one of four importance levels to each of the 20 factors:
+
+| Level | Multiplier | Effect |
+|-------|------------|--------|
+| **High** | 1.5x | Increases the factor's positive contribution or penalty by 50%. |
+| **Medium** | 1.0x | Standard weight (Default). |
+| **Low** | 0.5x | Decreases the factor's impact by 50%. |
+| **Excluded** | 0.0x | Completely removes the factor from the score calculation and hides it from the UI/Map. |
+
+#### Backend Implementation
+
+The `calculate_score` method in `LivabilityScorer` accepts an optional `preferences` dictionary. It iterates through the factors, applying the corresponding multiplier before aggregation.
+
+```python
+# backend/core/scoring.py
+
+MULTIPLIERS = {
+    "high": 1.5,
+    "medium": 1.0,
+    "low": 0.5,
+    "excluded": 0.0
+}
+
+def calculate_score(cls, ..., preferences: Optional[UserPreferences] = None):
+    # ...
+    # Example application
+    weight = MULTIPLIERS.get(preferences.greenery, 1.0)
+    score += (raw_greenery_score * weight)
+```
+
+#### Frontend Implementation
+
+- **Model**: `UserPreferences` class (freezed) holds the state of all 20 factors.
+- **State Management**: `PreferencesBloc` manages loading (local/cloud), updating, and resetting preferences.
+- **Persistence**:
+  - **Guest**: Saved locally via `SharedPreferences`.
+  - **Authenticated**: Synced to Firestore (`users/{uid}/preferences/factor_settings`).
+- **UI**: `PreferencesScreen` provides segmented buttons for easy adjustment, and the Map updates in real-time based on the active configuration.
+
+---
 
 For count-based factors, logarithmic scaling (`log1p`) prevents diminishing returns:
 

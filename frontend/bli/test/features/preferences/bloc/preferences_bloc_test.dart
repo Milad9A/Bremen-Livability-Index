@@ -5,35 +5,11 @@ import 'package:bli/features/preferences/bloc/preferences_state.dart';
 import 'package:bli/features/preferences/models/user_preferences.dart';
 import 'package:bli/features/preferences/services/preferences_service.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
 
-// Manual Mock for PreferencesService
-class MockPreferencesService extends Fake implements PreferencesService {
-  UserPreferences _localPrefs = UserPreferences.defaults;
-  final Map<String, UserPreferences> _cloudPrefs = {};
-
-  @override
-  Future<UserPreferences> getLocalPreferences() async {
-    return _localPrefs;
-  }
-
-  @override
-  Future<void> saveLocalPreferences(UserPreferences preferences) async {
-    _localPrefs = preferences;
-  }
-
-  @override
-  Future<UserPreferences?> getCloudPreferences(String userId) async {
-    return _cloudPrefs[userId];
-  }
-
-  @override
-  Future<void> saveCloudPreferences(
-    String userId,
-    UserPreferences preferences,
-  ) async {
-    _cloudPrefs[userId] = preferences;
-  }
-}
+@GenerateNiceMocks([MockSpec<PreferencesService>()])
+import 'preferences_bloc_test.mocks.dart';
 
 void main() {
   group('PreferencesBloc', () {
@@ -43,6 +19,14 @@ void main() {
     setUp(() {
       mockService = MockPreferencesService();
       bloc = PreferencesBloc(preferencesService: mockService);
+
+      // Default stubbing
+      when(
+        mockService.getLocalPreferences(),
+      ).thenAnswer((_) async => UserPreferences.defaults);
+      when(mockService.saveLocalPreferences(any)).thenAnswer((_) async {});
+      when(mockService.getCloudPreferences(any)).thenAnswer((_) async => null);
+      when(mockService.saveCloudPreferences(any, any)).thenAnswer((_) async {});
     });
 
     tearDown(() {
@@ -54,7 +38,7 @@ void main() {
     });
 
     blocTest<PreferencesBloc, PreferencesState>(
-      'emits loaded state on LoadPreferences',
+      'emits loaded state on LoadPreferences success',
       build: () => bloc,
       act: (bloc) => bloc.add(const LoadPreferences()),
       expect: () => [
@@ -67,7 +51,25 @@ void main() {
     );
 
     blocTest<PreferencesBloc, PreferencesState>(
-      'emits updated state on UpdateFactor',
+      'emits error state on LoadPreferences failure',
+      build: () {
+        when(
+          mockService.getLocalPreferences(),
+        ).thenThrow(Exception('Load failed'));
+        return bloc;
+      },
+      act: (bloc) => bloc.add(const LoadPreferences()),
+      expect: () => [
+        const PreferencesState(isLoading: true),
+        const PreferencesState(
+          isLoading: false,
+          error: 'Failed to load preferences',
+        ),
+      ],
+    );
+
+    blocTest<PreferencesBloc, PreferencesState>(
+      'emits updated state on UpdateFactor and saves locally',
       build: () => bloc,
       seed: () => const PreferencesState(preferences: UserPreferences.defaults),
       act: (bloc) => bloc.add(
@@ -81,30 +83,122 @@ void main() {
         ),
       ],
       verify: (_) {
-        // Verify it was saved locally (implied by MockService storing it,
-        // but strictly we'd verify the call if we used Mockito.
-        // With manual fake we trust the fake's state if we checked it,
-        // but here we just check bloc state emission).
+        verify(
+          mockService.saveLocalPreferences(
+            argThat(
+              predicate<UserPreferences>(
+                (p) => p.greenery == ImportanceLevel.high,
+              ),
+            ),
+          ),
+        ).called(1);
       },
     );
 
     blocTest<PreferencesBloc, PreferencesState>(
-      'emits default state on ResetToDefaults',
+      'UpdateFactor also syncs to cloud if user is authenticated',
       build: () => bloc,
-      seed: () => PreferencesState(
-        preferences: const UserPreferences(greenery: ImportanceLevel.high),
+      seed: () => const PreferencesState(
+        preferences: UserPreferences.defaults,
+        syncedUserId: 'user-123',
+      ),
+      act: (bloc) => bloc.add(
+        const UpdateFactor(factorKey: 'greenery', level: ImportanceLevel.high),
+      ),
+      verify: (_) {
+        verify(
+          mockService.saveCloudPreferences(
+            'user-123',
+            argThat(
+              predicate<UserPreferences>(
+                (p) => p.greenery == ImportanceLevel.high,
+              ),
+            ),
+          ),
+        ).called(1);
+      },
+    );
+
+    blocTest<PreferencesBloc, PreferencesState>(
+      'emits default state on ResetToDefaults and syncs if auth',
+      build: () => bloc,
+      seed: () => const PreferencesState(
+        preferences: UserPreferences(greenery: ImportanceLevel.high),
+        syncedUserId: 'user-123',
       ),
       act: (bloc) => bloc.add(const ResetToDefaults()),
       expect: () => [
-        const PreferencesState(preferences: UserPreferences.defaults),
+        const PreferencesState(
+          preferences: UserPreferences.defaults,
+          syncedUserId: 'user-123',
+        ),
+        const PreferencesState(
+          preferences: UserPreferences.defaults,
+          syncedUserId: 'user-123',
+          isSyncing: true,
+        ),
+        const PreferencesState(
+          preferences: UserPreferences.defaults,
+          syncedUserId: 'user-123',
+          isSyncing: false,
+        ),
+      ],
+      verify: (_) {
+        verify(
+          mockService.saveLocalPreferences(UserPreferences.defaults),
+        ).called(1);
+        verify(
+          mockService.saveCloudPreferences(
+            'user-123',
+            UserPreferences.defaults,
+          ),
+        ).called(1);
+      },
+    );
+
+    blocTest<PreferencesBloc, PreferencesState>(
+      'handles UserAuthenticated by loading cloud prefs',
+      build: () {
+        when(mockService.getCloudPreferences('user-123')).thenAnswer(
+          (_) async => const UserPreferences(greenery: ImportanceLevel.low),
+        );
+        return bloc;
+      },
+      act: (bloc) => bloc.add(const UserAuthenticated(userId: 'user-123')),
+      expect: () => [
+        const PreferencesState(syncedUserId: 'user-123'),
+        const PreferencesState(
+          syncedUserId: 'user-123',
+          preferences: UserPreferences(greenery: ImportanceLevel.low),
+        ),
       ],
     );
 
     blocTest<PreferencesBloc, PreferencesState>(
-      'handles UserAuthenticated by syncing cloud prefs (mocked empty cloud)',
+      'handles UserAuthenticated with no cloud prefs (uploads local)',
       build: () => bloc,
-      act: (bloc) => bloc.add(const UserAuthenticated(userId: 'test-user')),
-      expect: () => [const PreferencesState(syncedUserId: 'test-user')],
+      seed: () => const PreferencesState(
+        preferences: UserPreferences(greenery: ImportanceLevel.high),
+      ),
+      act: (bloc) => bloc.add(const UserAuthenticated(userId: 'user-123')),
+      expect: () => [
+        const PreferencesState(
+          preferences: UserPreferences(greenery: ImportanceLevel.high),
+          syncedUserId: 'user-123',
+        ),
+      ],
+      verify: (_) {
+        verify(
+          mockService.saveCloudPreferences(
+            'user-123',
+            argThat(
+              predicate<UserPreferences>(
+                (p) => p.greenery == ImportanceLevel.high,
+              ),
+            ),
+          ),
+        ).called(1);
+      },
     );
 
     blocTest<PreferencesBloc, PreferencesState>(
@@ -113,9 +207,37 @@ void main() {
       seed: () => const PreferencesState(syncedUserId: 'test-user'),
       act: (bloc) => bloc.add(const UserLoggedOut()),
       expect: () => [const PreferencesState(syncedUserId: null)],
-      verify: (bloc) {
-        expect(bloc.state.syncedUserId, isNull);
+    );
+
+    blocTest<PreferencesBloc, PreferencesState>(
+      'SyncToCloud emits syncing state and success',
+      build: () => bloc,
+      seed: () => const PreferencesState(syncedUserId: 'user-123'),
+      act: (bloc) => bloc.add(const SyncToCloud(userId: 'user-123')),
+      expect: () => [
+        const PreferencesState(syncedUserId: 'user-123', isSyncing: true),
+        const PreferencesState(syncedUserId: 'user-123', isSyncing: false),
+      ],
+    );
+
+    blocTest<PreferencesBloc, PreferencesState>(
+      'SyncToCloud emits error on failure',
+      build: () {
+        when(
+          mockService.saveCloudPreferences(any, any),
+        ).thenThrow(Exception('Sync failed'));
+        return bloc;
       },
+      seed: () => const PreferencesState(syncedUserId: 'user-123'),
+      act: (bloc) => bloc.add(const SyncToCloud(userId: 'user-123')),
+      expect: () => [
+        const PreferencesState(syncedUserId: 'user-123', isSyncing: true),
+        const PreferencesState(
+          syncedUserId: 'user-123',
+          isSyncing: false,
+          error: 'Failed to sync preferences',
+        ),
+      ],
     );
   });
 }
