@@ -621,6 +621,216 @@ tree_score = min(9.0, math.log1p(tree_count) * 2.0)
 | 20-39 | Below average |
 | 0-19 | Poor livability |
 
+### Backend Implementation Details
+
+The scoring algorithm is implemented in `backend/core/scoring.py` through the `LivabilityScorer` class, which is invoked by the `/analyze` endpoint in `backend/app/main.py`.
+
+#### LivabilityScorer Class Architecture
+
+```python
+class LivabilityScorer:
+    """Calculate livability score based on spatial factors."""
+    
+    # Constants define weights and radii
+    WEIGHT_GREENERY = 14.0      # Max contribution
+    PENALTY_INDUSTRIAL = 10.0   # Max penalty
+    GREENERY_RADIUS = 175       # Search radius in meters
+    BASE_SCORE = 40.0           # Starting point
+    
+    # Static methods for each factor calculation
+    @staticmethod
+    def calculate_greenery_score(tree_count: int, park_count: int) -> float: ...
+    
+    @staticmethod
+    def calculate_industrial_penalty(in_industrial_area: bool) -> float: ...
+    
+    # Main scoring method
+    @classmethod
+    def calculate_score(cls, ...) -> Dict: ...
+```
+
+The class uses:
+- **Class-level constants**: All weights (e.g., `WEIGHT_GREENERY = 14.0`) and search radii (e.g., `GREENERY_RADIUS = 175`) are defined as class attributes. The `/analyze` endpoint imports these constants to ensure spatial queries use the same radii as the scoring documentation.
+- **Static methods**: Each factor has a dedicated calculation method (e.g., `calculate_greenery_score()`, `calculate_accident_penalty()`)
+- **Type safety**: Method signatures specify exact parameter types and return `float` values
+
+#### API Integration Flow
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    /analyze Endpoint Request Flow                        │
+└─────────────────────────────────────────────────────────────────────────┘
+
+1. POST /analyze  ─────────────────────────────────────────────────────────►
+   { "latitude": 53.0793, "longitude": 8.8017 }
+
+2. Create PostGIS Point ───────────────────────────────────────────────────►
+   point = cast(ST_SetSRID(ST_MakePoint(lon, lat), 4326), Geography)
+
+3. Execute 21 Spatial Queries (parallel where possible) ──────────────────►
+   ┌──────────────────────────────────────────────────────────────────┐
+   │  For each feature type:                                          │
+   │  SELECT id, name, ST_AsGeoJSON(geometry), ST_Distance(geom, pt) │
+   │  FROM gis_data.<table>                                           │
+   │  WHERE ST_DWithin(geometry, point, <radius>)                     │
+   │  ORDER BY dist                                                   │
+   └──────────────────────────────────────────────────────────────────┘
+
+4. Aggregate Feature Counts ───────────────────────────────────────────────►
+   tree_count=45, park_count=2, near_industrial=False, ...
+
+5. Call LivabilityScorer.calculate_score() ────────────────────────────────►
+   Returns: { score: 72.5, base_score: 40.0, factors: [...], summary: "..." }
+
+6. Build Response with Nearby Features ────────────────────────────────────►
+   LivabilityScoreResponse(score=72.5, nearby_features={trees: [...], ...})
+```
+
+#### Spatial Query Execution
+
+The `/analyze` endpoint uses the `fetch_nearby_features()` helper function to execute spatial queries. Critically, **the search radii are imported from `LivabilityScorer` constants** to ensure consistency between queries and scoring documentation:
+
+```python
+from core.scoring import LivabilityScorer
+
+# Example: Trees use the GREENERY_RADIUS constant (175m)
+trees = fetch_nearby_features(
+    session, Tree, point, 
+    LivabilityScorer.GREENERY_RADIUS,  # Single source of truth
+    "tree"
+)
+
+# Example: Amenities use AMENITIES_RADIUS (550m)
+amenities = fetch_nearby_features(
+    session, Amenity, point,
+    LivabilityScorer.AMENITIES_RADIUS,
+    "amenity",
+    type_field="amenity_type"
+)
+```
+
+The `fetch_nearby_features()` helper function executes spatial queries using GeoAlchemy2:
+
+```python
+def fetch_nearby_features(
+    session: Session,
+    model,              # ORM model (e.g., Tree, Park)
+    point,              # PostGIS geography point
+    radius: float,      # Search distance in meters (from LivabilityScorer)
+    feature_type: str,  # Type label for response
+    type_field: str = None,   # Optional subtype column
+    name_field: str = "name"
+) -> List[FeatureDetail]:
+    """Execute spatial query and return feature details."""
+    
+    statement = (
+        select(
+            model.id,
+            getattr(model, name_field).label("name"),
+            ST_AsGeoJSON(model.geometry).label("geojson"),
+            ST_Distance(model.geometry, point).label("dist")
+        )
+        .where(ST_DWithin(model.geometry, point, radius))
+        .order_by("dist")
+    )
+    
+    results = session.exec(statement).all()
+    # Convert to FeatureDetail objects with distance
+    return [FeatureDetail(...) for row in results]
+```
+
+> **Single Source of Truth**: All 21 spatial queries in `main.py` use `LivabilityScorer.*_RADIUS` constants. This ensures the query radii always match the factor documentation and descriptions shown in the API response.
+
+**Key PostGIS Functions Used**:
+- `ST_DWithin(geom1, geom2, distance)`: Returns true if geometries are within specified distance (meters for Geography type)
+- `ST_Distance(geom1, geom2)`: Returns distance in meters between two geographies
+- `ST_AsGeoJSON(geom)`: Converts geometry to GeoJSON for frontend display
+- `ST_MakePoint(lon, lat)` + `ST_SetSRID(..., 4326)`: Creates a WGS84 point from coordinates
+
+#### Factor Calculation Pipeline
+
+Each factor follows a consistent calculation pattern:
+
+**Count-Based Positive Factors** (with logarithmic scaling):
+```python
+@staticmethod
+def calculate_amenities_score(amenity_count: int) -> float:
+    """Calculate amenities score (0-10)."""
+    if amenity_count == 0:
+        return 0.0
+    return min(10.0, math.log1p(amenity_count) * 2.8)
+```
+
+**Binary Negative Factors** (presence/absence):
+```python
+@staticmethod
+def calculate_industrial_penalty(in_industrial_area: bool) -> float:
+    """Calculate industrial area penalty (0-10)."""
+    return 10.0 if in_industrial_area else 0.0
+```
+
+**Composite Factors** (combining multiple data sources):
+```python
+@staticmethod
+def calculate_greenery_score(tree_count: int, park_count: int) -> float:
+    """Calculate greenery score (0-14)."""
+    tree_score = min(9.0, math.log1p(tree_count) * 2.0)
+    park_score = min(5.0, park_count * 2.5)
+    return tree_score + park_score
+```
+
+#### Score Aggregation and Clamping
+
+The final score is computed in `calculate_score()`:
+
+```python
+# Sum all positive factor contributions
+positive = (greenery + amenities + transport + healthcare + 
+            bike_infra + education + sports + pedestrian + cultural)
+
+# Sum all negative factor penalties
+negative = (accident_penalty + industrial_penalty + roads_penalty + 
+            noise_penalty + railway_penalty + gas_station_penalty + 
+            waste_penalty + power_penalty + parking_penalty + 
+            airport_penalty + construction_penalty)
+
+# Apply formula with clamping to [0, 100]
+final_score = max(0.0, min(100.0, cls.BASE_SCORE + positive - negative))
+```
+
+#### Response Generation
+
+The scoring method generates three key outputs:
+
+1. **factors** (`List[FactorBreakdown]`): Detailed breakdown for each contributing factor
+   ```python
+   FactorBreakdown(
+       factor="Greenery",
+       value=10.2,                              # Contribution amount
+       description="45 trees, 2 parks within 175m",
+       impact="positive"                        # or "negative"
+   )
+   ```
+
+2. **summary** (`str`): Human-readable summary based on thresholds
+   ```python
+   summary_parts = []
+   if greenery >= 10:
+       summary_parts.append("Great greenery")
+   if near_industrial:
+       summary_parts.append("Industrial area nearby")
+   summary = ". ".join(summary_parts) if summary_parts else "Average livability"
+   ```
+
+3. **nearby_features** (`Dict`): GeoJSON features for map display (added by `main.py`)
+   ```python
+   nearby_features = {
+       "trees": [FeatureDetail(...), ...],
+       "parks": [FeatureDetail(...), ...],
+       ...
+   }
+   ```
+
 ---
 
 ## Frontend Implementation
