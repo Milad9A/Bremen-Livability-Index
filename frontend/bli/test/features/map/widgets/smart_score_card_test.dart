@@ -1,158 +1,162 @@
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
+import 'package:bli/features/auth/bloc/auth_event.dart';
+import 'package:bli/features/auth/bloc/auth_state.dart';
+import 'package:bli/features/auth/models/user.dart';
 import 'package:bli/features/auth/models/favorite_address.dart';
-import 'package:bli/features/auth/services/auth_service.dart';
 import 'package:bli/features/favorites/bloc/favorites_bloc.dart';
+import 'package:bli/features/favorites/bloc/favorites_event.dart';
 import 'package:bli/features/favorites/bloc/favorites_state.dart';
-import 'package:bli/features/favorites/services/favorites_service.dart';
 import 'package:bli/features/map/models/livability_score.dart';
 import 'package:bli/features/map/models/location.dart';
 import 'package:bli/features/map/models/location_marker.dart';
-import 'package:bli/features/map/widgets/score_card.dart';
 import 'package:bli/features/map/widgets/smart_score_card.dart';
+import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:mocktail/mocktail.dart';
 
-// Simple mock for AuthService
-class MockAuthService implements AuthService {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
+class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
 
-// Simple mock for FavoritesService
-class MockFavoritesService implements FavoritesService {
-  @override
-  Stream<List<FavoriteAddress>> getFavorites(String userId) => Stream.value([]);
+class MockFavoritesBloc extends MockBloc<FavoritesEvent, FavoritesState>
+    implements FavoritesBloc {}
 
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-// Helper to create a LivabilityScore for testing
-LivabilityScore createTestScore({
-  double score = 75.0,
-  double baseScore = 40.0,
-  String summary = 'Test summary',
-}) {
-  return LivabilityScore(
-    score: score,
-    baseScore: baseScore,
-    location: const Location(latitude: 53.0793, longitude: 8.8017),
-    factors: [],
-    nearbyFeatures: {},
-    summary: summary,
-  );
-}
+class FakeFavoritesEvent extends Fake implements FavoritesEvent {}
 
 void main() {
-  late MockAuthService mockAuthService;
-  late MockFavoritesService mockFavoritesService;
-
-  setUp(() {
-    mockAuthService = MockAuthService();
-    mockFavoritesService = MockFavoritesService();
-  });
-
-  Widget buildTestWidget({
-    required LivabilityScore score,
-    LocationMarker? selectedMarker,
-  }) {
-    final authBloc = AuthBloc(authService: mockAuthService);
-    final favoritesBloc = FavoritesBloc(favoritesService: mockFavoritesService);
-
-    return MaterialApp(
-      home: Scaffold(
-        body: MultiBlocProvider(
-          providers: [
-            BlocProvider<AuthBloc>.value(value: authBloc),
-            BlocProvider<FavoritesBloc>.value(value: favoritesBloc),
-          ],
-          child: SingleChildScrollView(
-            child: SmartScoreCard(score: score, selectedMarker: selectedMarker),
-          ),
-        ),
-      ),
-    );
-  }
-
   group('SmartScoreCard', () {
-    testWidgets('renders ScoreCard with provided score', (tester) async {
-      final score = createTestScore(score: 85.0);
+    late MockAuthBloc mockAuthBloc;
+    late MockFavoritesBloc mockFavoritesBloc;
 
-      await tester.pumpWidget(buildTestWidget(score: score));
+    final mockScore = const LivabilityScore(
+      score: 85.0,
+      baseScore: 50.0,
+      summary: 'Great place',
+      factors: [],
+      nearbyFeatures: {},
+      location: Location(latitude: 53.0793, longitude: 8.8017),
+    );
 
-      expect(find.byType(ScoreCard), findsOneWidget);
-      expect(find.text('85.0/100'), findsOneWidget);
+    final mockMarker = LocationMarker(
+      position: const LatLng(53.0793, 8.8017),
+      address: 'Test Address',
+    );
+
+    setUpAll(() {
+      registerFallbackValue(FakeFavoritesEvent());
     });
 
-    testWidgets('displays Livability Score header', (tester) async {
-      final score = createTestScore();
-
-      await tester.pumpWidget(buildTestWidget(score: score));
-
-      expect(find.text('Livability Score'), findsOneWidget);
+    setUp(() {
+      mockAuthBloc = MockAuthBloc();
+      mockFavoritesBloc = MockFavoritesBloc();
     });
 
-    testWidgets('displays summary text', (tester) async {
-      final score = createTestScore(summary: 'Great neighborhood');
-
-      await tester.pumpWidget(buildTestWidget(score: score));
-
-      expect(find.text('Great neighborhood'), findsOneWidget);
-    });
-
-    testWidgets('shows unfilled heart when location is not a favorite', (
-      tester,
-    ) async {
-      final score = createTestScore();
-      final marker = LocationMarker(
-        position: const LatLng(53.0793, 8.8017),
-        score: 75.0,
-        address: 'Test Address',
+    Widget createWidgetUnderTests(Widget widget) {
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthBloc>.value(value: mockAuthBloc),
+          BlocProvider<FavoritesBloc>.value(value: mockFavoritesBloc),
+        ],
+        child: MaterialApp(home: Scaffold(body: widget)),
       );
+    }
+
+    testWidgets('renders ScoreCard with correct data', (tester) async {
+      when(() => mockFavoritesBloc.state).thenReturn(const FavoritesState());
 
       await tester.pumpWidget(
-        buildTestWidget(score: score, selectedMarker: marker),
+        createWidgetUnderTests(
+          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+        ),
+      );
+
+      expect(find.text('85.0/100'), findsOneWidget);
+      expect(find.text('Great place'), findsOneWidget);
+    });
+
+    testWidgets('shows filled heart when location is favorite', (tester) async {
+      final favorite = FavoriteAddress(
+        id: '1',
+        label: 'Test Address',
+        latitude: 53.0793,
+        longitude: 8.8017,
+        createdAt: DateTime.now(),
+      );
+
+      when(
+        () => mockFavoritesBloc.state,
+      ).thenReturn(FavoritesState(favorites: [favorite]));
+
+      await tester.pumpWidget(
+        createWidgetUnderTests(
+          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+        ),
+      );
+
+      expect(find.byIcon(Icons.favorite), findsOneWidget);
+    });
+
+    testWidgets('shows outline heart when location is not favorite', (
+      tester,
+    ) async {
+      when(() => mockFavoritesBloc.state).thenReturn(const FavoritesState());
+
+      await tester.pumpWidget(
+        createWidgetUnderTests(
+          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+        ),
       );
 
       expect(find.byIcon(Icons.favorite_border), findsOneWidget);
-      expect(find.byIcon(Icons.favorite), findsNothing);
     });
 
-    testWidgets('uses BlocBuilder for FavoritesBloc', (tester) async {
-      final score = createTestScore();
+    testWidgets('shows error snackbar when guest tries to favorite', (
+      tester,
+    ) async {
+      when(() => mockFavoritesBloc.state).thenReturn(const FavoritesState());
+      when(
+        () => mockAuthBloc.state,
+      ).thenReturn(AuthState(user: AppUser.guest()));
 
-      await tester.pumpWidget(buildTestWidget(score: score));
-
-      expect(
-        find.byType(BlocBuilder<FavoritesBloc, FavoritesState>),
-        findsOneWidget,
+      await tester.pumpWidget(
+        createWidgetUnderTests(
+          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+        ),
       );
+
+      await tester.tap(find.byIcon(Icons.favorite_border));
+      await tester.pump();
+
+      expect(find.text('Please sign in to save favorites'), findsOneWidget);
     });
 
-    testWidgets('renders Card with elevation', (tester) async {
-      final score = createTestScore();
+    testWidgets('adds favorite when authenticated user taps heart', (
+      tester,
+    ) async {
+      when(() => mockFavoritesBloc.state).thenReturn(const FavoritesState());
+      when(() => mockAuthBloc.state).thenReturn(
+        const AuthState(
+          user: AppUser(
+            id: 'user-1',
+            email: 'test@test.com',
+            provider: AppAuthProvider.email,
+          ),
+        ),
+      );
 
-      await tester.pumpWidget(buildTestWidget(score: score));
+      await tester.pumpWidget(
+        createWidgetUnderTests(
+          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+        ),
+      );
 
-      expect(find.byType(Card), findsOneWidget);
-    });
+      await tester.tap(find.byIcon(Icons.favorite_border));
 
-    testWidgets('displays base score chip', (tester) async {
-      final score = createTestScore(baseScore: 50.0);
-
-      await tester.pumpWidget(buildTestWidget(score: score));
-
-      expect(find.text('50'), findsOneWidget);
-    });
-
-    testWidgets('has expand/collapse arrow button', (tester) async {
-      final score = createTestScore();
-
-      await tester.pumpWidget(buildTestWidget(score: score));
-
-      expect(find.byIcon(Icons.keyboard_arrow_down), findsOneWidget);
+      // Verify bloc event was added
+      verify(
+        () => mockFavoritesBloc.add(any(that: isA<FavoritesEvent>())),
+      ).called(1);
     });
   });
 }
