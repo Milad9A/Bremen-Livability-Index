@@ -21,15 +21,15 @@ void main() {
         );
         expect(
           FeatureStyles.getFactorColor(MetricCategory.industrialArea),
-          AppColors.greyMedium,
+          AppColors.featureIndustrial,
         );
         expect(
           FeatureStyles.getFactorColor(MetricCategory.majorRoad),
-          AppColors.black.withValues(alpha: 0.54),
+          AppColors.featureRoad,
         );
         expect(
           FeatureStyles.getFactorColor(MetricCategory.unknown),
-          AppColors.greyLight,
+          AppColors.featureUnknown,
         );
       });
     });
@@ -67,15 +67,21 @@ void main() {
       });
 
       test('verifies specific color mappings', () {
-        expect(FeatureStyles.getFeatureColor(FeatureType.park), Colors.green);
-        expect(FeatureStyles.getFeatureColor(FeatureType.tree), Colors.green);
+        expect(
+          FeatureStyles.getFeatureColor(FeatureType.park),
+          AppColors.featureGreenery,
+        );
+        expect(
+          FeatureStyles.getFeatureColor(FeatureType.tree),
+          AppColors.featureGreenery,
+        );
         expect(
           FeatureStyles.getFeatureColor(FeatureType.majorRoad).toARGB32(),
-          AppColors.black.withValues(alpha: 0.54).toARGB32(),
+          AppColors.featureRoad.toARGB32(),
         );
         expect(
           FeatureStyles.getFeatureColor(FeatureType.unknown),
-          AppColors.greyMedium,
+          AppColors.featureUnknown,
         );
       });
     });
