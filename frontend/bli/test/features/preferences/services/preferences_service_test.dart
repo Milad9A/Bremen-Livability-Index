@@ -132,7 +132,7 @@ void main() {
 
       test('saveCloudPreferences writes to firestore', () async {
         when(mockSettingsDoc.set(any)).thenAnswer((_) async {
-          return null;
+          return;
         });
 
         final prefs = const UserPreferences(greenery: ImportanceLevel.high);
@@ -161,7 +161,7 @@ void main() {
 
       test('deleteCloudPreferences deletes document', () async {
         when(mockSettingsDoc.delete()).thenAnswer((_) async {
-          return null;
+          return;
         });
 
         await service.deleteCloudPreferences('test-user');
