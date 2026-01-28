@@ -239,5 +239,65 @@ void main() {
         ),
       ],
     );
+
+    // Exhaustive test for UpdateFactor (covers all switch cases)
+    final allFactorKeys = [
+      'greenery',
+      'amenities',
+      'public_transport',
+      'healthcare',
+      'bike_infrastructure',
+      'education',
+      'sports_leisure',
+      'pedestrian_infrastructure',
+      'cultural',
+      'accidents',
+      'industrial',
+      'major_roads',
+      'noise',
+      'railway',
+      'gas_station',
+      'waste',
+      'power',
+      'parking',
+      'airport',
+      'construction',
+    ];
+
+    for (final key in allFactorKeys) {
+      blocTest<PreferencesBloc, PreferencesState>(
+        'UpdateFactor updates $key correctly',
+        build: () => bloc,
+        seed: () =>
+            const PreferencesState(preferences: UserPreferences.defaults),
+        act: (bloc) =>
+            bloc.add(UpdateFactor(factorKey: key, level: ImportanceLevel.high)),
+        expect: () => [
+          isA<PreferencesState>().having(
+            (s) {
+              final json = s.preferences.toJson();
+              return json[key];
+            },
+            '$key should be high',
+            'high', // enum.toJson() returns 'high'
+          ),
+        ],
+      );
+    }
+
+    blocTest<PreferencesBloc, PreferencesState>(
+      'handles UserAuthenticated error (swallows exception)',
+      build: () {
+        when(
+          mockService.getCloudPreferences('user-123'),
+        ).thenThrow(Exception('Auth Sync Failed'));
+        return bloc;
+      },
+      act: (bloc) => bloc.add(const UserAuthenticated(userId: 'user-123')),
+      expect: () => [
+        const PreferencesState(syncedUserId: 'user-123'),
+        // No error emission expected for auth sync failure, just swallowed
+      ],
+    );
   });
 }
