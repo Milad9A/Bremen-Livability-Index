@@ -20,6 +20,9 @@ class MapBloc extends Bloc<MapEvent, MapState> {
   /// Callback for showing messages (e.g., SnackBar).
   void Function(String message)? onShowMessage;
 
+  /// Callback to retrieve current user preferences for API calls.
+  Map<String, String> Function()? getPreferences;
+
   // Bremen center coordinates
   static const LatLng bremenCenter = LatLng(53.0793, 8.8017);
 
@@ -102,9 +105,11 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     _startSlowLoadingTimer();
 
     try {
+      final preferences = getPreferences?.call();
       final score = await _apiService.analyzeLocation(
         event.position.latitude,
         event.position.longitude,
+        preferences: preferences,
       );
       add(AnalysisSucceeded(score, event.position));
     } catch (e) {
@@ -156,9 +161,11 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     _startSlowLoadingTimer();
 
     try {
+      final preferences = getPreferences?.call();
       final score = await _apiService.analyzeLocation(
         event.location.latitude,
         event.location.longitude,
+        preferences: preferences,
       );
       add(AnalysisSucceeded(score, event.location));
     } catch (e) {

@@ -3,6 +3,9 @@ import 'package:bli/features/map/models/models.dart';
 import 'package:bli/core/services/api_service.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/services/auth_service.dart';
+import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
+import 'package:bli/features/preferences/models/user_preferences.dart';
+import 'package:bli/features/preferences/services/preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bli/features/map/screens/map_screen.dart';
@@ -29,7 +32,11 @@ class MockApiService implements ApiService {
   Future<bool> checkHealth() async => true;
 
   @override
-  Future<LivabilityScore> analyzeLocation(double lat, double lon) async {
+  Future<LivabilityScore> analyzeLocation(
+    double lat,
+    double lon, {
+    Map<String, String>? preferences,
+  }) async {
     // Wait for manual completion if completer is set
     if (analyzeCompleter != null) {
       await analyzeCompleter!.future;
@@ -56,12 +63,36 @@ class MockApiService implements ApiService {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
+class MockPreferencesService implements PreferencesService {
+  @override
+  Future<UserPreferences> getLocalPreferences() async =>
+      UserPreferences.defaults;
+
+  @override
+  Future<void> saveLocalPreferences(UserPreferences preferences) async {}
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 class TestHttpOverrides extends HttpOverrides {}
 
-Widget _buildTestWidget(MapBloc bloc, MockAuthService mockAuthService) {
+Widget _buildTestWidget(
+  MapBloc bloc,
+  MockAuthService mockAuthService,
+  MockPreferencesService mockPreferencesService,
+) {
   return MaterialApp(
-    home: BlocProvider<AuthBloc>(
-      create: (_) => AuthBloc(authService: mockAuthService),
+    home: MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (_) => AuthBloc(authService: mockAuthService),
+        ),
+        BlocProvider<PreferencesBloc>(
+          create: (_) =>
+              PreferencesBloc(preferencesService: mockPreferencesService),
+        ),
+      ],
       child: MapScreen(bloc: bloc),
     ),
   );
@@ -71,6 +102,7 @@ void main() {
   late MapBloc bloc;
   late MockApiService mockApiService;
   late MockAuthService mockAuthService;
+  late MockPreferencesService mockPreferencesService;
 
   setUpAll(() {
     HttpOverrides.global = TestHttpOverrides();
@@ -79,6 +111,7 @@ void main() {
   setUp(() {
     mockApiService = MockApiService();
     mockAuthService = MockAuthService();
+    mockPreferencesService = MockPreferencesService();
     bloc = MapBloc(apiService: mockApiService);
   });
 
@@ -88,7 +121,9 @@ void main() {
 
   group('MapScreen', () {
     testWidgets('renders FlutterMap', (WidgetTester tester) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       expect(find.byType(FlutterMap), findsOneWidget);
     });
@@ -96,13 +131,17 @@ void main() {
     testWidgets('renders floating search bar initially', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       expect(find.byType(FloatingSearchBar), findsOneWidget);
     });
 
     testWidgets('renders location reset button', (WidgetTester tester) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       expect(find.byIcon(Icons.my_location), findsOneWidget);
     });
@@ -110,7 +149,9 @@ void main() {
     testWidgets('does not show score card initially', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       expect(find.text('Livability Score'), findsNothing);
     });
@@ -118,7 +159,9 @@ void main() {
     testWidgets('shows score card when score is loaded', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       expect(find.byType(Scaffold), findsOneWidget);
       expect(find.byType(FlutterMap), findsOneWidget);
@@ -130,7 +173,9 @@ void main() {
       const errorMessage = 'Failed to load data';
       bloc.add(const MapEvent.analysisFailed(errorMessage));
 
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
       await tester.pump();
 
       expect(find.text(errorMessage), findsOneWidget);
@@ -140,7 +185,9 @@ void main() {
     testWidgets('shows snackbar when bloc triggers onShowMessage', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       const message = 'Test Message';
       // Trigger the callback
@@ -154,14 +201,18 @@ void main() {
     testWidgets('shows nearby features on map when score has features', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       expect(find.byType(Scaffold), findsOneWidget);
       expect(find.byType(FlutterMap), findsOneWidget);
     }, skip: true);
 
     testWidgets('tapping reset button resets map', (WidgetTester tester) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       // Find and tap the reset button
       await tester.tap(find.byIcon(Icons.my_location));
@@ -176,14 +227,18 @@ void main() {
     testWidgets('MapScreen creates its own MapBloc', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       // The widget tree should contain a BlocProvider
       expect(find.byType(BlocProvider<MapBloc>), findsOneWidget);
     });
 
     testWidgets('MapScreen renders Scaffold', (WidgetTester tester) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       expect(find.byType(Scaffold), findsOneWidget);
     });
@@ -191,7 +246,9 @@ void main() {
     testWidgets('MapScreen uses Stack for layering', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(_buildTestWidget(bloc, mockAuthService));
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
 
       expect(find.byType(Stack), findsWidgets);
     });

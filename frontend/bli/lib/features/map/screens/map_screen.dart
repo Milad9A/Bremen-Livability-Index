@@ -11,6 +11,9 @@ import 'package:bli/core/widgets/message_snack_bar.dart';
 import 'package:bli/features/map/widgets/nearby_feature_layers.dart';
 import 'package:bli/features/map/widgets/score_card.dart';
 import 'package:bli/features/map/widgets/map_control_buttons.dart';
+import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
+import 'package:bli/features/preferences/bloc/preferences_state.dart';
+import 'package:bli/features/preferences/screens/preferences_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -50,6 +53,11 @@ class _MapScreenContentState extends State<_MapScreenContent> {
         if (mounted) {
           ScaffoldMessenger.of(context).showMessageSnackBar(message);
         }
+      };
+      // Wire up preferences retrieval for API calls
+      bloc.getPreferences = () {
+        final prefsState = context.read<PreferencesBloc>().state;
+        return prefsState.preferences.toJson();
       };
     });
   }
@@ -173,9 +181,26 @@ class _MapScreenContentState extends State<_MapScreenContent> {
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 10,
                   right: 16,
-                  child: MapControlButtons(
-                    onProfileTap: () => _showProfileSheet(),
-                    onResetTap: () => bloc.add(const MapEvent.mapReset()),
+                  child: BlocBuilder<PreferencesBloc, PreferencesState>(
+                    buildWhen: (prev, curr) =>
+                        prev.isCustomized != curr.isCustomized,
+                    builder: (context, prefsState) {
+                      return MapControlButtons(
+                        onProfileTap: () => _showProfileSheet(),
+                        onResetTap: () => bloc.add(const MapEvent.mapReset()),
+                        onSettingsTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => BlocProvider.value(
+                                value: context.read<PreferencesBloc>(),
+                                child: const PreferencesScreen(),
+                              ),
+                            ),
+                          );
+                        },
+                        hasCustomPrefs: prefsState.isCustomized,
+                      );
+                    },
                   ),
                 ),
 

@@ -36,20 +36,33 @@ class MockApiService extends _i1.Mock implements _i3.ApiService {
   @override
   _i4.Future<_i2.LivabilityScore> analyzeLocation(
     double? latitude,
-    double? longitude,
-  ) =>
+    double? longitude, {
+    Map<String, String>? preferences,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#analyzeLocation, [latitude, longitude]),
+            Invocation.method(
+              #analyzeLocation,
+              [latitude, longitude],
+              {#preferences: preferences},
+            ),
             returnValue: _i4.Future<_i2.LivabilityScore>.value(
               _FakeLivabilityScore_0(
                 this,
-                Invocation.method(#analyzeLocation, [latitude, longitude]),
+                Invocation.method(
+                  #analyzeLocation,
+                  [latitude, longitude],
+                  {#preferences: preferences},
+                ),
               ),
             ),
             returnValueForMissingStub: _i4.Future<_i2.LivabilityScore>.value(
               _FakeLivabilityScore_0(
                 this,
-                Invocation.method(#analyzeLocation, [latitude, longitude]),
+                Invocation.method(
+                  #analyzeLocation,
+                  [latitude, longitude],
+                  {#preferences: preferences},
+                ),
               ),
             ),
           )

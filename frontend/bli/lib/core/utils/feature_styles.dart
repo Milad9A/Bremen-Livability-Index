@@ -4,50 +4,51 @@ import 'package:flutter/material.dart';
 
 class FeatureStyles {
   // Color mapping for Factors (MetricCategory)
+  // Color mapping for Factors (MetricCategory)
   static Color getFactorColor(MetricCategory category) {
     switch (category) {
       case MetricCategory.greenery:
-        return Colors.green;
+        return AppColors.featureGreenery;
       case MetricCategory.amenities:
-        return Colors.blue;
+        return AppColors.featureAmenities;
       case MetricCategory.publicTransport:
-        return Colors.indigo;
+        return AppColors.featureTransport;
       case MetricCategory.healthcare:
-        return Colors.red;
+        return AppColors.featureHealthcare;
       case MetricCategory.trafficSafety:
-        return Colors.orange;
+        return AppColors.featureSafety;
       case MetricCategory.industrialArea:
-        return AppColors.greyMedium;
+        return AppColors.featureIndustrial;
       case MetricCategory.majorRoad:
-        return AppColors.black.withValues(alpha: 0.54);
+        return AppColors.featureRoad;
       case MetricCategory.bikeInfrastructure:
-        return Colors.cyan;
+        return AppColors.featureBike;
       case MetricCategory.education:
-        return Colors.purple;
+        return AppColors.featureEducation;
       case MetricCategory.sportsLeisure:
-        return Colors.amber;
+        return AppColors.featureSports;
       case MetricCategory.pedestrianInfrastructure:
-        return Colors.lime;
+        return AppColors.featurePedestrian;
       case MetricCategory.culturalVenues:
-        return Colors.pinkAccent;
+        return AppColors.featureCultural;
       case MetricCategory.noiseSources:
-        return Colors.deepOrange;
+        return AppColors.featureNoise;
       case MetricCategory.railway:
-        return Colors.blueGrey;
+        return AppColors.featureRailway;
       case MetricCategory.gasStation:
-        return Colors.deepOrange;
+        return AppColors.featureNoise; // Using same Deep Orange
       case MetricCategory.wasteFacility:
-        return Colors.brown;
+        return AppColors.featureWaste;
       case MetricCategory.powerInfrastructure:
-        return Colors.yellow[800]!;
+        return AppColors.featurePower;
       case MetricCategory.largeParking:
-        return Colors.grey;
+        return AppColors.featureParking;
       case MetricCategory.airport:
-        return Colors.blue;
+        return AppColors.featureTransport;
       case MetricCategory.constructionSite:
-        return Colors.orangeAccent;
+        return AppColors.featureConstruction;
       case MetricCategory.unknown:
-        return AppColors.greyLight;
+        return AppColors.featureUnknown;
     }
   }
 
@@ -104,47 +105,47 @@ class FeatureStyles {
     switch (type) {
       case FeatureType.tree:
       case FeatureType.park:
-        return Colors.green;
+        return AppColors.featureGreenery;
       case FeatureType.amenity:
-        return Colors.blue;
+        return AppColors.featureAmenities;
       case FeatureType.publicTransport:
-        return Colors.indigo;
+        return AppColors.featureTransport;
       case FeatureType.healthcare:
-        return Colors.red;
+        return AppColors.featureHealthcare;
       case FeatureType.accident:
-        return Colors.orange;
+        return AppColors.featureSafety;
       case FeatureType.industrial:
-        return AppColors.greyMedium;
+        return AppColors.featureIndustrial;
       case FeatureType.majorRoad:
-        return AppColors.black.withValues(alpha: 0.54);
+        return AppColors.featureRoad;
       case FeatureType.bikeInfrastructure:
-        return Colors.cyan;
+        return AppColors.featureBike;
       case FeatureType.education:
-        return Colors.purple;
+        return AppColors.featureEducation;
       case FeatureType.sportsLeisure:
-        return Colors.amber;
+        return AppColors.featureSports;
       case FeatureType.pedestrianInfrastructure:
-        return Colors.lime;
+        return AppColors.featurePedestrian;
       case FeatureType.culturalVenue:
-        return Colors.pinkAccent;
+        return AppColors.featureCultural;
       case FeatureType.noiseSource:
-        return Colors.deepOrange;
+        return AppColors.featureNoise;
       case FeatureType.railway:
-        return Colors.blueGrey;
+        return AppColors.featureRailway;
       case FeatureType.gasStation:
-        return Colors.deepOrange;
+        return AppColors.featureNoise;
       case FeatureType.wasteFacility:
-        return Colors.brown;
+        return AppColors.featureWaste;
       case FeatureType.powerInfrastructure:
-        return Colors.yellow[800]!;
+        return AppColors.featurePower;
       case FeatureType.parkingLot:
-        return Colors.grey;
+        return AppColors.featureParking;
       case FeatureType.airport:
-        return Colors.blue;
+        return AppColors.featureTransport;
       case FeatureType.constructionSite:
-        return Colors.orangeAccent;
+        return AppColors.featureConstruction;
       case FeatureType.unknown:
-        return AppColors.greyMedium;
+        return AppColors.featureUnknown;
     }
   }
 

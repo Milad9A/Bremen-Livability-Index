@@ -636,3 +636,115 @@ class TestRadiusConstants:
     def test_construction_radius(self):
         """Test construction site radius is sensible."""
         assert LivabilityScorer.CONSTRUCTION_RADIUS == 125
+
+
+class TestUserPreferences:
+    """Tests for user preferences functionality."""
+    
+    def test_importance_multipliers_exist(self):
+        """Test that importance multipliers are defined."""
+        assert "excluded" in LivabilityScorer.IMPORTANCE_MULTIPLIERS
+        assert "low" in LivabilityScorer.IMPORTANCE_MULTIPLIERS
+        assert "medium" in LivabilityScorer.IMPORTANCE_MULTIPLIERS
+        assert "high" in LivabilityScorer.IMPORTANCE_MULTIPLIERS
+    
+    def test_importance_multiplier_values(self):
+        """Test correct multiplier values."""
+        assert LivabilityScorer.IMPORTANCE_MULTIPLIERS["excluded"] == 0.0
+        assert LivabilityScorer.IMPORTANCE_MULTIPLIERS["low"] == 0.5
+        assert LivabilityScorer.IMPORTANCE_MULTIPLIERS["medium"] == 1.0
+        assert LivabilityScorer.IMPORTANCE_MULTIPLIERS["high"] == 1.5
+    
+    def test_default_preferences_all_medium(self):
+        """Test that default preferences are all medium."""
+        for key in LivabilityScorer.FACTOR_KEYS:
+            assert LivabilityScorer.DEFAULT_PREFERENCES[key] == "medium"
+    
+    def test_factor_keys_count(self):
+        """Test that all 20 factor keys are defined."""
+        assert len(LivabilityScorer.FACTOR_KEYS) == 20
+    
+    def test_get_multiplier_with_none_preferences(self):
+        """Test get_multiplier returns 1.0 when preferences is None."""
+        multiplier = LivabilityScorer.get_multiplier(None, "greenery")
+        assert multiplier == 1.0
+    
+    def test_get_multiplier_with_high(self):
+        """Test get_multiplier returns 1.5 for high preference."""
+        preferences = {"greenery": "high"}
+        multiplier = LivabilityScorer.get_multiplier(preferences, "greenery")
+        assert multiplier == 1.5
+    
+    def test_get_multiplier_with_low(self):
+        """Test get_multiplier returns 0.5 for low preference."""
+        preferences = {"greenery": "low"}
+        multiplier = LivabilityScorer.get_multiplier(preferences, "greenery")
+        assert multiplier == 0.5
+    
+    def test_get_multiplier_with_excluded(self):
+        """Test get_multiplier returns 0.0 for excluded preference."""
+        preferences = {"greenery": "excluded"}
+        multiplier = LivabilityScorer.get_multiplier(preferences, "greenery")
+        assert multiplier == 0.0
+    
+    def test_get_multiplier_defaults_to_medium(self):
+        """Test get_multiplier defaults to 1.0 for unknown factor."""
+        preferences = {}
+        multiplier = LivabilityScorer.get_multiplier(preferences, "greenery")
+        assert multiplier == 1.0
+    
+    def test_score_with_high_greenery_preference(self):
+        """Test that high greenery preference increases impact."""
+        base_result = LivabilityScorer.calculate_score(
+            tree_count=50, park_count=2, amenity_count=0, accident_count=0
+        )
+        high_result = LivabilityScorer.calculate_score(
+            tree_count=50, park_count=2, amenity_count=0, accident_count=0,
+            preferences={"greenery": "high"}
+        )
+        assert high_result["score"] > base_result["score"]
+    
+    def test_score_with_excluded_penalty(self):
+        """Test that excluded penalty has no negative impact."""
+        with_penalty = LivabilityScorer.calculate_score(
+            tree_count=0, park_count=0, amenity_count=0, accident_count=0,
+            near_industrial=True
+        )
+        without_penalty = LivabilityScorer.calculate_score(
+            tree_count=0, park_count=0, amenity_count=0, accident_count=0,
+            near_industrial=True,
+            preferences={"industrial": "excluded"}
+        )
+        assert without_penalty["score"] > with_penalty["score"]
+        assert without_penalty["score"] == 40.0  # Base score (no penalty applied)
+    
+    def test_score_with_low_preference_halves_impact(self):
+        """Test that low preference approximately halves the impact."""
+        medium_result = LivabilityScorer.calculate_score(
+            tree_count=100, park_count=4, amenity_count=0, accident_count=0,
+            preferences={"greenery": "medium"}
+        )
+        low_result = LivabilityScorer.calculate_score(
+            tree_count=100, park_count=4, amenity_count=0, accident_count=0,
+            preferences={"greenery": "low"}
+        )
+        # Score with low should be between base and medium
+        assert 40.0 < low_result["score"] < medium_result["score"]
+    
+    def test_multiple_preferences_combined(self):
+        """Test that multiple preferences work together."""
+        default_result = LivabilityScorer.calculate_score(
+            tree_count=50, park_count=2, amenity_count=10, accident_count=0,
+            near_industrial=True
+        )
+        custom_result = LivabilityScorer.calculate_score(
+            tree_count=50, park_count=2, amenity_count=10, accident_count=0,
+            near_industrial=True,
+            preferences={
+                "greenery": "high",      # More positive impact
+                "amenities": "low",      # Less positive impact
+                "industrial": "excluded"  # No penalty
+            }
+        )
+        # Custom should score higher (high greenery + no industrial penalty)
+        assert custom_result["score"] > default_result["score"]

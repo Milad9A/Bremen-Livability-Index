@@ -33,6 +33,29 @@ class AppColors {
   // Glassmorphism
   static final Color glassBorder = white.withValues(alpha: 0.2);
   static final Color glassBackground = white.withValues(alpha: 0.65);
+
+  // Feature Colors
+  static const Color featureGreenery = Colors.green;
+  static const Color featureAmenities = Colors.blue;
+  static final Color featureTransport =
+      Colors.blue[900]!; // Dark Blue instead of Indigo/Purple
+  static const Color featureHealthcare = Colors.red;
+  static const Color featureSafety = Colors.orange;
+
+  static const Color featureEducation = Colors.cyan; // Replaces Purple
+  static const Color featureCultural = Colors.teal; // Replaces Pink
+  static const Color featureBike = Colors.teal;
+  static const Color featureSports = Colors.amber;
+  static const Color featurePedestrian = Colors.lightGreen;
+  static const Color featureNoise = Colors.deepOrange;
+  static final Color featureRailway = Colors.blueGrey[700]!;
+  static const Color featureWaste = Colors.brown;
+  static final Color featurePower = Colors.yellow[800]!;
+  static const Color featureParking = Colors.grey;
+  static const Color featureConstruction = Colors.orangeAccent;
+  static const Color featureIndustrial = Colors.grey;
+  static final Color featureRoad = Colors.black.withValues(alpha: 0.54);
+  static final Color featureUnknown = greyLight;
 }
 
 class AppTextStyles {

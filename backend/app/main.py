@@ -92,6 +92,7 @@ async def root():
             "analyze": "/analyze", 
             "health": "/health", 
             "geocode": "/geocode",
+            "preferences": "/preferences/defaults",
             "users": "/users/{user_id}",
             "favorites": "/users/{user_id}/favorites"
         }
@@ -107,6 +108,15 @@ async def health_check():
         logger.error("Database connection check failed")
         raise HTTPException(status_code=503, detail="Database connection failed")
 
+
+@app.get("/preferences/defaults")
+async def get_default_preferences():
+    """Get default preferences and importance level multipliers."""
+    return {
+        "preferences": LivabilityScorer.DEFAULT_PREFERENCES,
+        "multipliers": LivabilityScorer.IMPORTANCE_MULTIPLIERS,
+        "factor_keys": LivabilityScorer.FACTOR_KEYS
+    }
 
 # ============== User Favorites API ==============
 
@@ -530,7 +540,8 @@ async def analyze_location(
         if near_construction:
             nearby_features["construction_sites"] = construction
         
-        # Calculate score
+        # Calculate score with optional user preferences
+        preferences_dict = request.preferences.to_dict() if request.preferences else None
         result = LivabilityScorer.calculate_score(
             tree_count=tree_count,
             park_count=park_count,
@@ -552,7 +563,8 @@ async def analyze_location(
             near_power=near_power,
             near_parking=near_parking,
             near_airport=near_airport,
-            near_construction=near_construction
+            near_construction=near_construction,
+            preferences=preferences_dict
         )
         
         logger.info(f"Analyzed ({lat}, {lon}) -> Score: {result['score']}")

@@ -280,7 +280,7 @@ The backend exposes a comprehensive REST API with the following endpoints:
 
 | Endpoint | Method | Request Body | Response | Description |
 |----------|--------|--------------|----------|-------------|
-| `/analyze` | POST | `{latitude: float, longitude: float}` | `LivabilityScoreResponse` | Calculate livability score for location (20 spatial factors) |
+| `/analyze` | POST | `{latitude: float, longitude: float, preferences?: Dict}` | `LivabilityScoreResponse` | Calculate livability score (optional custom weights) |
 
 **Example Response:**
 
@@ -295,13 +295,17 @@ The backend exposes a comprehensive REST API with the following endpoints:
     ...
   ],
   "nearbyFeatures": {
-    "trees": [...],
-    "parks": [...],
-    ...
+     ...
   },
   "location": {"latitude": 53.0793, "longitude": 8.8017}
 }
 ```
+
+#### Preferences & Metadata
+
+| Endpoint | Method | Response | Description |
+|----------|--------|----------|-------------|
+| `/preferences/defaults` | GET | `UserPreferences` | Get default importance levels and multipliers |
 
 #### Geocoding & Address Search
 
@@ -530,6 +534,17 @@ The base score of **40** provides a balanced starting point where most locations
 ```
 [Base: 40] [+Positive Total] [-Negative Total] = Final Score
 ```
+
+### Dynamic Weighting
+
+The system supports user-defined preferences, allowing personalized scoring. Base weights are adjusted by importance multipliers:
+
+| Importance | Multiplier | Description |
+|------------|------------|-------------|
+| **High**   | 1.5x       | Factor impact increased by 50% |
+| **Medium** | 1.0x       | Default weight |
+| **Low**    | 0.5x       | Factor impact halved |
+| **Off**    | 0.0x       | Factor completely excluded |
 
 ### Factor Weights & Radii
 
@@ -856,9 +871,13 @@ frontend/bli/lib/
 │   │   └── widgets/        # Map-specific widgets (ScoreCard, Search, etc.)
 │   ├── onboarding/         # Onboarding Feature
 │   │   └── screens/        # StartScreen
-│   └── favorites/          # Favorites Feature
-│       ├── bloc/           # FavoritesBloc, FavoritesEvent, FavoritesState
-│       └── models/         # Favorite location models
+│   ├── favorites/          # Favorites Feature
+│   │   ├── bloc/           # FavoritesBloc, FavoritesEvent, FavoritesState
+│   │   └── models/         # Favorite location models
+│   ├── preferences/        # Preferences Feature
+│   │   ├── bloc/           # PreferencesBloc, PreferencesState
+│   │   ├── screens/        # PreferencesScreen
+│   │   └── services/       # PreferencesService
 └── main.dart               # Entry point
 ```
 
@@ -988,7 +1007,7 @@ on<GoogleSignIn>((event, emit) async {
 The application uses a **Liquid Glass** design system supported by a centralized `AppTheme`:
 
 - **Design System (`AppTheme`)**:
-  - **Palette**: Centralized `AppColors` (Teal primary, specific semantic colors).
+  - **Palette**: Centralized `AppColors` including a standardized **Feature Palette** for map markers (e.g., Cyan for Education, Teal for Culture), ensuring no hardcoded colors.
   - **Typography**: Unified `AppTextStyles` for consistency.
   - **Standardization**: Widgets access styles via `Theme.of(context)` or `AppColors`.
 

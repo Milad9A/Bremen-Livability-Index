@@ -56,6 +56,37 @@ class LivabilityScorer:
     AIRPORT_RADIUS = 600
     CONSTRUCTION_RADIUS = 125
     
+    # Importance level multipliers for user preferences
+    IMPORTANCE_MULTIPLIERS = {
+        "excluded": 0.0,
+        "low": 0.5,
+        "medium": 1.0,
+        "high": 1.5
+    }
+    
+    # Valid factor keys for preferences
+    FACTOR_KEYS = [
+        # Positive factors
+        "greenery", "amenities", "public_transport", "healthcare",
+        "bike_infrastructure", "education", "sports_leisure",
+        "pedestrian_infrastructure", "cultural",
+        # Negative factors
+        "accidents", "industrial", "major_roads", "noise",
+        "railway", "gas_station", "waste", "power",
+        "parking", "airport", "construction"
+    ]
+    
+    # Default preferences (all medium)
+    DEFAULT_PREFERENCES = {key: "medium" for key in FACTOR_KEYS}
+    
+    @classmethod
+    def get_multiplier(cls, preferences: Optional[Dict[str, str]], factor_key: str) -> float:
+        """Get the importance multiplier for a factor based on user preferences."""
+        if preferences is None:
+            return 1.0  # Default to medium (1.0x)
+        level = preferences.get(factor_key, "medium")
+        return cls.IMPORTANCE_MULTIPLIERS.get(level, 1.0)
+    
     @staticmethod
     def calculate_greenery_score(tree_count: int, park_count: int) -> float:
         """Calculate greenery score (0-14)."""
@@ -202,33 +233,61 @@ class LivabilityScorer:
         near_power: bool = False,
         near_parking: bool = False,
         near_airport: bool = False,
-        near_construction: bool = False
+        near_construction: bool = False,
+        preferences: Optional[Dict[str, str]] = None
     ) -> Dict:
-        """Calculate overall livability score."""
+        """Calculate overall livability score with optional user preferences.
         
-        # Positive factors
-        greenery = cls.calculate_greenery_score(tree_count, park_count)
-        amenities = cls.calculate_amenities_score(amenity_count)
-        transport = cls.calculate_public_transport_score(public_transport_count)
-        healthcare = cls.calculate_healthcare_score(healthcare_count)
-        bike_infra = cls.calculate_bike_infrastructure_score(bike_infrastructure_count)
-        education = cls.calculate_education_score(education_count)
-        sports = cls.calculate_sports_leisure_score(sports_leisure_count)
-        pedestrian = cls.calculate_pedestrian_infra_score(pedestrian_infra_count)
-        cultural = cls.calculate_cultural_score(cultural_count)
+        Args:
+            preferences: Optional dict mapping factor keys to importance levels
+                        (excluded, low, medium, high). If None, all factors use medium.
+        """
         
-        # Negative factors
-        accident_penalty = cls.calculate_accident_penalty(accident_count)
-        industrial_penalty = cls.calculate_industrial_penalty(near_industrial)
-        roads_penalty = cls.calculate_major_roads_penalty(near_major_road)
-        noise_penalty = cls.calculate_noise_penalty(noise_count)
-        railway_penalty = cls.calculate_railway_penalty(near_railway)
-        gas_station_penalty = cls.calculate_gas_station_penalty(near_gas_station)
-        waste_penalty = cls.calculate_waste_penalty(near_waste)
-        power_penalty = cls.calculate_power_penalty(near_power)
-        parking_penalty = cls.calculate_parking_penalty(near_parking)
-        airport_penalty = cls.calculate_airport_penalty(near_airport)
-        construction_penalty = cls.calculate_construction_penalty(near_construction)
+        # Calculate base factor values
+        greenery_base = cls.calculate_greenery_score(tree_count, park_count)
+        amenities_base = cls.calculate_amenities_score(amenity_count)
+        transport_base = cls.calculate_public_transport_score(public_transport_count)
+        healthcare_base = cls.calculate_healthcare_score(healthcare_count)
+        bike_infra_base = cls.calculate_bike_infrastructure_score(bike_infrastructure_count)
+        education_base = cls.calculate_education_score(education_count)
+        sports_base = cls.calculate_sports_leisure_score(sports_leisure_count)
+        pedestrian_base = cls.calculate_pedestrian_infra_score(pedestrian_infra_count)
+        cultural_base = cls.calculate_cultural_score(cultural_count)
+        
+        accident_base = cls.calculate_accident_penalty(accident_count)
+        industrial_base = cls.calculate_industrial_penalty(near_industrial)
+        roads_base = cls.calculate_major_roads_penalty(near_major_road)
+        noise_base = cls.calculate_noise_penalty(noise_count)
+        railway_base = cls.calculate_railway_penalty(near_railway)
+        gas_station_base = cls.calculate_gas_station_penalty(near_gas_station)
+        waste_base = cls.calculate_waste_penalty(near_waste)
+        power_base = cls.calculate_power_penalty(near_power)
+        parking_base = cls.calculate_parking_penalty(near_parking)
+        airport_base = cls.calculate_airport_penalty(near_airport)
+        construction_base = cls.calculate_construction_penalty(near_construction)
+        
+        # Apply user preference multipliers
+        greenery = greenery_base * cls.get_multiplier(preferences, "greenery")
+        amenities = amenities_base * cls.get_multiplier(preferences, "amenities")
+        transport = transport_base * cls.get_multiplier(preferences, "public_transport")
+        healthcare = healthcare_base * cls.get_multiplier(preferences, "healthcare")
+        bike_infra = bike_infra_base * cls.get_multiplier(preferences, "bike_infrastructure")
+        education = education_base * cls.get_multiplier(preferences, "education")
+        sports = sports_base * cls.get_multiplier(preferences, "sports_leisure")
+        pedestrian = pedestrian_base * cls.get_multiplier(preferences, "pedestrian_infrastructure")
+        cultural = cultural_base * cls.get_multiplier(preferences, "cultural")
+        
+        accident_penalty = accident_base * cls.get_multiplier(preferences, "accidents")
+        industrial_penalty = industrial_base * cls.get_multiplier(preferences, "industrial")
+        roads_penalty = roads_base * cls.get_multiplier(preferences, "major_roads")
+        noise_penalty = noise_base * cls.get_multiplier(preferences, "noise")
+        railway_penalty = railway_base * cls.get_multiplier(preferences, "railway")
+        gas_station_penalty = gas_station_base * cls.get_multiplier(preferences, "gas_station")
+        waste_penalty = waste_base * cls.get_multiplier(preferences, "waste")
+        power_penalty = power_base * cls.get_multiplier(preferences, "power")
+        parking_penalty = parking_base * cls.get_multiplier(preferences, "parking")
+        airport_penalty = airport_base * cls.get_multiplier(preferences, "airport")
+        construction_penalty = construction_base * cls.get_multiplier(preferences, "construction")
         
         # Final score
         positive = greenery + amenities + transport + healthcare + bike_infra + education + sports + pedestrian + cultural

@@ -16,6 +16,10 @@ import 'package:bli/features/favorites/bloc/favorites_bloc.dart';
 import 'package:bli/features/favorites/bloc/favorites_event.dart';
 import 'package:bli/features/favorites/services/favorites_service.dart';
 
+import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
+import 'package:bli/features/preferences/bloc/preferences_event.dart';
+import 'package:bli/features/preferences/services/preferences_service.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -34,6 +38,8 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
   late AuthBloc _authBloc;
   late FavoritesService _favoritesService;
   late FavoritesBloc _favoritesBloc;
+  late PreferencesService _preferencesService;
+  late PreferencesBloc _preferencesBloc;
   late DeepLinkService _deepLinkService;
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
@@ -43,11 +49,16 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
 
     _authService = AuthService();
     _favoritesService = FavoritesService();
+    _preferencesService = PreferencesService();
 
     _authBloc = AuthBloc(authService: _authService);
     _favoritesBloc = FavoritesBloc(favoritesService: _favoritesService);
+    _preferencesBloc = PreferencesBloc(preferencesService: _preferencesService);
 
     _authBloc.add(const AuthCheckRequested());
+    _preferencesBloc.add(
+      const LoadPreferences(),
+    ); // Load local preferences on startup
 
     _deepLinkService = DeepLinkService(
       authBloc: _authBloc,
@@ -58,6 +69,7 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
   @override
   void dispose() {
     _deepLinkService.dispose();
+    _preferencesBloc.close();
     _favoritesBloc.close();
     _authBloc.close();
     super.dispose();
@@ -69,6 +81,7 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
       providers: [
         BlocProvider.value(value: _authBloc),
         BlocProvider.value(value: _favoritesBloc),
+        BlocProvider.value(value: _preferencesBloc),
       ],
       child: BlocListener<AuthBloc, AuthState>(
         bloc: _authBloc,
@@ -79,8 +92,11 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
             _favoritesBloc.add(
               FavoritesEvent.loadFavoritesRequested(state.user!.id),
             );
+            // Sync preferences for authenticated users
+            _preferencesBloc.add(UserAuthenticated(userId: state.user!.id));
           } else {
             _favoritesBloc.add(const FavoritesEvent.clearFavorites());
+            _preferencesBloc.add(const UserLoggedOut());
           }
         },
         child: MaterialApp(

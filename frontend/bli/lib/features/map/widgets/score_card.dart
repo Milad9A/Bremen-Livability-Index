@@ -205,8 +205,7 @@ class _ScoreCardState extends State<ScoreCard> {
                     label: '-${negativeTotal.toStringAsFixed(1)}',
                     backgroundColor: AppColors.errorLight,
                     textColor: AppColors.errorDark,
-                    iconColor:
-                        AppColors.errorDark, // Using errorDark or similar red
+                    iconColor: AppColors.errorDark,
                   ),
                   const Spacer(),
                   Text(
@@ -229,7 +228,7 @@ class _ScoreCardState extends State<ScoreCard> {
             ],
           ),
         ),
-        const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+        Divider(height: 1, thickness: 1, color: AppColors.greyLight),
 
         ConstrainedBox(
           constraints: BoxConstraints(
@@ -256,7 +255,7 @@ class _ScoreCardState extends State<ScoreCard> {
                         Text(
                           'Positive Factors',
                           style: TextStyle(
-                            color: Colors.grey[800],
+                            color: AppColors.greyDark,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
@@ -284,7 +283,7 @@ class _ScoreCardState extends State<ScoreCard> {
                         Text(
                           'Negative Factors',
                           style: TextStyle(
-                            color: Colors.grey[800],
+                            color: AppColors.greyDark,
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),

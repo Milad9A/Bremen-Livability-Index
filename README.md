@@ -56,6 +56,8 @@ RESTful API for livability analysis and geocoding.
 - 🔍 **Address Search** – Find streets, landmarks, or neighborhoods
 - 🔐 **Firebase Authentication** – Multi-provider login (Google, GitHub, Email, Guest)
 - ❤️ **Save Favorites** – Store and manage favorite locations with backend sync
+- ⚙️ **Dynamic Preferences** – Customize factor importance weights to personalize scores
+
 
 ## 📊 Scoring System
 

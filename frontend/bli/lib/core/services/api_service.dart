@@ -24,13 +24,21 @@ class ApiService {
 
   Future<LivabilityScore> analyzeLocation(
     double latitude,
-    double longitude,
-  ) async {
+    double longitude, {
+    Map<String, String>? preferences,
+  }) async {
     try {
-      final response = await _dio.post(
-        '/analyze',
-        data: {'latitude': latitude, 'longitude': longitude},
-      );
+      final data = <String, dynamic>{
+        'latitude': latitude,
+        'longitude': longitude,
+      };
+
+      // Include preferences if provided
+      if (preferences != null) {
+        data['preferences'] = preferences;
+      }
+
+      final response = await _dio.post('/analyze', data: data);
 
       return LivabilityScore.fromJson(response.data);
     } on DioException catch (e) {
