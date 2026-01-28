@@ -368,180 +368,228 @@ async def analyze_location(
     try:
         nearby_features = {}
         
+        # Convert preferences to dict once at the start
+        preferences_dict = request.preferences.to_dict() if request.preferences else None
+        
         # Create the point once for all queries
         point = create_point_geography(lon, lat)
         
-        # Trees within radius
-        trees = fetch_nearby_features(session, Tree, point, LivabilityScorer.GREENERY_RADIUS, "tree")
-        nearby_features["trees"] = trees
-        tree_count = len(trees)
+        # Initialize counts
+        tree_count = 0
+        park_count = 0
+        amenity_count = 0
+        accident_count = 0
+        transport_count = 0
+        healthcare_count = 0
+        near_industrial = False
+        near_major_road = False
+        bike_infrastructure_count = 0
+        education_count = 0
+        sports_leisure_count = 0
+        pedestrian_infra_count = 0
+        cultural_count = 0
+        noise_count = 0
+        near_railway = False
+        near_gas_station = False
+        near_waste = False
+        near_power = False
+        near_parking = False
+        near_airport = False
+        near_construction = False
+
+        # Helper to check if factor is enabled
+        def is_enabled(key: str) -> bool:
+            return LivabilityScorer.get_multiplier(preferences_dict, key) > 0.0
+
+        # Trees & Parks (Greenery)
+        if is_enabled("greenery"):
+            trees = fetch_nearby_features(session, Tree, point, LivabilityScorer.GREENERY_RADIUS, "tree")
+            nearby_features["trees"] = trees
+            tree_count = len(trees)
+            
+            parks = fetch_nearby_features(session, Park, point, LivabilityScorer.GREENERY_RADIUS, "park")
+            nearby_features["parks"] = parks
+            park_count = len(parks)
         
-        # Parks within radius
-        parks = fetch_nearby_features(session, Park, point, LivabilityScorer.GREENERY_RADIUS, "park")
-        nearby_features["parks"] = parks
-        park_count = len(parks)
+        # Amenities
+        if is_enabled("amenities"):
+            amenities = fetch_nearby_features(
+                session, Amenity, point, LivabilityScorer.AMENITIES_RADIUS, "amenity",
+                type_field="amenity_type"
+            )
+            nearby_features["amenities"] = amenities
+            amenity_count = len(amenities)
         
-        # Amenities within radius
-        amenities = fetch_nearby_features(
-            session, Amenity, point, LivabilityScorer.AMENITIES_RADIUS, "amenity",
-            type_field="amenity_type"
-        )
-        nearby_features["amenities"] = amenities
-        amenity_count = len(amenities)
+        # Accidents
+        if is_enabled("accidents"):
+            accidents = fetch_nearby_features(
+                session, Accident, point, LivabilityScorer.ACCIDENT_RADIUS, "accident",
+                name_field="severity"
+            )
+            nearby_features["accidents"] = accidents
+            accident_count = len(accidents)
         
-        # Accidents within radius (use severity as name)
-        accidents = fetch_nearby_features(
-            session, Accident, point, LivabilityScorer.ACCIDENT_RADIUS, "accident",
-            name_field="severity"
-        )
-        nearby_features["accidents"] = accidents
-        accident_count = len(accidents)
+        # Public transport
+        if is_enabled("public_transport"):
+            transport = fetch_nearby_features(
+                session, PublicTransport, point, LivabilityScorer.PUBLIC_TRANSPORT_RADIUS, "public_transport",
+                type_field="transport_type"
+            )
+            nearby_features["public_transport"] = transport
+            transport_count = len(transport)
         
-        # Public transport stops within radius
-        transport = fetch_nearby_features(
-            session, PublicTransport, point, LivabilityScorer.PUBLIC_TRANSPORT_RADIUS, "public_transport",
-            type_field="transport_type"
-        )
-        nearby_features["public_transport"] = transport
-        transport_count = len(transport)
+        # Healthcare
+        if is_enabled("healthcare"):
+            healthcare = fetch_nearby_features(
+                session, Healthcare, point, LivabilityScorer.HEALTHCARE_RADIUS, "healthcare",
+                type_field="healthcare_type"
+            )
+            nearby_features["healthcare"] = healthcare
+            healthcare_count = len(healthcare)
         
-        # Healthcare within radius
-        healthcare = fetch_nearby_features(
-            session, Healthcare, point, LivabilityScorer.HEALTHCARE_RADIUS, "healthcare",
-            type_field="healthcare_type"
-        )
-        nearby_features["healthcare"] = healthcare
-        healthcare_count = len(healthcare)
+        # Industrial areas
+        if is_enabled("industrial"):
+            industrial = fetch_nearby_features(
+                session, IndustrialArea, point, LivabilityScorer.INDUSTRIAL_RADIUS, "industrial"
+            )
+            near_industrial = len(industrial) > 0
+            if near_industrial:
+                nearby_features["industrial"] = industrial
         
-        # Industrial areas within radius
-        industrial = fetch_nearby_features(
-            session, IndustrialArea, point, LivabilityScorer.INDUSTRIAL_RADIUS, "industrial"
-        )
-        near_industrial = len(industrial) > 0
-        if near_industrial:
-            nearby_features["industrial"] = industrial
+        # Major roads
+        if is_enabled("major_roads"):
+            roads = fetch_nearby_features(
+                session, MajorRoad, point, LivabilityScorer.MAJOR_ROADS_RADIUS, "major_road",
+                type_field="road_type"
+            )
+            near_major_road = len(roads) > 0
+            if near_major_road:
+                nearby_features["major_roads"] = roads
         
-        # Major roads within radius
-        roads = fetch_nearby_features(
-            session, MajorRoad, point, LivabilityScorer.MAJOR_ROADS_RADIUS, "major_road",
-            type_field="road_type"
-        )
-        near_major_road = len(roads) > 0
-        if near_major_road:
-            nearby_features["major_roads"] = roads
+        # Bike infrastructure
+        if is_enabled("bike_infrastructure"):
+            bike_infra = fetch_nearby_features(
+                session, BikeInfrastructure, point, LivabilityScorer.BIKE_INFRASTRUCTURE_RADIUS, "bike_infrastructure",
+                type_field="infra_type"
+            )
+            nearby_features["bike_infrastructure"] = bike_infra
+            bike_infrastructure_count = len(bike_infra)
         
-        # Bike infrastructure within radius
-        bike_infra = fetch_nearby_features(
-            session, BikeInfrastructure, point, LivabilityScorer.BIKE_INFRASTRUCTURE_RADIUS, "bike_infrastructure",
-            type_field="infra_type"
-        )
-        nearby_features["bike_infrastructure"] = bike_infra
-        bike_infrastructure_count = len(bike_infra)
+        # Education facilities
+        if is_enabled("education"):
+            education = fetch_nearby_features(
+                session, Education, point, LivabilityScorer.EDUCATION_RADIUS, "education",
+                type_field="education_type"
+            )
+            nearby_features["education"] = education
+            education_count = len(education)
         
-        # Education facilities within radius
-        education = fetch_nearby_features(
-            session, Education, point, LivabilityScorer.EDUCATION_RADIUS, "education",
-            type_field="education_type"
-        )
-        nearby_features["education"] = education
-        education_count = len(education)
+        # Sports and leisure
+        if is_enabled("sports_leisure"):
+            sports_leisure = fetch_nearby_features(
+                session, SportsLeisure, point, LivabilityScorer.SPORTS_LEISURE_RADIUS, "sports_leisure",
+                type_field="leisure_type"
+            )
+            nearby_features["sports_leisure"] = sports_leisure
+            sports_leisure_count = len(sports_leisure)
         
-        # Sports and leisure within radius
-        sports_leisure = fetch_nearby_features(
-            session, SportsLeisure, point, LivabilityScorer.SPORTS_LEISURE_RADIUS, "sports_leisure",
-            type_field="leisure_type"
-        )
-        nearby_features["sports_leisure"] = sports_leisure
-        sports_leisure_count = len(sports_leisure)
+        # Pedestrian infrastructure
+        if is_enabled("pedestrian_infrastructure"):
+            pedestrian = fetch_nearby_features(
+                session, PedestrianInfrastructure, point, LivabilityScorer.PEDESTRIAN_INFRA_RADIUS, "pedestrian_infrastructure",
+                type_field="infra_type"
+            )
+            nearby_features["pedestrian_infrastructure"] = pedestrian
+            pedestrian_infra_count = len(pedestrian)
         
-        # Pedestrian infrastructure within radius
-        pedestrian = fetch_nearby_features(
-            session, PedestrianInfrastructure, point, LivabilityScorer.PEDESTRIAN_INFRA_RADIUS, "pedestrian_infrastructure",
-            type_field="infra_type"
-        )
-        nearby_features["pedestrian_infrastructure"] = pedestrian
-        pedestrian_infra_count = len(pedestrian)
+        # Cultural venues
+        if is_enabled("cultural"):
+            cultural = fetch_nearby_features(
+                session, CulturalVenue, point, LivabilityScorer.CULTURAL_RADIUS, "cultural_venue",
+                type_field="venue_type"
+            )
+            nearby_features["cultural_venues"] = cultural
+            cultural_count = len(cultural)
         
-        # Cultural venues within radius
-        cultural = fetch_nearby_features(
-            session, CulturalVenue, point, LivabilityScorer.CULTURAL_RADIUS, "cultural_venue",
-            type_field="venue_type"
-        )
-        nearby_features["cultural_venues"] = cultural
-        cultural_count = len(cultural)
+        # Noise sources
+        if is_enabled("noise"):
+            noise = fetch_nearby_features(
+                session, NoiseSource, point, LivabilityScorer.NOISE_RADIUS, "noise_source",
+                type_field="noise_type"
+            )
+            noise_count = len(noise)
+            if noise_count > 0:
+                nearby_features["noise_sources"] = noise
         
-        # Noise sources within radius
-        noise = fetch_nearby_features(
-            session, NoiseSource, point, LivabilityScorer.NOISE_RADIUS, "noise_source",
-            type_field="noise_type"
-        )
-        noise_count = len(noise)
-        if noise_count > 0:
-            nearby_features["noise_sources"] = noise
+        # Railways
+        if is_enabled("railway"):
+            railways = fetch_nearby_features(
+                session, Railway, point, LivabilityScorer.RAILWAY_RADIUS, "railway",
+                type_field="railway_type"
+            )
+            near_railway = len(railways) > 0
+            if near_railway:
+                nearby_features["railways"] = railways
         
-        # Railways within radius
-        railways = fetch_nearby_features(
-            session, Railway, point, LivabilityScorer.RAILWAY_RADIUS, "railway",
-            type_field="railway_type"
-        )
-        near_railway = len(railways) > 0
-        if near_railway:
-            nearby_features["railways"] = railways
+        # Gas stations
+        if is_enabled("gas_station"):
+            gas_stations = fetch_nearby_features(
+                session, GasStation, point, LivabilityScorer.GAS_STATION_RADIUS, "gas_station"
+            )
+            near_gas_station = len(gas_stations) > 0
+            if near_gas_station:
+                nearby_features["gas_stations"] = gas_stations
         
-        # Gas stations within radius
-        gas_stations = fetch_nearby_features(
-            session, GasStation, point, LivabilityScorer.GAS_STATION_RADIUS, "gas_station"
-        )
-        near_gas_station = len(gas_stations) > 0
-        if near_gas_station:
-            nearby_features["gas_stations"] = gas_stations
+        # Waste facilities
+        if is_enabled("waste"):
+            waste = fetch_nearby_features(
+                session, WasteFacility, point, LivabilityScorer.WASTE_RADIUS, "waste_facility",
+                type_field="waste_type"
+            )
+            near_waste = len(waste) > 0
+            if near_waste:
+                nearby_features["waste_facilities"] = waste
         
-        # Waste facilities within radius
-        waste = fetch_nearby_features(
-            session, WasteFacility, point, LivabilityScorer.WASTE_RADIUS, "waste_facility",
-            type_field="waste_type"
-        )
-        near_waste = len(waste) > 0
-        if near_waste:
-            nearby_features["waste_facilities"] = waste
+        # Power infrastructure
+        if is_enabled("power"):
+            power = fetch_nearby_features(
+                session, PowerInfrastructure, point, LivabilityScorer.POWER_RADIUS, "power_infrastructure",
+                type_field="power_type"
+            )
+            near_power = len(power) > 0
+            if near_power:
+                nearby_features["power_infrastructure"] = power
         
-        # Power infrastructure within radius
-        power = fetch_nearby_features(
-            session, PowerInfrastructure, point, LivabilityScorer.POWER_RADIUS, "power_infrastructure",
-            type_field="power_type"
-        )
-        near_power = len(power) > 0
-        if near_power:
-            nearby_features["power_infrastructure"] = power
+        # Large parking lots
+        if is_enabled("parking"):
+            parking = fetch_nearby_features(
+                session, ParkingLot, point, LivabilityScorer.PARKING_RADIUS, "parking_lot",
+                type_field="parking_type"
+            )
+            near_parking = len(parking) > 0
+            if near_parking:
+                nearby_features["parking_lots"] = parking
         
-        # Large parking lots within radius
-        parking = fetch_nearby_features(
-            session, ParkingLot, point, LivabilityScorer.PARKING_RADIUS, "parking_lot",
-            type_field="parking_type"
-        )
-        near_parking = len(parking) > 0
-        if near_parking:
-            nearby_features["parking_lots"] = parking
+        # Airports/helipads
+        if is_enabled("airport"):
+            airports = fetch_nearby_features(
+                session, Airport, point, LivabilityScorer.AIRPORT_RADIUS, "airport",
+                type_field="airport_type"
+            )
+            near_airport = len(airports) > 0
+            if near_airport:
+                nearby_features["airports"] = airports
         
-        # Airports/helipads within radius
-        airports = fetch_nearby_features(
-            session, Airport, point, LivabilityScorer.AIRPORT_RADIUS, "airport",
-            type_field="airport_type"
-        )
-        near_airport = len(airports) > 0
-        if near_airport:
-            nearby_features["airports"] = airports
+        # Construction sites
+        if is_enabled("construction"):
+            construction = fetch_nearby_features(
+                session, ConstructionSite, point, LivabilityScorer.CONSTRUCTION_RADIUS, "construction_site"
+            )
+            near_construction = len(construction) > 0
+            if near_construction:
+                nearby_features["construction_sites"] = construction
         
-        # Construction sites within radius
-        construction = fetch_nearby_features(
-            session, ConstructionSite, point, LivabilityScorer.CONSTRUCTION_RADIUS, "construction_site"
-        )
-        near_construction = len(construction) > 0
-        if near_construction:
-            nearby_features["construction_sites"] = construction
-        
-        # Calculate score with optional user preferences
-        preferences_dict = request.preferences.to_dict() if request.preferences else None
+        # Calculate score
         result = LivabilityScorer.calculate_score(
             tree_count=tree_count,
             park_count=park_count,

@@ -299,21 +299,27 @@ class LivabilityScorer:
         # Build factors list
         factors = []
         
-        factors.append(FactorBreakdown(
-            factor="Greenery",
-            value=greenery,
-            description=f"{tree_count} trees, {park_count} parks within {cls.GREENERY_RADIUS}m",
-            impact="positive"
-        ))
+        # Helper to check if factor is enabled
+        def is_enabled(key: str) -> bool:
+            return cls.get_multiplier(preferences, key) > 0.0
+
+        if is_enabled("greenery"):
+            factors.append(FactorBreakdown(
+                factor="Greenery",
+                value=greenery,
+                description=f"{tree_count} trees, {park_count} parks within {cls.GREENERY_RADIUS}m",
+                impact="positive"
+            ))
         
-        factors.append(FactorBreakdown(
-            factor="Amenities",
-            value=amenities,
-            description=f"{amenity_count} amenities within {cls.AMENITIES_RADIUS}m",
-            impact="positive"
-        ))
+        if is_enabled("amenities"):
+            factors.append(FactorBreakdown(
+                factor="Amenities",
+                value=amenities,
+                description=f"{amenity_count} amenities within {cls.AMENITIES_RADIUS}m",
+                impact="positive"
+            ))
         
-        if public_transport_count > 0:
+        if public_transport_count > 0 and is_enabled("public_transport"):
             factors.append(FactorBreakdown(
                 factor="Public Transport",
                 value=transport,
@@ -321,7 +327,7 @@ class LivabilityScorer:
                 impact="positive"
             ))
         
-        if healthcare_count > 0:
+        if healthcare_count > 0 and is_enabled("healthcare"):
             factors.append(FactorBreakdown(
                 factor="Healthcare",
                 value=healthcare,
@@ -329,7 +335,7 @@ class LivabilityScorer:
                 impact="positive"
             ))
         
-        if bike_infrastructure_count > 0:
+        if bike_infrastructure_count > 0 and is_enabled("bike_infrastructure"):
             factors.append(FactorBreakdown(
                 factor="Bike Infrastructure",
                 value=bike_infra,
@@ -337,7 +343,7 @@ class LivabilityScorer:
                 impact="positive"
             ))
         
-        if education_count > 0:
+        if education_count > 0 and is_enabled("education"):
             factors.append(FactorBreakdown(
                 factor="Education",
                 value=education,
@@ -345,7 +351,7 @@ class LivabilityScorer:
                 impact="positive"
             ))
         
-        if sports_leisure_count > 0:
+        if sports_leisure_count > 0 and is_enabled("sports_leisure"):
             factors.append(FactorBreakdown(
                 factor="Sports & Leisure",
                 value=sports,
@@ -353,7 +359,7 @@ class LivabilityScorer:
                 impact="positive"
             ))
         
-        if pedestrian_infra_count > 0:
+        if pedestrian_infra_count > 0 and is_enabled("pedestrian_infrastructure"):
             factors.append(FactorBreakdown(
                 factor="Pedestrian Infrastructure",
                 value=pedestrian,
@@ -361,7 +367,7 @@ class LivabilityScorer:
                 impact="positive"
             ))
         
-        if cultural_count > 0:
+        if cultural_count > 0 and is_enabled("cultural"):
             factors.append(FactorBreakdown(
                 factor="Cultural Venues",
                 value=cultural,
@@ -369,7 +375,7 @@ class LivabilityScorer:
                 impact="positive"
             ))
         
-        if accident_count > 0:
+        if accident_count > 0 and is_enabled("accidents"):
             factors.append(FactorBreakdown(
                 factor="Traffic Safety",
                 value=-accident_penalty,
@@ -377,7 +383,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_industrial:
+        if near_industrial and is_enabled("industrial"):
             factors.append(FactorBreakdown(
                 factor="Industrial Area",
                 value=-industrial_penalty,
@@ -385,7 +391,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_major_road:
+        if near_major_road and is_enabled("major_roads"):
             factors.append(FactorBreakdown(
                 factor="Major Road",
                 value=-roads_penalty,
@@ -393,7 +399,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if noise_count > 0:
+        if noise_count > 0 and is_enabled("noise"):
             factors.append(FactorBreakdown(
                 factor="Noise Sources",
                 value=-noise_penalty,
@@ -401,7 +407,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_railway:
+        if near_railway and is_enabled("railway"):
             factors.append(FactorBreakdown(
                 factor="Railway",
                 value=-railway_penalty,
@@ -409,7 +415,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_gas_station:
+        if near_gas_station and is_enabled("gas_station"):
             factors.append(FactorBreakdown(
                 factor="Gas Station",
                 value=-gas_station_penalty,
@@ -417,7 +423,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_waste:
+        if near_waste and is_enabled("waste"):
             factors.append(FactorBreakdown(
                 factor="Waste Facility",
                 value=-waste_penalty,
@@ -425,7 +431,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_power:
+        if near_power and is_enabled("power"):
             factors.append(FactorBreakdown(
                 factor="Power Infrastructure",
                 value=-power_penalty,
@@ -433,7 +439,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_parking:
+        if near_parking and is_enabled("parking"):
             factors.append(FactorBreakdown(
                 factor="Large Parking",
                 value=-parking_penalty,
@@ -441,7 +447,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_airport:
+        if near_airport and is_enabled("airport"):
             factors.append(FactorBreakdown(
                 factor="Airport/Helipad",
                 value=-airport_penalty,
@@ -449,7 +455,7 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        if near_construction:
+        if near_construction and is_enabled("construction"):
             factors.append(FactorBreakdown(
                 factor="Construction Site",
                 value=-construction_penalty,
