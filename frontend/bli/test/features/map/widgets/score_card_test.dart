@@ -1,7 +1,7 @@
 import 'package:bli/core/theme/app_theme.dart';
 import 'package:bli/features/map/models/enums.dart';
 import 'package:bli/features/map/models/models.dart';
-import 'package:bli/features/map/widgets/score_card.dart';
+import 'package:bli/features/map/widgets/score_card_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -45,7 +45,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -60,7 +60,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -74,7 +74,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -104,7 +104,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -129,7 +129,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -261,7 +261,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -276,7 +276,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -295,7 +295,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -322,7 +322,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SingleChildScrollView(
-              child: ScoreCard(
+              child: ScoreCardView(
                 score: score,
                 isFavorite: true,
                 onFavoriteToggle: () {},
@@ -345,7 +345,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SingleChildScrollView(
-              child: ScoreCard(
+              child: ScoreCardView(
                 score: score,
                 isFavorite: false,
                 onFavoriteToggle: () {},
@@ -369,7 +369,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SingleChildScrollView(
-              child: ScoreCard(
+              child: ScoreCardView(
                 score: score,
                 isFavorite: false,
                 onFavoriteToggle: () {
@@ -396,7 +396,7 @@ void main() {
         MaterialApp(
           home: Scaffold(
             body: SingleChildScrollView(
-              child: ScoreCard(score: score, onFavoriteToggle: null),
+              child: ScoreCardView(score: score, onFavoriteToggle: null),
             ),
           ),
         ),
@@ -417,7 +417,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -435,7 +435,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );
@@ -451,7 +451,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCard(score: score)),
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
           ),
         ),
       );

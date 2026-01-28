@@ -9,7 +9,7 @@ import 'package:bli/features/favorites/bloc/favorites_state.dart';
 import 'package:bli/features/map/models/livability_score.dart';
 import 'package:bli/features/map/models/location.dart';
 import 'package:bli/features/map/models/location_marker.dart';
-import 'package:bli/features/map/widgets/smart_score_card.dart';
+import 'package:bli/features/map/widgets/score_card.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,7 +67,7 @@ void main() {
 
       await tester.pumpWidget(
         createWidgetUnderTests(
-          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+          ScoreCard(score: mockScore, selectedMarker: mockMarker),
         ),
       );
 
@@ -90,7 +90,7 @@ void main() {
 
       await tester.pumpWidget(
         createWidgetUnderTests(
-          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+          ScoreCard(score: mockScore, selectedMarker: mockMarker),
         ),
       );
 
@@ -104,7 +104,7 @@ void main() {
 
       await tester.pumpWidget(
         createWidgetUnderTests(
-          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+          ScoreCard(score: mockScore, selectedMarker: mockMarker),
         ),
       );
 
@@ -121,7 +121,7 @@ void main() {
 
       await tester.pumpWidget(
         createWidgetUnderTests(
-          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+          ScoreCard(score: mockScore, selectedMarker: mockMarker),
         ),
       );
 
@@ -147,7 +147,7 @@ void main() {
 
       await tester.pumpWidget(
         createWidgetUnderTests(
-          SmartScoreCard(score: mockScore, selectedMarker: mockMarker),
+          ScoreCard(score: mockScore, selectedMarker: mockMarker),
         ),
       );
 

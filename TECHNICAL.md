@@ -912,7 +912,7 @@ frontend/bli/lib/
 │   │   ├── bloc/           # MapBloc, MapEvent, MapState
 │   │   ├── models/         # Map-related models (Score, Marker, etc.)
 │   │   ├── screens/        # MapScreen
-│   │   └── widgets/        # Map-specific widgets (ScoreCard, Search, etc.)
+│   │   └── widgets/        # ScoreCard, ScoreCardView, FloatingSearchBar, etc.
 │   ├── onboarding/         # Onboarding Feature
 │   │   └── screens/        # StartScreen
 │   ├── favorites/          # Favorites Feature
@@ -1003,9 +1003,6 @@ class ApiService {
       body: jsonEncode({'latitude': lat, 'longitude': lon}),
     );
     return LivabilityScore.fromJson(jsonDecode(response.body));
-  }
-}
-
   }
 }
 
@@ -1189,8 +1186,8 @@ test/
     ├── map/
     │   ├── bloc/           # map_bloc_test.dart (20+ tests)
     │   ├── screens/        # map_screen_test.dart (~25 tests)
-    │   └── widgets/        # ScoreCard, FloatingSearchBar, AddressSearch, NearbyFeatures,
-    │                       # MapControlButtons, ProfileSheet, SmartScoreCard tests (50+ tests)
+    │   └── widgets/        # ScoreCardView, ScoreCard, FloatingSearchBar, AddressSearch,
+    │                       # NearbyFeatures, MapControlButtons, ProfileSheet tests (50+ tests)
     ├── favorites/
     │   └── bloc/           # favorites_bloc_test.dart (10+ tests)
     └── onboarding/
@@ -1223,7 +1220,8 @@ open coverage/html/index.html
 
 | Module | Coverage |
 |--------|----------|
-| `features/map/widgets/score_card.dart` | 100% |
+| `features/map/widgets/score_card.dart` (ScoreCard) | 100% |
+| `features/map/widgets/score_card_view.dart` (ScoreCardView) | 100% |
 | `core/widgets/glass_container.dart` | 100% |
 | `core/widgets/loading_overlay.dart` | 100% |
 | `features/map/widgets/floating_search_bar.dart` | 100% |
@@ -1241,7 +1239,6 @@ open coverage/html/index.html
 | `features/auth/services/auth_service.dart` | ~93% |
 | `features/map/widgets/map_control_buttons.dart` | 100% |
 | `features/map/widgets/profile_sheet.dart` | ~90% |
-| `features/map/widgets/smart_score_card.dart` | ~90% |
 | `features/onboarding/widgets/start_screen_title.dart` | 100% |
 | `features/onboarding/widgets/start_screen_actions.dart` | 100% |
 | **Overall** | **~90%** |

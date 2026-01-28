@@ -9,7 +9,7 @@ import 'package:bli/core/widgets/loading_overlay.dart';
 import 'package:bli/core/widgets/error_message_card.dart';
 import 'package:bli/core/widgets/message_snack_bar.dart';
 import 'package:bli/features/map/widgets/nearby_feature_layers.dart';
-import 'package:bli/features/map/widgets/score_card.dart';
+import 'package:bli/features/map/widgets/score_card_view.dart';
 import 'package:bli/features/map/widgets/map_control_buttons.dart';
 import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
 import 'package:bli/features/preferences/bloc/preferences_state.dart';
@@ -20,7 +20,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart' hide MapEvent;
 
 import 'package:bli/features/map/widgets/profile_sheet.dart';
-import 'package:bli/features/map/widgets/smart_score_card.dart';
+import 'package:bli/features/map/widgets/score_card.dart';
 
 class MapScreen extends StatelessWidget {
   final MapBloc? bloc;
@@ -209,7 +209,7 @@ class _MapScreenContentState extends State<_MapScreenContent> {
                     bottom: 20,
                     left: 16,
                     right: 16,
-                    child: SmartScoreCard(
+                    child: ScoreCard(
                       score: state.currentScore!,
                       selectedMarker: state.selectedMarker,
                     ),
