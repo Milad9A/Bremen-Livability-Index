@@ -6,15 +6,17 @@ import 'package:bli/features/auth/services/auth_service.dart';
 import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
 import 'package:bli/features/preferences/models/user_preferences.dart';
 import 'package:bli/features/preferences/services/preferences_service.dart';
+import 'package:flutter/gestures.dart'; // For PointerDeviceKind
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bli/features/map/screens/map_screen.dart';
-import 'package:bli/features/map/widgets/floating_search_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart' hide MapEvent;
 
 import 'dart:async';
 import 'dart:io';
+
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 // Simple mock for AuthService that can be instantiated without build_runner
 class MockAuthService implements AuthService {
@@ -113,79 +115,91 @@ void main() {
     mockAuthService = MockAuthService();
     mockPreferencesService = MockPreferencesService();
     bloc = MapBloc(apiService: mockApiService);
+
+    // Set a large enough screen size so LiquidGlass positioning works
+    final TestWidgetsFlutterBinding binding =
+        TestWidgetsFlutterBinding.ensureInitialized();
+    binding.window.physicalSizeTestValue = const Size(1080, 1920);
+    binding.window.devicePixelRatioTestValue = 1.0;
   });
 
   tearDown(() {
     bloc.close();
+    final TestWidgetsFlutterBinding binding =
+        TestWidgetsFlutterBinding.ensureInitialized();
+    binding.window.clearPhysicalSizeTestValue();
+    binding.window.clearDevicePixelRatioTestValue();
   });
 
   group('MapScreen', () {
-    // Skip: LiquidGlass animations prevent widget tree from settling
-    testWidgets(
-      'renders FlutterMap',
-      skip: true, // LiquidGlass animations prevent tests from settling
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+    testWidgets('renders FlutterMap', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
+      await tester.pump(const Duration(seconds: 1)); // Allow initial animation
 
-        expect(find.byType(FlutterMap), findsOneWidget);
-      },
-    );
+      expect(find.byType(FlutterMap), findsOneWidget);
+    });
 
     // Note: FloatingSearchBar was replaced with LiquidGlass UI
-    testWidgets(
-      'renders floating search bar initially',
-      skip: true, // FloatingSearchBar replaced with LiquidGlass UI
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+    // FloatingSearchBar test removed as it is replaced by LiquidGlass UI
 
-        expect(find.byType(FloatingSearchBar), findsOneWidget);
-      },
-    );
+    testWidgets('renders search icon (manual inspection)', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
+      await tester.pump(const Duration(seconds: 1));
 
-    // Skip: Icons inside LiquidGlass lenses which require animation time
-    testWidgets(
-      'renders search icon',
-      skip: true, // Icon inside LiquidGlass lens
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+      final liquidGlassView = tester.widget<LiquidGlassView>(
+        find.byType(LiquidGlassView),
+      );
 
-        // With LiquidGlass UI, search is triggered by tapping a lens with search icon
-        expect(find.byIcon(Icons.search), findsOneWidget);
-      },
-    );
+      // Index 0: Search Lens
+      final searchLens = liquidGlassView.children[0];
+      final animatedSwitcher = searchLens.child as AnimatedSwitcher;
+      // When not searching, child is GestureDetector -> Center -> Icon
+      final gestureDetector = animatedSwitcher.child as GestureDetector;
+      final center = gestureDetector.child as Center;
+      final icon = center.child as Icon;
 
-    // Skip: my_location icon is inside LiquidGlass which takes time to animate
-    testWidgets(
-      'renders location reset button',
-      skip: true, // Icon inside LiquidGlass lens that animates
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+      expect(icon.icon, Icons.search);
+    });
 
-        expect(find.byIcon(Icons.my_location), findsOneWidget);
-      },
-    );
+    testWidgets('renders location reset button (manual inspection)', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
+      await tester.pump(const Duration(seconds: 1));
 
-    // Skip: LiquidGlass animations prevent widget tree from settling
-    testWidgets(
-      'does not show score card initially',
-      skip: true, // LiquidGlass animations prevent tests from settling
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+      final liquidGlassView = tester.widget<LiquidGlassView>(
+        find.byType(LiquidGlassView),
+      );
 
-        // Score card starts collapsed - just verify "Livability Score" header not visible
-        expect(find.text('Livability Score'), findsNothing);
-      },
-    );
+      // Index 2: Location Lens (Search, Profile, Location)
+      final locationLens = liquidGlassView.children[2];
+      final gestureDetector = locationLens.child as GestureDetector;
+      final scaleTransition = gestureDetector.child as ScaleTransition;
+      final center = scaleTransition.child as Center;
+      final icon = center.child as Icon;
+
+      expect(icon.icon, Icons.my_location);
+    });
+
+    testWidgets('does not show score card initially', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
+      await tester.pump(const Duration(seconds: 1)); // Allow animations
+
+      // Score card starts collapsed - just verify "Livability Score" header not visible
+      expect(find.text('Livability Score'), findsNothing);
+    });
 
     testWidgets('shows score card when score is loaded', (
       WidgetTester tester,
@@ -240,64 +254,66 @@ void main() {
       expect(find.byType(FlutterMap), findsOneWidget);
     }, skip: true);
 
-    // Skip: my_location icon is inside LiquidGlass lens that animates
-    testWidgets(
-      'tapping reset button resets map',
-      skip: true, // Icon inside LiquidGlass lens
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+    testWidgets('tapping reset button resets map (manual invocation)', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
+      await tester.pump(const Duration(seconds: 1));
 
-        // Find and tap the reset button
-        await tester.tap(find.byIcon(Icons.my_location));
-        await tester.pumpAndSettle();
+      final liquidGlassView = tester.widget<LiquidGlassView>(
+        find.byType(LiquidGlassView),
+      );
 
-        // Map should still be visible (reset doesn't hide it)
-        expect(find.byType(FlutterMap), findsOneWidget);
-      },
-    );
+      // Index 2: Location Lens
+      final locationLens = liquidGlassView.children[2];
+      final gestureDetector = locationLens.child as GestureDetector;
+
+      // Simulate tap
+      gestureDetector.onTapDown?.call(TapDownDetails());
+      await tester.pump();
+      gestureDetector.onTapUp?.call(
+        TapUpDetails(kind: PointerDeviceKind.touch),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // Verify logic: Map renders (state check not strictly possible on Bloc but we verify no crash)
+      expect(find.byType(FlutterMap), findsOneWidget);
+    });
   });
 
   group('MapScreen with BLoC', () {
-    // Skip: MapScreen has continuous animations that don't settle
-    testWidgets(
-      'MapScreen creates its own MapBloc',
-      skip: true, // LiquidGlass animations prevent pumpAndSettle
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+    testWidgets('MapScreen creates its own MapBloc', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
+      await tester.pump(const Duration(seconds: 1));
 
-        // The widget tree should contain a BlocProvider
-        expect(find.byType(BlocProvider<MapBloc>), findsOneWidget);
-      },
-    );
+      // The widget tree should contain a BlocProvider
+      expect(find.byType(BlocProvider<MapBloc>), findsOneWidget);
+    });
 
-    // Skip: MapScreen has continuous animations that don't settle
-    testWidgets(
-      'MapScreen renders Scaffold',
-      skip: true, // LiquidGlass animations prevent pumpAndSettle
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+    testWidgets('MapScreen renders Scaffold', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
+      await tester.pump();
 
-        expect(find.byType(Scaffold), findsOneWidget);
-      },
-    );
+      expect(find.byType(Scaffold), findsOneWidget);
+    });
 
-    // Skip: MapScreen has continuous animations that don't settle
-    testWidgets(
-      'MapScreen uses Stack for layering',
-      skip: true, // LiquidGlass animations prevent pumpAndSettle
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-        );
+    testWidgets('MapScreen uses Stack for layering', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+      );
+      await tester.pump();
 
-        expect(find.byType(Stack), findsWidgets);
-      },
-    );
+      expect(find.byType(Stack), findsWidgets);
+    });
   });
 }
