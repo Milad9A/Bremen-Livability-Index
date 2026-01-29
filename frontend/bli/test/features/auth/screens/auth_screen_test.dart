@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:bli/features/auth/bloc/auth_event.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -163,6 +164,50 @@ void main() {
         isTrue,
         reason: 'Should find a ConstrainedBox with maxWidth 600',
       );
+    });
+    testWidgets('triggers signInAnonymously when guest button tapped', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      await tester.tap(find.byType(GuestOptionButton));
+      await tester.pump();
+
+      verify(
+        mockAuthBloc.add(const AuthEvent.guestSignInRequested()),
+      ).called(1);
+    });
+
+    testWidgets('triggers googleSignInRequested when google button tapped', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // Google button is usually in AuthButtonsGroup and has 'Google' text or similar key
+      // Assuming AuthButtonsGroup has generic buttons, we look for text "Google"
+      expect(find.text('Continue with Google'), findsOneWidget);
+
+      await tester.tap(find.text('Continue with Google'));
+      await tester.pump();
+
+      verify(
+        mockAuthBloc.add(const AuthEvent.googleSignInRequested()),
+      ).called(1);
+    });
+
+    testWidgets('triggers gitHubSignInRequested when github button tapped', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      expect(find.text('Continue with GitHub'), findsOneWidget);
+
+      await tester.tap(find.text('Continue with GitHub'));
+      await tester.pump();
+
+      verify(
+        mockAuthBloc.add(const AuthEvent.gitHubSignInRequested()),
+      ).called(1);
     });
   });
 }

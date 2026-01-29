@@ -143,8 +143,7 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     }
 
-    // Skip: MapScreen has continuous animations that prevent pumpAndSettle
-    testWidgets('navigateToMap pushes MapScreen (replace=true)', skip: true, (
+    testWidgets('navigateToMap pushes MapScreen (replace=true)', (
       tester,
     ) async {
       await pumpNavigationTest(
@@ -156,8 +155,7 @@ void main() {
       expect(testObserver.replacedRoutes.isNotEmpty, isTrue);
     });
 
-    // Skip: MapScreen has continuous animations that prevent pumpAndSettle
-    testWidgets('navigateToMap pushes MapScreen (replace=false)', skip: true, (
+    testWidgets('navigateToMap pushes MapScreen (replace=false)', (
       tester,
     ) async {
       await pumpNavigationTest(

@@ -96,5 +96,73 @@ void main() {
       );
       expect(gestureDetectors.length, greaterThanOrEqualTo(2));
     });
+    testWidgets('calls onSettingsTap when settings button is tapped', (
+      tester,
+    ) async {
+      bool settingsTapped = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MapControlButtons(
+              onProfileTap: () {},
+              onResetTap: () {},
+              onSettingsTap: () => settingsTapped = true,
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byIcon(Icons.tune));
+      await tester.pumpAndSettle();
+
+      expect(settingsTapped, isTrue);
+    });
+
+    testWidgets('shows custom prefs indicator when true', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MapControlButtons(
+              onProfileTap: () {},
+              onResetTap: () {},
+              onSettingsTap: () {},
+              hasCustomPrefs: true,
+            ),
+          ),
+        ),
+      );
+
+      // find by decoration color AppColors.warning (which is usually orange/red)
+      // or easier, look for the stack structure or simply the container size 12x12
+      final indicator = find.byWidgetPredicate((widget) {
+        return widget is Container &&
+            widget.constraints?.minWidth == 12 &&
+            widget.constraints?.minHeight == 12;
+      });
+      expect(indicator, findsOneWidget);
+    });
+
+    testWidgets('hides custom prefs indicator when false', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: MapControlButtons(
+              onProfileTap: () {},
+              onResetTap: () {},
+              onSettingsTap: () {},
+              hasCustomPrefs: false,
+            ),
+          ),
+        ),
+      );
+
+      final indicator = find.byWidgetPredicate((widget) {
+        return widget is Container &&
+            widget.constraints?.minWidth == 12 &&
+            widget.constraints?.minHeight == 12;
+      });
+      expect(indicator, findsNothing);
+    });
   });
 }
