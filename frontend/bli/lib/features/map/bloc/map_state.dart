@@ -9,6 +9,7 @@ class MapState with _$MapState {
     @Default(false) bool isLoading,
     String? errorMessage,
     @Default(false) bool showSearch,
+    @Default('') String searchQuery,
     @Default(false) bool showSlowLoadingMessage,
   }) = _MapState;
 

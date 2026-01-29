@@ -4,6 +4,8 @@ import 'package:bli/features/auth/bloc/auth_event.dart';
 import 'package:bli/features/auth/models/favorite_address.dart';
 import 'package:bli/features/favorites/screens/favorites_screen.dart';
 import 'package:bli/features/map/bloc/map_bloc.dart';
+import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
+import 'package:bli/features/preferences/screens/preferences_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
@@ -103,6 +105,34 @@ class ProfileSheet extends StatelessWidget {
             ),
             const SizedBox(height: 12),
           ],
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BlocProvider.value(
+                      value: context.read<PreferencesBloc>(),
+                      child: const PreferencesScreen(),
+                    ),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.tune),
+              label: const Text('Score Preferences'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                side: BorderSide(color: AppColors.primary),
+                foregroundColor: AppColors.primary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(

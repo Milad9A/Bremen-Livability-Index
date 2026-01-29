@@ -3,20 +3,28 @@ import 'dart:async';
 import 'package:bli/features/map/models/models.dart';
 import 'package:bli/core/services/api_service.dart';
 import 'package:bli/core/theme/app_theme.dart';
-import 'package:bli/core/widgets/glass_container.dart';
-import 'package:bli/features/map/widgets/search_results_list.dart';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+
+typedef SearchStateCallback =
+    void Function(
+      List<GeocodeResult> results,
+      bool isSearching,
+      String? errorMessage,
+      bool hasQuery,
+    );
 
 class AddressSearchWidget extends StatefulWidget {
   final Function(LatLng, String) onLocationSelected;
   final VoidCallback onClose;
+  final SearchStateCallback? onSearchStateChanged;
   final ApiService? apiService;
 
   const AddressSearchWidget({
     super.key,
     required this.onLocationSelected,
     required this.onClose,
+    this.onSearchStateChanged,
     this.apiService,
   });
 
@@ -60,6 +68,7 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
         _searchResults = [];
         _errorMessage = null;
       });
+      _notifySearchState();
       return;
     }
 
@@ -73,6 +82,7 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
       _isSearching = true;
       _errorMessage = null;
     });
+    _notifySearchState();
 
     try {
       final results = await _apiService.geocodeAddress(query, limit: 5);
@@ -80,18 +90,28 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
         _searchResults = results;
         _isSearching = false;
       });
+      _notifySearchState();
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _errorMessage = 'Search failed: $e';
-          _isSearching = false;
-          _searchResults = [];
-        });
-      }
+      setState(() {
+        _errorMessage = 'Unable to search. Please try again.';
+        _searchResults = [];
+        _isSearching = false;
+      });
+      _notifySearchState();
     }
   }
 
-  void _selectResult(GeocodeResult result) {
+  void _notifySearchState() {
+    widget.onSearchStateChanged?.call(
+      _searchResults,
+      _isSearching,
+      _errorMessage,
+      _searchController.text.isNotEmpty,
+    );
+  }
+
+  // Public method for MapScreen to handle result selection
+  void selectResult(GeocodeResult result) {
     final location = LatLng(result.latitude, result.longitude);
     widget.onLocationSelected(location, result.displayName);
     widget.onClose();
@@ -99,69 +119,36 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        GlassContainer(
-          borderRadius: 30,
-          padding: EdgeInsets.zero,
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              textSelectionTheme: TextSelectionThemeData(
-                cursorColor: AppColors.primary,
-                selectionColor: AppColors.primary.withValues(alpha: 0.3),
-                selectionHandleColor: AppColors.primary,
-              ),
-            ),
-            child: TextField(
-              controller: _searchController,
-              focusNode: _focusNode,
-              autofocus: true,
-              onChanged: _onSearchChanged,
-              style: Theme.of(context).textTheme.bodyLarge,
-              decoration: InputDecoration(
-                hintText: 'Search for an address...',
-                hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Theme.of(context).iconTheme.color,
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.close, color: AppColors.greyMedium),
-                  onPressed: widget.onClose,
-                ),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 14,
-                ),
-              ),
-            ),
-          ),
+    // ONLY return the input field - results rendered separately in MapScreen
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: AppColors.primary,
+          selectionColor: AppColors.primary.withValues(alpha: 0.3),
+          selectionHandleColor: AppColors.primary,
         ),
-
-        const SizedBox(height: 8),
-
-        if (_isSearching ||
-            _errorMessage != null ||
-            _searchResults.isNotEmpty ||
-            (_searchController.text.isNotEmpty && _searchResults.isEmpty))
-          GlassContainer(
-            borderRadius: 20,
-            padding: EdgeInsets.zero,
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 300),
-              child: SearchResultsList(
-                isSearching: _isSearching,
-                errorMessage: _errorMessage,
-                searchResults: _searchResults,
-                showNoResults:
-                    _searchResults.isEmpty && _searchController.text.isNotEmpty,
-                onResultSelected: _selectResult,
-              ),
-            ),
+      ),
+      child: TextField(
+        controller: _searchController,
+        focusNode: _focusNode,
+        autofocus: true,
+        onChanged: _onSearchChanged,
+        style: Theme.of(context).textTheme.bodyLarge,
+        decoration: InputDecoration(
+          hintText: 'Search for an address...',
+          hintStyle: Theme.of(context).inputDecorationTheme.hintStyle,
+          prefixIcon: Padding(
+            padding: const EdgeInsets.only(left: 6),
+            child: Icon(Icons.search, color: Theme.of(context).iconTheme.color),
           ),
-      ],
+          suffixIcon: IconButton(
+            icon: Icon(Icons.close, color: AppColors.greyMedium),
+            onPressed: widget.onClose,
+          ),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 16),
+        ),
+      ),
     );
   }
 }

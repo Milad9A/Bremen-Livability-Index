@@ -22,7 +22,7 @@ class ScoreCardView extends StatefulWidget {
 }
 
 class _ScoreCardViewState extends State<ScoreCardView> {
-  bool _isExpanded = true;
+  bool _isExpanded = false;
   final ScrollController _scrollController = ScrollController();
 
   @override

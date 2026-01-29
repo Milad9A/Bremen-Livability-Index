@@ -1510,6 +1510,7 @@ mixin _$MapState {
   bool get isLoading => throw _privateConstructorUsedError;
   String? get errorMessage => throw _privateConstructorUsedError;
   bool get showSearch => throw _privateConstructorUsedError;
+  String get searchQuery => throw _privateConstructorUsedError;
   bool get showSlowLoadingMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of MapState
@@ -1530,6 +1531,7 @@ abstract class $MapStateCopyWith<$Res> {
     bool isLoading,
     String? errorMessage,
     bool showSearch,
+    String searchQuery,
     bool showSlowLoadingMessage,
   });
 
@@ -1557,6 +1559,7 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
     Object? isLoading = null,
     Object? errorMessage = freezed,
     Object? showSearch = null,
+    Object? searchQuery = null,
     Object? showSlowLoadingMessage = null,
   }) {
     return _then(
@@ -1581,6 +1584,10 @@ class _$MapStateCopyWithImpl<$Res, $Val extends MapState>
                 ? _value.showSearch
                 : showSearch // ignore: cast_nullable_to_non_nullable
                       as bool,
+            searchQuery: null == searchQuery
+                ? _value.searchQuery
+                : searchQuery // ignore: cast_nullable_to_non_nullable
+                      as String,
             showSlowLoadingMessage: null == showSlowLoadingMessage
                 ? _value.showSlowLoadingMessage
                 : showSlowLoadingMessage // ignore: cast_nullable_to_non_nullable
@@ -1634,6 +1641,7 @@ abstract class _$$MapStateImplCopyWith<$Res>
     bool isLoading,
     String? errorMessage,
     bool showSearch,
+    String searchQuery,
     bool showSlowLoadingMessage,
   });
 
@@ -1662,6 +1670,7 @@ class __$$MapStateImplCopyWithImpl<$Res>
     Object? isLoading = null,
     Object? errorMessage = freezed,
     Object? showSearch = null,
+    Object? searchQuery = null,
     Object? showSlowLoadingMessage = null,
   }) {
     return _then(
@@ -1686,6 +1695,10 @@ class __$$MapStateImplCopyWithImpl<$Res>
             ? _value.showSearch
             : showSearch // ignore: cast_nullable_to_non_nullable
                   as bool,
+        searchQuery: null == searchQuery
+            ? _value.searchQuery
+            : searchQuery // ignore: cast_nullable_to_non_nullable
+                  as String,
         showSlowLoadingMessage: null == showSlowLoadingMessage
             ? _value.showSlowLoadingMessage
             : showSlowLoadingMessage // ignore: cast_nullable_to_non_nullable
@@ -1704,6 +1717,7 @@ class _$MapStateImpl implements _MapState {
     this.isLoading = false,
     this.errorMessage,
     this.showSearch = false,
+    this.searchQuery = '',
     this.showSlowLoadingMessage = false,
   });
 
@@ -1721,11 +1735,14 @@ class _$MapStateImpl implements _MapState {
   final bool showSearch;
   @override
   @JsonKey()
+  final String searchQuery;
+  @override
+  @JsonKey()
   final bool showSlowLoadingMessage;
 
   @override
   String toString() {
-    return 'MapState(selectedMarker: $selectedMarker, currentScore: $currentScore, isLoading: $isLoading, errorMessage: $errorMessage, showSearch: $showSearch, showSlowLoadingMessage: $showSlowLoadingMessage)';
+    return 'MapState(selectedMarker: $selectedMarker, currentScore: $currentScore, isLoading: $isLoading, errorMessage: $errorMessage, showSearch: $showSearch, searchQuery: $searchQuery, showSlowLoadingMessage: $showSlowLoadingMessage)';
   }
 
   @override
@@ -1743,6 +1760,8 @@ class _$MapStateImpl implements _MapState {
                 other.errorMessage == errorMessage) &&
             (identical(other.showSearch, showSearch) ||
                 other.showSearch == showSearch) &&
+            (identical(other.searchQuery, searchQuery) ||
+                other.searchQuery == searchQuery) &&
             (identical(other.showSlowLoadingMessage, showSlowLoadingMessage) ||
                 other.showSlowLoadingMessage == showSlowLoadingMessage));
   }
@@ -1755,6 +1774,7 @@ class _$MapStateImpl implements _MapState {
     isLoading,
     errorMessage,
     showSearch,
+    searchQuery,
     showSlowLoadingMessage,
   );
 
@@ -1774,6 +1794,7 @@ abstract class _MapState implements MapState {
     final bool isLoading,
     final String? errorMessage,
     final bool showSearch,
+    final String searchQuery,
     final bool showSlowLoadingMessage,
   }) = _$MapStateImpl;
 
@@ -1787,6 +1808,8 @@ abstract class _MapState implements MapState {
   String? get errorMessage;
   @override
   bool get showSearch;
+  @override
+  String get searchQuery;
   @override
   bool get showSlowLoadingMessage;
 

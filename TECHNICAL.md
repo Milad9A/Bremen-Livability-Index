@@ -1043,9 +1043,9 @@ on<GoogleSignIn>((event, emit) async {
 
 **View (BlocBuilder)** uses `BlocBuilder<MapBloc, MapState>` to rebuild on state changes.
 
-### User Interface (Glassmorphism & Theming)
+### User Interface (Liquid Glass Design)
 
-The application uses a **Liquid Glass** design system supported by a centralized `AppTheme`:
+The application uses Apple's **Liquid Glass** design language, implemented via the `liquid_glass_easy` package:
 
 - **Design System (`AppTheme`)**:
   - **Palette**: Centralized `AppColors` including a standardized **Feature Palette** for map markers (e.g., Cyan for Education, Teal for Culture), ensuring no hardcoded colors.
@@ -1054,12 +1054,17 @@ The application uses a **Liquid Glass** design system supported by a centralized
 
 - **Visual Style**:
   - **Immersive Map**: Full-screen map with no app bar.
-  - **Floating Controls**: Search bar and buttons float above the map.
-  - **Glass Effect**: UI elements use `BackdropFilter` with blur (`sigmaX/Y: 10`) and semi-transparent backgrounds to blend with the map.
-- **Components**:
-  - `GlassContainer`: Core widget providing the frosted glass look.
-  - `FloatingSearchBar`: Collapsed state of the search bar.
-  - `LoadingOverlay`: Glass-morphic loading indicator.
+  - **Liquid Glass Lenses**: UI controls (search, profile, location buttons) use `LiquidGlass` widgets with:
+    - `magnification: 1.05` for subtle depth
+    - `distortion: 0.10` for realtime background refraction
+    - Dynamic scaling via `AnimationController` for "Apple Podcasts-style" tap feedback
+  - **Animated Search Bar**: The search button morphs into a full-width search bar using a unified `LiquidGlass` lens with interpolated width and `AnimatedSwitcher` for content transitions.
+
+- **Key Components**:
+  - `LiquidGlass` (from `liquid_glass_easy`): Core widget providing the frosted glass look with real-time background sampling.
+  - `GlassContainer`: Fallback frosted glass widget (for areas outside `LiquidGlassView`).
+  - `ScoreCardView`: Displays livability score breakdown.
+  - `AddressSearchWidget`: Search input with debounced geocoding.
 
 ### Firebase Setup
 

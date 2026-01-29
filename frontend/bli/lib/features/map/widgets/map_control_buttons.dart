@@ -1,5 +1,4 @@
 import 'package:bli/core/theme/app_theme.dart';
-import 'package:bli/core/widgets/glass_container.dart';
 import 'package:flutter/material.dart';
 
 class MapControlButtons extends StatelessWidget {
@@ -16,29 +15,36 @@ class MapControlButtons extends StatelessWidget {
     this.hasCustomPrefs = false,
   });
 
+  Widget _buildButton(IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.white.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: AppColors.primaryDark),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        GestureDetector(
-          onTap: onProfileTap,
-          child: GlassContainer(
-            borderRadius: 30,
-            padding: const EdgeInsets.all(14),
-            child: Icon(Icons.person, color: AppColors.primaryDark),
-          ),
-        ),
+        GestureDetector(onTap: onProfileTap, child: _buildButton(Icons.person)),
         const SizedBox(height: 12),
         if (onSettingsTap != null) ...[
           GestureDetector(
             onTap: onSettingsTap,
             child: Stack(
               children: [
-                GlassContainer(
-                  borderRadius: 30,
-                  padding: const EdgeInsets.all(14),
-                  child: Icon(Icons.tune, color: AppColors.primaryDark),
-                ),
+                _buildButton(Icons.tune),
                 if (hasCustomPrefs)
                   Positioned(
                     top: 0,
@@ -60,11 +66,7 @@ class MapControlButtons extends StatelessWidget {
         ],
         GestureDetector(
           onTap: onResetTap,
-          child: GlassContainer(
-            borderRadius: 30,
-            padding: const EdgeInsets.all(14),
-            child: Icon(Icons.my_location, color: AppColors.primaryDark),
-          ),
+          child: _buildButton(Icons.my_location),
         ),
       ],
     );
