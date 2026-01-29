@@ -249,7 +249,40 @@ void main() {
       expect(find.text('Sign Out'), findsOneWidget);
     });
 
-    testWidgets('OutlinedButton present for Saved Places', (tester) async {
+    testWidgets(
+      'OutlinedButton present for Saved Places and Score Preferences',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(
+            authState: AuthState(
+              user: const AppUser(
+                id: 'user-123',
+                provider: AppAuthProvider.google,
+                isAnonymous: false,
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        // Now we have 2 OutlinedButtons: Saved Places + Score Preferences
+        expect(find.byType(OutlinedButton), findsNWidgets(2));
+      },
+    );
+
+    testWidgets('shows Score Preferences button for all users', (tester) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: AuthState(user: AppUser.guest())),
+      );
+      await tester.pump();
+
+      expect(find.text('Score Preferences'), findsOneWidget);
+      expect(find.byIcon(Icons.tune), findsOneWidget);
+    });
+
+    testWidgets('shows Score Preferences button for authenticated user', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         buildTestWidget(
           authState: AuthState(
@@ -263,6 +296,18 @@ void main() {
       );
       await tester.pump();
 
+      expect(find.text('Score Preferences'), findsOneWidget);
+    });
+
+    testWidgets('guest user has only 1 OutlinedButton (Score Preferences)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestWidget(authState: AuthState(user: AppUser.guest())),
+      );
+      await tester.pump();
+
+      // Guest users only see Score Preferences (no Saved Places)
       expect(find.byType(OutlinedButton), findsOneWidget);
     });
   });

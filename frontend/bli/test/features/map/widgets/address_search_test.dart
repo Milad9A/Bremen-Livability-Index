@@ -43,7 +43,9 @@ void main() {
       expect(find.byIcon(Icons.close), findsOneWidget);
     });
 
-    testWidgets('shows results list when API returns results', (tester) async {
+    testWidgets('calls onSearchStateChanged with results from API', (
+      tester,
+    ) async {
       final List<GeocodeResult> mockResults = [
         GeocodeResult(
           displayName: 'Test Location 1',
@@ -64,6 +66,7 @@ void main() {
       ];
 
       final mockApi = MockApiService(mockResults: mockResults);
+      List<GeocodeResult>? receivedResults;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -72,6 +75,9 @@ void main() {
               onLocationSelected: (_, _) {},
               onClose: () {},
               apiService: mockApi,
+              onSearchStateChanged: (results, isSearching, error, hasQuery) {
+                receivedResults = results;
+              },
             ),
           ),
         ),
@@ -86,13 +92,13 @@ void main() {
       // Wait for future to complete and rebuild
       await tester.pump();
 
-      expect(find.text('Test Location 1'), findsOneWidget);
-      expect(find.text('Test Location 2'), findsOneWidget);
+      // Note: Widget only renders input - results are provided via callback
+      expect(receivedResults, isNotNull);
+      expect(receivedResults!.length, 2);
+      expect(receivedResults![0].displayName, 'Test Location 1');
     });
 
-    testWidgets('calls onLocationSelected when a result is tapped', (
-      tester,
-    ) async {
+    testWidgets('selectResult method calls onLocationSelected', (tester) async {
       final mockResult = GeocodeResult(
         displayName: 'Selected Location',
         latitude: 50.0,
@@ -107,10 +113,13 @@ void main() {
       LatLng? selectedLocation;
       String? selectedName;
 
+      final GlobalKey<State<AddressSearchWidget>> widgetKey = GlobalKey();
+
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: AddressSearchWidget(
+              key: widgetKey,
               onLocationSelected: (loc, name) {
                 selectedLocation = loc;
                 selectedName = name;
@@ -122,19 +131,20 @@ void main() {
         ),
       );
 
-      await tester.enterText(find.byType(TextField), 'Select');
-      await tester.pump(const Duration(milliseconds: 500));
-      await tester.pump();
-
-      await tester.tap(find.text('Selected Road'));
+      // Access the state and call selectResult directly
+      final state = widgetKey.currentState as dynamic;
+      state.selectResult(mockResult);
       await tester.pump();
 
       expect(selectedLocation, const LatLng(50.0, 60.0));
       expect(selectedName, 'Selected Location');
     });
 
-    testWidgets('shows error message on API failure', (tester) async {
+    testWidgets('calls onSearchStateChanged with error on API failure', (
+      tester,
+    ) async {
       final mockApi = MockApiService(shouldThrow: true);
+      String? receivedError;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -143,6 +153,9 @@ void main() {
               onLocationSelected: (_, _) {},
               onClose: () {},
               apiService: mockApi,
+              onSearchStateChanged: (results, isSearching, error, hasQuery) {
+                receivedError = error;
+              },
             ),
           ),
         ),
@@ -152,7 +165,9 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pump();
 
-      expect(find.textContaining('Search failed'), findsOneWidget);
+      // Error is provided via callback, not displayed in widget
+      expect(receivedError, isNotNull);
+      expect(receivedError, contains('Unable to search'));
     });
   });
 }

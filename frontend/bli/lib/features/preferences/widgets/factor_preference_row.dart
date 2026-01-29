@@ -1,4 +1,5 @@
 import 'package:bli/core/theme/app_theme.dart';
+import 'package:flutter/services.dart';
 import 'package:bli/features/preferences/models/user_preferences.dart';
 import 'package:flutter/material.dart';
 
@@ -53,6 +54,7 @@ class FactorPreferenceRow extends StatelessWidget {
             selected: {currentLevel},
             onSelectionChanged: (selection) {
               if (selection.isNotEmpty) {
+                HapticFeedback.selectionClick();
                 onChanged(selection.first);
               }
             },

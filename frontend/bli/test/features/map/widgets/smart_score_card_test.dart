@@ -71,7 +71,13 @@ void main() {
         ),
       );
 
+      // Score is always visible in header
       expect(find.text('85.0/100'), findsOneWidget);
+
+      // Expand the card to see summary text (collapsed by default)
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+
       expect(find.text('Great place'), findsOneWidget);
     });
 

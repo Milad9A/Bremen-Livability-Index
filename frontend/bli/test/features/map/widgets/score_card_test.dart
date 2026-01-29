@@ -65,6 +65,10 @@ void main() {
         ),
       );
 
+      // Expand the card to see summary
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+
       expect(find.text('Great location for families'), findsOneWidget);
     });
 
@@ -78,6 +82,10 @@ void main() {
           ),
         ),
       );
+
+      // Expand the card to see factors
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
 
       expect(find.textContaining('Positive Factors'), findsOneWidget);
       expect(find.textContaining('Negative Factors'), findsOneWidget);
@@ -109,6 +117,10 @@ void main() {
         ),
       );
 
+      // Expand the card to see factor icons
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+
       expect(find.byIcon(Icons.add_circle), findsWidgets);
     });
 
@@ -133,6 +145,10 @@ void main() {
           ),
         ),
       );
+
+      // Expand the card to see factor icons
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.remove_circle), findsWidgets);
     });
@@ -255,7 +271,7 @@ void main() {
   });
 
   group('ScoreCard expand/collapse', () {
-    testWidgets('starts expanded by default', (WidgetTester tester) async {
+    testWidgets('starts collapsed by default', (WidgetTester tester) async {
       final score = createTestScore();
 
       await tester.pumpWidget(
@@ -266,30 +282,11 @@ void main() {
         ),
       );
 
-      // Expanded content should show factors section
-      expect(find.text('Positive Factors'), findsOneWidget);
-    });
-
-    testWidgets('collapses when tapped', (WidgetTester tester) async {
-      final score = createTestScore();
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SingleChildScrollView(child: ScoreCardView(score: score)),
-          ),
-        ),
-      );
-
-      // Find and tap the header GestureDetector (containing the score)
-      await tester.tap(find.text('Livability Score'));
-      await tester.pumpAndSettle();
-
-      // After collapsing, "Positive Factors" should not be visible
+      // Card starts collapsed - "Positive Factors" should NOT be visible
       expect(find.text('Positive Factors'), findsNothing);
     });
 
-    testWidgets('expands again when tapped twice', (WidgetTester tester) async {
+    testWidgets('expands when tapped', (WidgetTester tester) async {
       final score = createTestScore();
 
       await tester.pumpWidget(
@@ -300,15 +297,36 @@ void main() {
         ),
       );
 
-      // Collapse
+      // Tap to expand
       await tester.tap(find.text('Livability Score'));
       await tester.pumpAndSettle();
-      expect(find.text('Positive Factors'), findsNothing);
 
-      // Expand again
+      // After expanding, "Positive Factors" should be visible
+      expect(find.text('Positive Factors'), findsOneWidget);
+    });
+
+    testWidgets('collapses again when tapped twice', (
+      WidgetTester tester,
+    ) async {
+      final score = createTestScore();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(child: ScoreCardView(score: score)),
+          ),
+        ),
+      );
+
+      // Expand
       await tester.tap(find.text('Livability Score'));
       await tester.pumpAndSettle();
       expect(find.text('Positive Factors'), findsOneWidget);
+
+      // Collapse again
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+      expect(find.text('Positive Factors'), findsNothing);
     });
   });
 
@@ -422,6 +440,10 @@ void main() {
         ),
       );
 
+      // Expand the card to see summary chips
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+
       expect(find.text('45'), findsOneWidget);
       // Verify Tooltip is present
       expect(find.byType(Tooltip), findsOneWidget);
@@ -440,6 +462,10 @@ void main() {
         ),
       );
 
+      // Expand the card to see summary chips
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
+
       // Default test score has +15.0 positive and -10.0 negative
       expect(find.text('+15.0'), findsWidgets);
       expect(find.text('-10.0'), findsWidgets);
@@ -455,6 +481,10 @@ void main() {
           ),
         ),
       );
+
+      // Expand the card to see summary chips
+      await tester.tap(find.text('Livability Score'));
+      await tester.pumpAndSettle();
 
       expect(find.text('2 factors'), findsOneWidget);
     });

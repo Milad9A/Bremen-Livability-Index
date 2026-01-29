@@ -1057,11 +1057,15 @@ The application uses Apple's **Liquid Glass** design language, implemented via t
   - **Liquid Glass Lenses**: UI controls (search, profile, location buttons) use `LiquidGlass` widgets with:
     - `magnification: 1.05` for subtle depth
     - `distortion: 0.10` for realtime background refraction
-    - Dynamic scaling via `AnimationController` for "Apple Podcasts-style" tap feedback
-  - **Animated Search Bar**: The search button morphs into a full-width search bar using a unified `LiquidGlass` lens with interpolated width and `AnimatedSwitcher` for content transitions.
+    - **Interactive Feedback**: All glass buttons feature:
+      - **Scale Animations**: Shrink on press, bounce back on release.
+      - **"Breathe" Effect**: On long press, buttons shrink then slowly expand to 115% before restoring.
+      - **Haptic Feedback**: `HapticFeedback.lightImpact()` on press for tactile confirmation.
+  - **Animated Search Bar**: The search button morphs into a full-width search bar using a unified `LiquidGlass` lens. The expansion is driven by an `AnimationController` synced with an `AnimatedSwitcher` for smooth content transitions (icon ↔ input field).
 
 - **Key Components**:
-  - `LiquidGlass` (from `liquid_glass_easy`): Core widget providing the frosted glass look with real-time background sampling.
+  - `LiquidGlassView`: Manages the stack of glass lenses over the map background to optimize performance.
+  - `LiquidGlass`: Core widget providing the frosted glass look with real-time background sampling.
   - `GlassContainer`: Fallback frosted glass widget (for areas outside `LiquidGlassView`).
   - `ScoreCardView`: Displays livability score breakdown.
   - `AddressSearchWidget`: Search input with debounced geocoding.
@@ -1486,7 +1490,7 @@ engine = create_engine(
 | **Flutter** | [flutter.dev/docs](https://flutter.dev/docs) | 3.x |
 | **Dio** | [pub.dev/packages/dio](https://pub.dev/packages/dio) | 5.x |
 | **Freezed** | [pub.dev/packages/freezed](https://pub.dev/packages/freezed) | 2.x |
-| **flutter_map** | [fleaflet.dev](https://fleaflet.dev) | 7.x |
+| **flutter_map** | [fleaflet.dev](https://fleaflet.dev) | 8.x |
 | **Overpy** | [pypi.org/project/overpy](https://pypi.org/project/overpy/) | 0.7 |
 
 ### Spatial Function Reference

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
 import 'package:bli/features/preferences/bloc/preferences_event.dart';
 import 'package:bli/features/preferences/bloc/preferences_state.dart';
@@ -98,6 +99,7 @@ class PreferencesScreen extends StatelessWidget {
               if (!state.isCustomized) return const SizedBox.shrink();
               return TextButton(
                 onPressed: () {
+                  HapticFeedback.mediumImpact();
                   context.read<PreferencesBloc>().add(const ResetToDefaults());
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

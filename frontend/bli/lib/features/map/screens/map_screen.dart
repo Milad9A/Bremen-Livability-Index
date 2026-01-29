@@ -1,4 +1,5 @@
 import 'package:bli/core/theme/app_theme.dart';
+import 'package:flutter/services.dart';
 import 'package:bli/core/widgets/error_message_card.dart';
 import 'package:bli/core/widgets/message_snack_bar.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
@@ -366,6 +367,7 @@ class _MapScreenContentState extends State<_MapScreenContent>
         color: AppColors.white.withValues(alpha: 0.15),
         child: GestureDetector(
           onTapDown: (_) async {
+            HapticFeedback.lightImpact();
             _isLocationPressed = true;
             await _locationController.animateTo(
               0.92,
@@ -514,8 +516,14 @@ class _MapScreenContentState extends State<_MapScreenContent>
             extendBody: true,
             body: Stack(
               children: [
-                LiquidGlassView(
-                  backgroundWidget: FlutterMap(
+                AnimatedBuilder(
+                  animation: Listenable.merge([
+                    _searchExpansionController,
+                    _searchController,
+                    _profileController,
+                    _locationController,
+                  ]),
+                  child: FlutterMap(
                     mapController: bloc.mapController,
                     options: MapOptions(
                       initialCenter: MapBloc.bremenCenter,
@@ -567,13 +575,18 @@ class _MapScreenContentState extends State<_MapScreenContent>
                         ),
                     ],
                   ),
-                  children: _buildLiquidGlassLenses(
-                    state,
-                    bloc,
-                    screenWidth,
-                    screenHeight,
-                    topPadding,
-                  ),
+                  builder: (context, child) {
+                    return LiquidGlassView(
+                      backgroundWidget: child!,
+                      children: _buildLiquidGlassLenses(
+                        state,
+                        bloc,
+                        screenWidth,
+                        screenHeight,
+                        topPadding,
+                      ),
+                    );
+                  },
                 ),
 
                 // Error messages - regular overlay

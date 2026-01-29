@@ -50,14 +50,11 @@ RESTful API for livability analysis and geocoding.
 
 ## ✨ Features
 
-- 🗺️ **Interactive Map** – Full-screen map (CartoDB) with "Liquid Glass" UI
-- 🚀 **Splash & Start Screen** – Animated launch experience
-- 📍 **Tap-to-Analyze** – Instant livability scoring for any location
-- 🔍 **Address Search** – Find streets, landmarks, or neighborhoods
-- 🔐 **Firebase Authentication** – Multi-provider login (Google, GitHub, Email, Guest)
-- ❤️ **Save Favorites** – Store and manage favorite locations with backend sync
-- ⚙️ **Dynamic Preferences** – **[New]** Customize factor importance weights (High/Medium/Low/Off) to personalize scores. Preferences are synced across devices for authenticated users.
-- 🧪 **Comprehensive Testing** – High test coverage (>90% for key modules) using unit, widget, and block methods.
+- 🗺️ **Premium Map Experience** – Full-screen map with "Liquid Glass" UI, real-time background refraction, and tactile haptic feedback.
+- 📍 **Instant Analysis** – Tap any location to calculate a detailed livability score based on 20+ spatial factors.
+- ⚙️ **Personalized Scoring** – Customize factor importance to tailor scores to your lifestyle.
+- � **Smart Search & Favorites** – "Apple-style" expandable search bar and cross-device sync.
+- 🔐 **Secure & Reliable** – Multi-provider authentication (Google, GitHub, Email) with >90% test coverage.
 
 
 ## 📊 Scoring System
