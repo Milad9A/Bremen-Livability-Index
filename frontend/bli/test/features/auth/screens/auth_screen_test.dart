@@ -12,9 +12,27 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bli/features/auth/bloc/auth_event.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:bli/features/auth/models/user.dart'; // For User model
+import 'package:bloc_test/bloc_test.dart'; // For whenListen
 
 @GenerateNiceMocks([MockSpec<AuthService>(), MockSpec<AuthBloc>()])
 import 'auth_screen_test.mocks.dart';
+
+class TestNavigatorObserver extends NavigatorObserver {
+  final List<Route<dynamic>> pushedRoutes = [];
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    pushedRoutes.add(route);
+    super.didPush(route, previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    if (newRoute != null) pushedRoutes.add(newRoute);
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+  }
+}
 
 class TestAssetBundle extends CachingAssetBundle {
   @override
@@ -112,9 +130,11 @@ class TestAssetBundle extends CachingAssetBundle {
 
 void main() {
   late MockAuthBloc mockAuthBloc;
+  late TestNavigatorObserver mockObserver;
 
   setUp(() {
     mockAuthBloc = MockAuthBloc();
+    mockObserver = TestNavigatorObserver(); // No registerFallbackValue needed
 
     // Setup default state
     when(mockAuthBloc.state).thenReturn(const AuthState());
@@ -126,10 +146,16 @@ void main() {
   Widget createWidgetUnderTest() {
     return DefaultAssetBundle(
       bundle: TestAssetBundle(),
-      child: MaterialApp(
-        home: BlocProvider<AuthBloc>.value(
-          value: mockAuthBloc,
-          child: const AuthScreen(),
+      child: BlocProvider<AuthBloc>.value(
+        value: mockAuthBloc,
+        child: MaterialApp(
+          navigatorObservers: [mockObserver],
+          routes: {
+            '/map': (_) => const Scaffold(body: Text('Map Screen')),
+            '/email-auth': (_) =>
+                const Scaffold(body: Text('Email Auth Screen')),
+          },
+          home: const AuthScreen(),
         ),
       ),
     );
@@ -208,6 +234,37 @@ void main() {
       verify(
         mockAuthBloc.add(const AuthEvent.gitHubSignInRequested()),
       ).called(1);
+    });
+
+    testWidgets('shows error snackbar on error', (tester) async {
+      when(mockAuthBloc.stream).thenAnswer(
+        (_) => Stream.fromIterable([
+          const AuthState(),
+          const AuthState(error: 'Login Failed'),
+        ]),
+      );
+
+      await tester.pumpWidget(createWidgetUnderTest());
+      await tester.pump(); // trigger listener
+      await tester.pump(); // animate snackbar
+
+      expect(find.text('Login Failed'), findsOneWidget);
+    });
+
+    testWidgets('navigates to email auth when email button tapped', (
+      tester,
+    ) async {
+      await tester.pumpWidget(createWidgetUnderTest());
+
+      // "Continue with Email" text expected
+      expect(find.text('Continue with Email'), findsOneWidget);
+
+      await tester.tap(find.text('Continue with Email'));
+      await tester.pumpAndSettle();
+
+      expect(mockObserver.pushedRoutes.isNotEmpty, isTrue);
+      final pushedRoute = mockObserver.pushedRoutes.last;
+      expect(pushedRoute, isA<MaterialPageRoute>());
     });
   });
 }

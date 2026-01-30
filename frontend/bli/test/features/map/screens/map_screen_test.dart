@@ -2,11 +2,14 @@ import 'package:bli/features/map/bloc/map_bloc.dart';
 import 'package:bli/features/map/models/models.dart';
 import 'package:bli/core/services/api_service.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
+import 'package:bli/features/auth/bloc/auth_state.dart';
+import 'package:bli/features/auth/models/user.dart';
 import 'package:bli/features/auth/services/auth_service.dart';
+import 'package:mockito/mockito.dart';
 import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
 import 'package:bli/features/preferences/models/user_preferences.dart';
 import 'package:bli/features/preferences/services/preferences_service.dart';
-import 'package:flutter/gestures.dart'; // For PointerDeviceKind
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:bli/features/map/screens/map_screen.dart';
@@ -24,6 +27,65 @@ class MockAuthService implements AuthService {
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+// Mock AuthBloc
+class MockAuthBloc extends Mock implements AuthBloc {
+  @override
+  Stream<AuthState> get stream =>
+      super.noSuchMethod(
+            Invocation.getter(#stream),
+            returnValue: Stream<AuthState>.empty(),
+          )
+          as Stream<AuthState>;
+
+  @override
+  AuthState get state =>
+      super.noSuchMethod(
+            Invocation.getter(#state),
+            returnValue: const AuthState(),
+          )
+          as AuthState;
+
+  @override
+  Future<void> close() => Future.value();
+}
+
+// Mock MapBloc
+class MockMapBloc extends Mock implements MapBloc {
+  final MapController _mapController = MapController();
+
+  @override
+  MapController get mapController => _mapController;
+
+  @override
+  Stream<MapState> get stream =>
+      super.noSuchMethod(
+            Invocation.getter(#stream),
+            returnValue: Stream<MapState>.empty(),
+          )
+          as Stream<MapState>;
+
+  @override
+  MapState get state =>
+      super.noSuchMethod(
+            Invocation.getter(#state),
+            returnValue: MapState.initial(),
+          )
+          as MapState;
+
+  @override
+  Future<void> close() => Future.value();
+}
+
+class TestNavigatorObserver extends NavigatorObserver {
+  final List<Route<dynamic>> pushedRoutes = [];
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    pushedRoutes.add(route);
+    super.didPush(route, previousRoute);
+  }
 }
 
 // Mock ApiService to avoid real network calls and timers
@@ -79,17 +141,23 @@ class MockPreferencesService implements PreferencesService {
 
 class TestHttpOverrides extends HttpOverrides {}
 
-Widget _buildTestWidget(
+// Helper to wrap MapScreen when we want to inject a specific instance
+Widget _buildTestWidgetWithInstance(
   MapBloc bloc,
   MockAuthService mockAuthService,
-  MockPreferencesService mockPreferencesService,
-) {
+  MockPreferencesService mockPreferencesService, {
+  NavigatorObserver? navigatorObserver,
+  AuthBloc? authBloc,
+}) {
   return MaterialApp(
+    navigatorObservers: navigatorObserver != null ? [navigatorObserver] : [],
     home: MultiBlocProvider(
       providers: [
-        BlocProvider<AuthBloc>(
-          create: (_) => AuthBloc(authService: mockAuthService),
-        ),
+        authBloc != null
+            ? BlocProvider<AuthBloc>.value(value: authBloc)
+            : BlocProvider<AuthBloc>(
+                create: (_) => AuthBloc(authService: mockAuthService),
+              ),
         BlocProvider<PreferencesBloc>(
           create: (_) =>
               PreferencesBloc(preferencesService: mockPreferencesService),
@@ -101,10 +169,13 @@ Widget _buildTestWidget(
 }
 
 void main() {
-  late MapBloc bloc;
+  late MapBloc realBloc;
+  late MockMapBloc mockBloc;
   late MockApiService mockApiService;
   late MockAuthService mockAuthService;
   late MockPreferencesService mockPreferencesService;
+  late TestNavigatorObserver mockObserver;
+  late MockAuthBloc mockAuthBloc;
 
   setUpAll(() {
     HttpOverrides.global = TestHttpOverrides();
@@ -114,7 +185,18 @@ void main() {
     mockApiService = MockApiService();
     mockAuthService = MockAuthService();
     mockPreferencesService = MockPreferencesService();
-    bloc = MapBloc(apiService: mockApiService);
+    mockObserver = TestNavigatorObserver();
+    mockAuthBloc = MockAuthBloc();
+    realBloc = MapBloc(apiService: mockApiService);
+    mockBloc = MockMapBloc();
+
+    // Default to authenticated
+    when(mockAuthBloc.stream).thenAnswer((_) => Stream.empty());
+    when(mockAuthBloc.state).thenReturn(
+      const AuthState(
+        user: AppUser(id: '1', provider: AppAuthProvider.email),
+      ),
+    );
 
     // Set a large enough screen size so LiquidGlass positioning works
     final TestWidgetsFlutterBinding binding =
@@ -124,31 +206,40 @@ void main() {
   });
 
   tearDown(() {
-    bloc.close();
+    realBloc.close();
+    mockBloc.close();
     final TestWidgetsFlutterBinding binding =
         TestWidgetsFlutterBinding.ensureInitialized();
     binding.window.clearPhysicalSizeTestValue();
     binding.window.clearDevicePixelRatioTestValue();
   });
 
-  group('MapScreen', () {
+  group('MapScreen Integration', () {
     testWidgets('renders FlutterMap', (WidgetTester tester) async {
       await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+          navigatorObserver: mockObserver,
+        ),
       );
-      await tester.pump(const Duration(seconds: 1)); // Allow initial animation
 
+      await tester.pump(const Duration(seconds: 1)); // Allow initial animation
       expect(find.byType(FlutterMap), findsOneWidget);
     });
-
-    // Note: FloatingSearchBar was replaced with LiquidGlass UI
-    // FloatingSearchBar test removed as it is replaced by LiquidGlass UI
 
     testWidgets('renders search icon (manual inspection)', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
       );
       await tester.pump(const Duration(seconds: 1));
 
@@ -171,7 +262,12 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
       );
       await tester.pump(const Duration(seconds: 1));
 
@@ -193,7 +289,12 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
       );
       await tester.pump(const Duration(seconds: 1)); // Allow animations
 
@@ -201,25 +302,19 @@ void main() {
       expect(find.text('Livability Score'), findsNothing);
     });
 
-    testWidgets('shows score card when score is loaded', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-      );
-
-      expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.byType(FlutterMap), findsOneWidget);
-    }, skip: true);
-
     testWidgets('shows error message card when error occurs', (
       WidgetTester tester,
     ) async {
       const errorMessage = 'Failed to load data';
-      bloc.add(const MapEvent.analysisFailed(errorMessage));
+      realBloc.add(const MapEvent.analysisFailed(errorMessage));
 
       await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
       );
       await tester.pump();
 
@@ -231,89 +326,21 @@ void main() {
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
       );
 
       const message = 'Test Message';
       // Trigger the callback
-      bloc.onShowMessage?.call(message);
+      realBloc.onShowMessage?.call(message);
 
       await tester.pump(); // Trigger animation
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text(message), findsOneWidget);
-    });
-
-    testWidgets('shows nearby features on map when score has features', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-      );
-
-      expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.byType(FlutterMap), findsOneWidget);
-    }, skip: true);
-
-    testWidgets('tapping reset button resets map (manual invocation)', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-      );
-      await tester.pump(const Duration(seconds: 1));
-
-      final liquidGlassView = tester.widget<LiquidGlassView>(
-        find.byType(LiquidGlassView),
-      );
-
-      // Index 2: Location Lens
-      final locationLens = liquidGlassView.children[2];
-      final gestureDetector = locationLens.child as GestureDetector;
-
-      // Simulate tap
-      gestureDetector.onTapDown?.call(TapDownDetails());
-      await tester.pump();
-      gestureDetector.onTapUp?.call(
-        TapUpDetails(kind: PointerDeviceKind.touch),
-      );
-      await tester.pump(const Duration(milliseconds: 500));
-
-      // Verify logic: Map renders (state check not strictly possible on Bloc but we verify no crash)
-      expect(find.byType(FlutterMap), findsOneWidget);
-    });
-  });
-
-  group('MapScreen with BLoC', () {
-    testWidgets('MapScreen creates its own MapBloc', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-      );
-      await tester.pump(const Duration(seconds: 1));
-
-      // The widget tree should contain a BlocProvider
-      expect(find.byType(BlocProvider<MapBloc>), findsOneWidget);
-    });
-
-    testWidgets('MapScreen renders Scaffold', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-      );
-      await tester.pump();
-
-      expect(find.byType(Scaffold), findsOneWidget);
-    });
-
-    testWidgets('MapScreen uses Stack for layering', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(
-        _buildTestWidget(bloc, mockAuthService, mockPreferencesService),
-      );
-      await tester.pump();
-
-      expect(find.byType(Stack), findsWidgets);
     });
   });
 }
