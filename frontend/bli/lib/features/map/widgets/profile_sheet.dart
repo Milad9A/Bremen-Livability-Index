@@ -167,7 +167,7 @@ class ProfileSheet extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: MediaQuery.of(context).padding.bottom + 8),
+          const SizedBox(height: 8),
         ],
       ),
     );

@@ -62,14 +62,12 @@ class _MapScreenContentState extends State<_MapScreenContent>
   void initState() {
     super.initState();
 
-    _searchController =
-        AnimationController(
-            vsync: this,
-            duration: const Duration(milliseconds: 100),
-            value: 1.0,
-            upperBound: 2.0,
-          )
-          ..addListener(() => setState(() {}));
+    _searchController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+      value: 1.0,
+      upperBound: 2.0,
+    )..addListener(() => setState(() {}));
 
     _searchExpansionController = AnimationController(
       vsync: this,
@@ -121,6 +119,7 @@ class _MapScreenContentState extends State<_MapScreenContent>
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
+      useSafeArea: true,
       builder: (modalContext) =>
           BlocProvider.value(value: mapBloc, child: const ProfileSheet()),
     );
@@ -216,27 +215,27 @@ class _MapScreenContentState extends State<_MapScreenContent>
                   height: 56,
                   child: Center(
                     child: AddressSearchWidget(
-                    onSearchStateChanged:
-                        (results, isSearching, error, hasQuery) {
-                          setState(() {
-                            _searchResults = results;
-                            _isSearching = isSearching;
-                            _searchError = error;
-                            _hasSearchQuery = hasQuery;
-                          });
-                        },
-                    onLocationSelected: (location, addressName) => bloc.add(
-                      MapEvent.locationSelected(location, addressName),
-                    ),
-                    onClose: () {
-                      setState(() {
-                        _searchResults = [];
-                        _isSearching = false;
-                        _searchError = null;
-                        _hasSearchQuery = false;
-                      });
-                      bloc.add(const MapEvent.searchToggled(false));
-                    },
+                      onSearchStateChanged:
+                          (results, isSearching, error, hasQuery) {
+                            setState(() {
+                              _searchResults = results;
+                              _isSearching = isSearching;
+                              _searchError = error;
+                              _hasSearchQuery = hasQuery;
+                            });
+                          },
+                      onLocationSelected: (location, addressName) => bloc.add(
+                        MapEvent.locationSelected(location, addressName),
+                      ),
+                      onClose: () {
+                        setState(() {
+                          _searchResults = [];
+                          _isSearching = false;
+                          _searchError = null;
+                          _hasSearchQuery = false;
+                        });
+                        bloc.add(const MapEvent.searchToggled(false));
+                      },
                     ),
                   ),
                 ),
