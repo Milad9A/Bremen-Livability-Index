@@ -149,7 +149,8 @@ class _MapScreenContentState extends State<_MapScreenContent>
     final expansionValue = _searchExpansionController.value;
     final buttonScale = _searchController.value;
     final collapsedSize = 56 * buttonScale;
-    final expandedWidth = screenWidth - 96;
+    // Limit search bar width on larger screens (max 500px)
+    final expandedWidth = (screenWidth - 96).clamp(0.0, 500.0);
 
     // Interpolate width
     final currentWidth =
@@ -225,7 +226,7 @@ class _MapScreenContentState extends State<_MapScreenContent>
                 )
               : SizedBox(
                   key: const ValueKey('search_input'),
-                  width: screenWidth - 96,
+                  width: (screenWidth - 96).clamp(0.0, 500.0),
                   height: 56,
                   child: AddressSearchWidget(
                     onSearchStateChanged:
@@ -262,7 +263,7 @@ class _MapScreenContentState extends State<_MapScreenContent>
         (_hasSearchQuery && _searchResults.isEmpty)) {
       lenses.add(
         LiquidGlass(
-          width: screenWidth - 96,
+          width: (screenWidth - 96).clamp(0.0, 500.0),
           height: 300,
           magnification: kIsWeb ? 1.0 : 1.03,
           distortion: kIsWeb ? 0.0 : 0.12,
