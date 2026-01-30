@@ -119,7 +119,6 @@ class _MapScreenContentState extends State<_MapScreenContent>
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      useSafeArea: true,
       builder: (modalContext) =>
           BlocProvider.value(value: mapBloc, child: const ProfileSheet()),
     );
