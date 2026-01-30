@@ -214,7 +214,8 @@ class _MapScreenContentState extends State<_MapScreenContent>
                   key: const ValueKey('search_input'),
                   width: (screenWidth - 96).clamp(0.0, 500.0),
                   height: 56,
-                  child: AddressSearchWidget(
+                  child: Center(
+                    child: AddressSearchWidget(
                     onSearchStateChanged:
                         (results, isSearching, error, hasQuery) {
                           setState(() {
@@ -236,6 +237,7 @@ class _MapScreenContentState extends State<_MapScreenContent>
                       });
                       bloc.add(const MapEvent.searchToggled(false));
                     },
+                    ),
                   ),
                 ),
         ),
