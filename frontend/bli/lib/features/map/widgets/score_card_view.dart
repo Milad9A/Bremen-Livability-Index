@@ -1,4 +1,5 @@
 import 'package:bli/features/map/models/enums.dart';
+import 'package:flutter/services.dart';
 import 'package:bli/features/map/models/models.dart';
 import 'package:bli/core/theme/app_theme.dart';
 import 'package:bli/core/utils/feature_styles.dart';
@@ -58,7 +59,10 @@ class _ScoreCardViewState extends State<ScoreCardView> {
         mainAxisSize: MainAxisSize.min,
         children: [
           GestureDetector(
-            onTap: () => setState(() => _isExpanded = !_isExpanded),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              setState(() => _isExpanded = !_isExpanded);
+            },
             behavior: HitTestBehavior.opaque,
             child: Container(
               padding: const EdgeInsets.all(20.0),

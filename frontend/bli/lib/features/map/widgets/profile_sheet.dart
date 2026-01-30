@@ -1,4 +1,5 @@
 import 'package:bli/core/theme/app_theme.dart';
+import 'package:flutter/services.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/bloc/auth_event.dart';
 import 'package:bli/features/auth/models/favorite_address.dart';
@@ -23,19 +24,29 @@ class ProfileSheet extends StatelessWidget {
         color: AppColors.white,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24).copyWith(top: 12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 40,
-            height: 4,
-            decoration: BoxDecoration(
-              color: AppColors.greyLight,
-              borderRadius: BorderRadius.circular(2),
+          GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              Navigator.pop(context);
+            },
+            behavior: HitTestBehavior.translucent,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: AppColors.greyLight,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           CircleAvatar(
             radius: 40,
             backgroundColor: AppColors.primary.withValues(alpha: 0.1),

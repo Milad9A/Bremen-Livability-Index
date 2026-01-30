@@ -506,6 +506,15 @@ class _MapScreenContentState extends State<_MapScreenContent>
               _searchExpansionController.reverse();
             }
           },
+          listenWhen: (previous, current) {
+            // Trigger haptic feedback when loading finishes and we have a score
+            if (previous.isLoading &&
+                !current.isLoading &&
+                current.currentScore != null) {
+              HapticFeedback.mediumImpact();
+            }
+            return true;
+          },
         ),
       ],
       child: BlocBuilder<MapBloc, MapState>(
