@@ -139,9 +139,12 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
             padding: const EdgeInsets.only(left: 6),
             child: Icon(Icons.search, color: Theme.of(context).iconTheme.color),
           ),
-          suffixIcon: IconButton(
-            icon: Icon(Icons.close, color: AppColors.greyMedium),
-            onPressed: widget.onClose,
+          suffixIcon: Padding(
+            padding: const EdgeInsets.only(right: 4.0),
+            child: IconButton(
+              icon: Icon(Icons.close, color: AppColors.greyMedium),
+              onPressed: widget.onClose,
+            ),
           ),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 16),
