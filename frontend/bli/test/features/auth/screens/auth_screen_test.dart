@@ -12,8 +12,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:bli/features/auth/bloc/auth_event.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:bli/features/auth/models/user.dart'; // For User model
-import 'package:bloc_test/bloc_test.dart'; // For whenListen
 
 @GenerateNiceMocks([MockSpec<AuthService>(), MockSpec<AuthBloc>()])
 import 'auth_screen_test.mocks.dart';

@@ -169,6 +169,13 @@ Widget _buildTestWidgetWithInstance(
 }
 
 void main() {
+  Future<void> configureScreen(WidgetTester tester) async {
+    tester.view.physicalSize = const Size(1080, 1920);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+  }
+
   late MapBloc realBloc;
   late MockMapBloc mockBloc;
   late MockApiService mockApiService;
@@ -197,25 +204,16 @@ void main() {
         user: AppUser(id: '1', provider: AppAuthProvider.email),
       ),
     );
-
-    // Set a large enough screen size so LiquidGlass positioning works
-    final TestWidgetsFlutterBinding binding =
-        TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.physicalSizeTestValue = const Size(1080, 1920);
-    binding.window.devicePixelRatioTestValue = 1.0;
   });
 
   tearDown(() {
     realBloc.close();
     mockBloc.close();
-    final TestWidgetsFlutterBinding binding =
-        TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.clearPhysicalSizeTestValue();
-    binding.window.clearDevicePixelRatioTestValue();
   });
 
   group('MapScreen Integration', () {
     testWidgets('renders FlutterMap', (WidgetTester tester) async {
+      await configureScreen(tester);
       await tester.pumpWidget(
         _buildTestWidgetWithInstance(
           realBloc,
@@ -233,6 +231,7 @@ void main() {
     testWidgets('renders search icon (manual inspection)', (
       WidgetTester tester,
     ) async {
+      await configureScreen(tester);
       await tester.pumpWidget(
         _buildTestWidgetWithInstance(
           realBloc,
@@ -261,6 +260,7 @@ void main() {
     testWidgets('renders location reset button (manual inspection)', (
       WidgetTester tester,
     ) async {
+      await configureScreen(tester);
       await tester.pumpWidget(
         _buildTestWidgetWithInstance(
           realBloc,
@@ -288,6 +288,7 @@ void main() {
     testWidgets('does not show score card initially', (
       WidgetTester tester,
     ) async {
+      await configureScreen(tester);
       await tester.pumpWidget(
         _buildTestWidgetWithInstance(
           realBloc,
@@ -305,6 +306,7 @@ void main() {
     testWidgets('shows error message card when error occurs', (
       WidgetTester tester,
     ) async {
+      await configureScreen(tester);
       const errorMessage = 'Failed to load data';
       realBloc.add(const MapEvent.analysisFailed(errorMessage));
 
@@ -325,6 +327,7 @@ void main() {
     testWidgets('shows snackbar when bloc triggers onShowMessage', (
       WidgetTester tester,
     ) async {
+      await configureScreen(tester);
       await tester.pumpWidget(
         _buildTestWidgetWithInstance(
           realBloc,
