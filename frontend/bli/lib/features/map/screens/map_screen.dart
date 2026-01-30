@@ -18,6 +18,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart' hide MapEvent;
 import 'package:latlong2/latlong.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class MapScreen extends StatelessWidget {
   final MapBloc? bloc;
@@ -159,12 +160,16 @@ class _MapScreenContentState extends State<_MapScreenContent>
     final centeredOffset =
         getCenteredOffset(buttonScale) * (1 - expansionValue);
 
+    // Adjust for web performance
+    final double effectMagnification = kIsWeb ? 1.0 : 1.05;
+    final double effectDistortion = kIsWeb ? 0.0 : 0.10;
+
     lenses.add(
       LiquidGlass(
         width: currentWidth,
         height: 56,
-        magnification: 1.05,
-        distortion: 0.10,
+        magnification: effectMagnification,
+        distortion: effectDistortion,
         distortionWidth: 30,
         position: LiquidGlassOffsetPosition(
           left: 16 - centeredOffset,
@@ -259,8 +264,8 @@ class _MapScreenContentState extends State<_MapScreenContent>
         LiquidGlass(
           width: screenWidth - 96,
           height: 300,
-          magnification: 1.03,
-          distortion: 0.12,
+          magnification: kIsWeb ? 1.0 : 1.03,
+          distortion: kIsWeb ? 0.0 : 0.12,
           distortionWidth: 35,
           position: LiquidGlassOffsetPosition(
             left: 16,
@@ -299,8 +304,8 @@ class _MapScreenContentState extends State<_MapScreenContent>
       LiquidGlass(
         width: 56 * _profileController.value,
         height: 56 * _profileController.value,
-        magnification: 1.05,
-        distortion: 0.10,
+        magnification: effectMagnification,
+        distortion: effectDistortion,
         distortionWidth: 30,
         position: LiquidGlassOffsetPosition(
           right: 16 - profileOffset,
@@ -356,8 +361,8 @@ class _MapScreenContentState extends State<_MapScreenContent>
       LiquidGlass(
         width: 56 * _locationController.value,
         height: 56 * _locationController.value,
-        magnification: 1.05,
-        distortion: 0.10,
+        magnification: effectMagnification,
+        distortion: effectDistortion,
         distortionWidth: 30,
         position: LiquidGlassOffsetPosition(
           right: 16 - locationOffset,
@@ -415,8 +420,8 @@ class _MapScreenContentState extends State<_MapScreenContent>
         LiquidGlass(
           width: 80,
           height: 80,
-          magnification: 1.05,
-          distortion: 0.10,
+          magnification: effectMagnification,
+          distortion: effectDistortion,
           distortionWidth: 30,
           position: LiquidGlassOffsetPosition(
             left: (screenWidth - 80) / 2,
@@ -435,8 +440,8 @@ class _MapScreenContentState extends State<_MapScreenContent>
           LiquidGlass(
             width: screenWidth - 80,
             height: 200, // Approximate height for message
-            magnification: 1.05,
-            distortion: 0.10,
+            magnification: effectMagnification,
+            distortion: effectDistortion,
             distortionWidth: 30,
             position: LiquidGlassOffsetPosition(
               left: 40,
