@@ -15,12 +15,10 @@ def main():
     print("=" * 50)
     
     try:
-        # Step 1: OSM Data (trees, parks, amenities, transport, healthcare, industrial, roads)
         print("\n📍 Step 1/2: OpenStreetMap Data")
         print("-" * 40)
         ingest_osm()
         
-        # Step 2: Accident Data
         print("\n🚗 Step 2/2: Accident Data")
         print("-" * 40)
         try:

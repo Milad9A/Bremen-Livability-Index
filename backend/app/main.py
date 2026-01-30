@@ -30,7 +30,6 @@ from services.geocode import GeocodeService
 from config import settings
 
 
-# Pydantic models for user favorites API
 class UserCreateRequest(BaseModel):
     """Request model for creating/registering a user."""
     id: str = Field(..., description="Firebase UID")
@@ -69,7 +68,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Configure CORS with settings
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -118,8 +116,6 @@ async def get_default_preferences():
         "factor_keys": LivabilityScorer.FACTOR_KEYS
     }
 
-# ============== User Favorites API ==============
-
 @app.post("/users", status_code=201)
 async def create_or_update_user(
     request: UserCreateRequest,
@@ -127,11 +123,9 @@ async def create_or_update_user(
 ):
     """Create or update a user record."""
     try:
-        # Check if user already exists
         existing_user = session.get(User, request.id)
         
         if existing_user:
-            # Update existing user
             existing_user.email = request.email or existing_user.email
             existing_user.display_name = request.display_name or existing_user.display_name
             existing_user.provider = request.provider
@@ -141,7 +135,6 @@ async def create_or_update_user(
             logger.info(f"Updated user: {request.id}")
             return {"message": "User updated", "user_id": existing_user.id}
         else:
-            # Create new user
             user = User(
                 id=request.id,
                 email=request.email,
@@ -166,12 +159,10 @@ async def get_user_favorites(
 ):
     """Get all favorite addresses for a user."""
     try:
-        # Check if user exists
         user = session.get(User, user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
-        # Get favorites
         statement = select(FavoriteAddress).where(
             FavoriteAddress.user_id == user_id
         ).order_by(FavoriteAddress.created_at.desc())
@@ -208,12 +199,10 @@ async def add_favorite(
 ):
     """Add a favorite address for a user."""
     try:
-        # Check if user exists
         user = session.get(User, user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
-        # Create favorite
         favorite = FavoriteAddress(
             user_id=user_id,
             label=request.label,
@@ -251,12 +240,10 @@ async def delete_favorite(
 ):
     """Delete a favorite address."""
     try:
-        # Check if user exists
         user = session.get(User, user_id)
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
-        # Get and verify favorite belongs to user
         favorite = session.get(FavoriteAddress, favorite_id)
         if not favorite:
             raise HTTPException(status_code=404, detail="Favorite not found")
@@ -274,8 +261,6 @@ async def delete_favorite(
         logger.exception(f"Failed to delete favorite {favorite_id} for user: {user_id}")
         raise HTTPException(status_code=500, detail=f"Failed to delete favorite: {str(e)}")
 
-
-# ============== Geocoding API ==============
 
 @app.post("/geocode", response_model=GeocodeResponse)
 async def geocode_address(request: GeocodeRequest):
@@ -319,7 +304,6 @@ def fetch_nearby_features(
     Returns:
         List of FeatureDetail objects
     """
-    # Build the select columns
     columns = [
         model.id,
         getattr(model, name_field).label("name"),
@@ -327,11 +311,9 @@ def fetch_nearby_features(
         ST_Distance(model.geometry, point).label("dist")
     ]
     
-    # Add subtype field if specified
     if type_field and hasattr(model, type_field):
         columns.append(getattr(model, type_field).label("type_detail"))
     
-    # Build and execute query
     statement = (
         select(*columns)
         .where(ST_DWithin(model.geometry, point, radius))
@@ -340,7 +322,6 @@ def fetch_nearby_features(
     
     results = session.exec(statement).all()
     
-    # Convert to FeatureDetail objects
     features: List[FeatureDetail] = []
     for row in results:
         subtype = getattr(row, "type_detail", None) if type_field else None
@@ -368,13 +349,9 @@ async def analyze_location(
     try:
         nearby_features = {}
         
-        # Convert preferences to dict once at the start
         preferences_dict = request.preferences.to_dict() if request.preferences else None
-        
-        # Create the point once for all queries
         point = create_point_geography(lon, lat)
         
-        # Initialize counts
         tree_count = 0
         park_count = 0
         amenity_count = 0
@@ -397,11 +374,9 @@ async def analyze_location(
         near_airport = False
         near_construction = False
 
-        # Helper to check if factor is enabled
         def is_enabled(key: str) -> bool:
             return LivabilityScorer.get_multiplier(preferences_dict, key) > 0.0
 
-        # Trees & Parks (Greenery)
         if is_enabled("greenery"):
             trees = fetch_nearby_features(session, Tree, point, LivabilityScorer.GREENERY_RADIUS, "tree")
             nearby_features["trees"] = trees
@@ -411,7 +386,6 @@ async def analyze_location(
             nearby_features["parks"] = parks
             park_count = len(parks)
         
-        # Amenities
         if is_enabled("amenities"):
             amenities = fetch_nearby_features(
                 session, Amenity, point, LivabilityScorer.AMENITIES_RADIUS, "amenity",
@@ -420,7 +394,6 @@ async def analyze_location(
             nearby_features["amenities"] = amenities
             amenity_count = len(amenities)
         
-        # Accidents
         if is_enabled("accidents"):
             accidents = fetch_nearby_features(
                 session, Accident, point, LivabilityScorer.ACCIDENT_RADIUS, "accident",
@@ -429,7 +402,6 @@ async def analyze_location(
             nearby_features["accidents"] = accidents
             accident_count = len(accidents)
         
-        # Public transport
         if is_enabled("public_transport"):
             transport = fetch_nearby_features(
                 session, PublicTransport, point, LivabilityScorer.PUBLIC_TRANSPORT_RADIUS, "public_transport",
@@ -438,7 +410,6 @@ async def analyze_location(
             nearby_features["public_transport"] = transport
             transport_count = len(transport)
         
-        # Healthcare
         if is_enabled("healthcare"):
             healthcare = fetch_nearby_features(
                 session, Healthcare, point, LivabilityScorer.HEALTHCARE_RADIUS, "healthcare",
@@ -447,7 +418,6 @@ async def analyze_location(
             nearby_features["healthcare"] = healthcare
             healthcare_count = len(healthcare)
         
-        # Industrial areas
         if is_enabled("industrial"):
             industrial = fetch_nearby_features(
                 session, IndustrialArea, point, LivabilityScorer.INDUSTRIAL_RADIUS, "industrial"
@@ -456,7 +426,6 @@ async def analyze_location(
             if near_industrial:
                 nearby_features["industrial"] = industrial
         
-        # Major roads
         if is_enabled("major_roads"):
             roads = fetch_nearby_features(
                 session, MajorRoad, point, LivabilityScorer.MAJOR_ROADS_RADIUS, "major_road",
@@ -466,7 +435,6 @@ async def analyze_location(
             if near_major_road:
                 nearby_features["major_roads"] = roads
         
-        # Bike infrastructure
         if is_enabled("bike_infrastructure"):
             bike_infra = fetch_nearby_features(
                 session, BikeInfrastructure, point, LivabilityScorer.BIKE_INFRASTRUCTURE_RADIUS, "bike_infrastructure",
@@ -475,7 +443,6 @@ async def analyze_location(
             nearby_features["bike_infrastructure"] = bike_infra
             bike_infrastructure_count = len(bike_infra)
         
-        # Education facilities
         if is_enabled("education"):
             education = fetch_nearby_features(
                 session, Education, point, LivabilityScorer.EDUCATION_RADIUS, "education",
@@ -484,7 +451,6 @@ async def analyze_location(
             nearby_features["education"] = education
             education_count = len(education)
         
-        # Sports and leisure
         if is_enabled("sports_leisure"):
             sports_leisure = fetch_nearby_features(
                 session, SportsLeisure, point, LivabilityScorer.SPORTS_LEISURE_RADIUS, "sports_leisure",
@@ -493,7 +459,6 @@ async def analyze_location(
             nearby_features["sports_leisure"] = sports_leisure
             sports_leisure_count = len(sports_leisure)
         
-        # Pedestrian infrastructure
         if is_enabled("pedestrian_infrastructure"):
             pedestrian = fetch_nearby_features(
                 session, PedestrianInfrastructure, point, LivabilityScorer.PEDESTRIAN_INFRA_RADIUS, "pedestrian_infrastructure",
@@ -502,7 +467,6 @@ async def analyze_location(
             nearby_features["pedestrian_infrastructure"] = pedestrian
             pedestrian_infra_count = len(pedestrian)
         
-        # Cultural venues
         if is_enabled("cultural"):
             cultural = fetch_nearby_features(
                 session, CulturalVenue, point, LivabilityScorer.CULTURAL_RADIUS, "cultural_venue",
@@ -511,7 +475,6 @@ async def analyze_location(
             nearby_features["cultural_venues"] = cultural
             cultural_count = len(cultural)
         
-        # Noise sources
         if is_enabled("noise"):
             noise = fetch_nearby_features(
                 session, NoiseSource, point, LivabilityScorer.NOISE_RADIUS, "noise_source",
@@ -521,7 +484,6 @@ async def analyze_location(
             if noise_count > 0:
                 nearby_features["noise_sources"] = noise
         
-        # Railways
         if is_enabled("railway"):
             railways = fetch_nearby_features(
                 session, Railway, point, LivabilityScorer.RAILWAY_RADIUS, "railway",
@@ -531,7 +493,6 @@ async def analyze_location(
             if near_railway:
                 nearby_features["railways"] = railways
         
-        # Gas stations
         if is_enabled("gas_station"):
             gas_stations = fetch_nearby_features(
                 session, GasStation, point, LivabilityScorer.GAS_STATION_RADIUS, "gas_station"
@@ -540,7 +501,6 @@ async def analyze_location(
             if near_gas_station:
                 nearby_features["gas_stations"] = gas_stations
         
-        # Waste facilities
         if is_enabled("waste"):
             waste = fetch_nearby_features(
                 session, WasteFacility, point, LivabilityScorer.WASTE_RADIUS, "waste_facility",
@@ -550,7 +510,6 @@ async def analyze_location(
             if near_waste:
                 nearby_features["waste_facilities"] = waste
         
-        # Power infrastructure
         if is_enabled("power"):
             power = fetch_nearby_features(
                 session, PowerInfrastructure, point, LivabilityScorer.POWER_RADIUS, "power_infrastructure",
@@ -560,7 +519,6 @@ async def analyze_location(
             if near_power:
                 nearby_features["power_infrastructure"] = power
         
-        # Large parking lots
         if is_enabled("parking"):
             parking = fetch_nearby_features(
                 session, ParkingLot, point, LivabilityScorer.PARKING_RADIUS, "parking_lot",
@@ -570,7 +528,6 @@ async def analyze_location(
             if near_parking:
                 nearby_features["parking_lots"] = parking
         
-        # Airports/helipads
         if is_enabled("airport"):
             airports = fetch_nearby_features(
                 session, Airport, point, LivabilityScorer.AIRPORT_RADIUS, "airport",
@@ -580,7 +537,6 @@ async def analyze_location(
             if near_airport:
                 nearby_features["airports"] = airports
         
-        # Construction sites
         if is_enabled("construction"):
             construction = fetch_nearby_features(
                 session, ConstructionSite, point, LivabilityScorer.CONSTRUCTION_RADIUS, "construction_site"
@@ -589,7 +545,6 @@ async def analyze_location(
             if near_construction:
                 nearby_features["construction_sites"] = construction
         
-        # Calculate score
         result = LivabilityScorer.calculate_score(
             tree_count=tree_count,
             park_count=park_count,

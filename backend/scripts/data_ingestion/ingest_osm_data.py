@@ -193,7 +193,6 @@ def ingest_major_roads(api, conn):
 def ingest_bike_infrastructure(api, conn):
     """Ingest bike infrastructure (positive factor)."""
     print("Fetching bike infrastructure...")
-    # Bike lanes and cycle paths
     query = f'[out:json][timeout:300];(way[highway=cycleway]({get_bbox_str()});way[cycleway~"."]({get_bbox_str()});node[amenity=bicycle_parking]({get_bbox_str()});node[amenity=bicycle_rental]({get_bbox_str()}););out body;>;out skel qt;'
     result = query_with_retry(api, query)
     
@@ -201,7 +200,6 @@ def ingest_bike_infrastructure(api, conn):
     cursor.execute("TRUNCATE TABLE gis_data.bike_infrastructure CASCADE;")
     
     count = 0
-    # Insert bike paths (ways)
     for way in result.ways:
         if len(way.nodes) >= 2:
             coords = ", ".join([f"{n.lon} {n.lat}" for n in way.nodes])
@@ -215,7 +213,6 @@ def ingest_bike_infrastructure(api, conn):
             except:
                 continue
     
-    # Insert bike parking/rental (nodes)
     for node in result.nodes:
         if node.lat and node.lon:
             infra_type = node.tags.get("amenity", "bicycle_parking")

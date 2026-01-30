@@ -287,15 +287,17 @@ The backend exposes a comprehensive REST API with the following endpoints:
 ```json
 {
   "score": 72.5,
-  "baseScore": 40.0,
+  "base_score": 40.0,
   "summary": "Good livability - friendly neighborhood",
   "factors": [
-    {"name": "Greenery", "value": 10.2, "contribution": 10.2},
-    {"name": "Amenities", "value": 8.5, "contribution": 8.5},
+    {"factor": "Greenery", "value": 10.2, "description": "45 trees, 2 parks within 175m", "impact": "positive"},
+    {"factor": "Amenities", "value": 8.5, "description": "12 amenities within 550m", "impact": "positive"},
     ...
   ],
-  "nearbyFeatures": {
-     ...
+  "nearby_features": {
+    "trees": [...],
+    "parks": [...],
+    ...
   },
   "location": {"latitude": 53.0793, "longitude": 8.8017}
 }
@@ -319,10 +321,12 @@ The backend exposes a comprehensive REST API with the following endpoints:
 {
   "results": [
     {
-      "name": "Marktplatz, 28195 Bremen, Germany",
+      "display_name": "Marktplatz, 28195 Bremen, Germany",
       "latitude": 53.0793,
       "longitude": 8.8017,
-      "boundingBox": {"south": 53.078, "west": 8.800, "north": 53.081, "east": 8.804}
+      "address": {...},
+      "type": "place",
+      "importance": 0.85
     }
   ],
   "count": 1
@@ -627,18 +631,23 @@ The `calculate_score` method in `LivabilityScorer` accepts an optional `preferen
 ```python
 # backend/core/scoring.py
 
-MULTIPLIERS = {
-    "high": 1.5,
-    "medium": 1.0,
+IMPORTANCE_MULTIPLIERS = {
+    "excluded": 0.0,
     "low": 0.5,
-    "excluded": 0.0
+    "medium": 1.0,
+    "high": 1.5
 }
 
-def calculate_score(cls, ..., preferences: Optional[UserPreferences] = None):
-    # ...
-    # Example application
-    weight = MULTIPLIERS.get(preferences.greenery, 1.0)
-    score += (raw_greenery_score * weight)
+@classmethod
+def get_multiplier(cls, preferences: Optional[Dict[str, str]], factor_key: str) -> float:
+    """Get the importance multiplier for a factor based on user preferences."""
+    if preferences is None:
+        return 1.0  # Default to medium (1.0x)
+    level = preferences.get(factor_key, "medium")
+    return cls.IMPORTANCE_MULTIPLIERS.get(level, 1.0)
+
+# Example application in calculate_score()
+greenery = greenery_base * cls.get_multiplier(preferences, "greenery")
 ```
 
 #### Frontend Implementation
@@ -1373,7 +1382,7 @@ firebase deploy --only hosting --project bremen-livability-index
 - `/.well-known/assetlinks.json` - Android app verification (SHA256)
 - `/login/index.html` - Redirect page with mobile/web detection
 
-1. **Render Deployment Process** (`entrypoint.sh`):
+### Render Deployment Process
 
    ```bash
    # 1. Initialize database schema (safe to run repeatedly - uses IF NOT EXISTS)

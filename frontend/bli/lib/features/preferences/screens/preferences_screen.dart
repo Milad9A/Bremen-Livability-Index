@@ -99,7 +99,6 @@ class PreferencesScreen extends StatelessWidget {
               if (!state.isCustomized) return const SizedBox.shrink();
               return TextButton(
                 onPressed: () {
-                  HapticFeedback.mediumImpact();
                   context.read<PreferencesBloc>().add(const ResetToDefaults());
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(

@@ -12,18 +12,15 @@ def main():
     print(f"Target Database: {db_url.split('@')[1] if '@' in db_url else 'Local'}")
     
     try:
-        # Connect to database
         conn = psycopg2.connect(db_url)
         cursor = conn.cursor()
         
-        # Read SQL file from parent directory
         script_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         sql_path = os.path.join(script_dir, "init_db.sql")
         
         with open(sql_path, "r") as f:
             sql_script = f.read()
         
-        # Execute script
         print("\nExecuting init_db.sql...")
         cursor.execute(sql_script)
         conn.commit()

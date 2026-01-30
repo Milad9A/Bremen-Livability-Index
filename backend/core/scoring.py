@@ -243,7 +243,6 @@ class LivabilityScorer:
                         (excluded, low, medium, high). If None, all factors use medium.
         """
         
-        # Calculate base factor values
         greenery_base = cls.calculate_greenery_score(tree_count, park_count)
         amenities_base = cls.calculate_amenities_score(amenity_count)
         transport_base = cls.calculate_public_transport_score(public_transport_count)
@@ -266,7 +265,6 @@ class LivabilityScorer:
         airport_base = cls.calculate_airport_penalty(near_airport)
         construction_base = cls.calculate_construction_penalty(near_construction)
         
-        # Apply user preference multipliers
         greenery = greenery_base * cls.get_multiplier(preferences, "greenery")
         amenities = amenities_base * cls.get_multiplier(preferences, "amenities")
         transport = transport_base * cls.get_multiplier(preferences, "public_transport")
@@ -289,17 +287,14 @@ class LivabilityScorer:
         airport_penalty = airport_base * cls.get_multiplier(preferences, "airport")
         construction_penalty = construction_base * cls.get_multiplier(preferences, "construction")
         
-        # Final score
         positive = greenery + amenities + transport + healthcare + bike_infra + education + sports + pedestrian + cultural
         negative = (accident_penalty + industrial_penalty + roads_penalty + noise_penalty +
                    railway_penalty + gas_station_penalty + waste_penalty + power_penalty +
                    parking_penalty + airport_penalty + construction_penalty)
         final_score = max(0.0, min(100.0, cls.BASE_SCORE + positive - negative))
         
-        # Build factors list
         factors = []
         
-        # Helper to check if factor is enabled
         def is_enabled(key: str) -> bool:
             return cls.get_multiplier(preferences, key) > 0.0
 
@@ -463,7 +458,6 @@ class LivabilityScorer:
                 impact="negative"
             ))
         
-        # Generate summary
         summary_parts = []
         if greenery >= 10:
             summary_parts.append("Great greenery")

@@ -65,29 +65,24 @@ def download_and_extract_data(year: int = 2024, format_type: str = "csv") -> str
         response = requests.get(url, timeout=120, stream=True)
         response.raise_for_status()
         
-        # Create temp directory for extraction
         temp_dir = tempfile.mkdtemp(prefix="unfallatlas_")
         zip_path = os.path.join(temp_dir, filename)
         
-        # Save zip file
         with open(zip_path, 'wb') as f:
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
         
         print(f"Downloaded {filename} ({os.path.getsize(zip_path) / 1024 / 1024:.1f} MB)")
         
-        # Extract zip
         with zipfile.ZipFile(zip_path, 'r') as zip_ref:
             zip_ref.extractall(temp_dir)
         
-        # Find the extracted file
         for f in os.listdir(temp_dir):
             if f.endswith('.csv'):
                 return os.path.join(temp_dir, f)
             elif f.endswith('.shp'):
                 return os.path.join(temp_dir, f)
         
-        # Check subdirectories
         for root, dirs, files in os.walk(temp_dir):
             for f in files:
                 if f.endswith('.csv') or f.endswith('.shp'):
@@ -112,22 +107,18 @@ def load_and_filter_bremen(data_path: str) -> gpd.GeoDataFrame:
     print(f"Loading data from: {data_path}")
     
     if data_path.endswith('.csv'):
-        # Load CSV and create geometry
         df = pd.read_csv(data_path, sep=';', encoding='utf-8')
         print(f"Loaded CSV with {len(df)} records and columns: {list(df.columns)}")
         
-        # Find coordinate columns (typically XGCSWGS84, YGCSWGS84 or LINREFX, LINREFY)
         x_col = None
         y_col = None
         
-        # Check for WGS84 coordinates first
         for col in df.columns:
             if 'XGCSWGS84' in col.upper() or 'XWGS84' in col.upper():
                 x_col = col
             if 'YGCSWGS84' in col.upper() or 'YWGS84' in col.upper():
                 y_col = col
         
-        # Fallback to UTM coordinates
         if x_col is None or y_col is None:
             for col in df.columns:
                 if 'LINREFX' in col.upper() or col.upper() == 'X':
@@ -141,8 +132,6 @@ def load_and_filter_bremen(data_path: str) -> gpd.GeoDataFrame:
         
         print(f"Using coordinate columns: X={x_col}, Y={y_col}")
         
-        # First filter by ULAND (federal state code) if available
-        # ULAND=4 is Bremen
         if 'ULAND' in df.columns:
             df = df[df['ULAND'] == 4]
             print(f"Filtered by ULAND=4 (Bremen): {len(df)} records")
@@ -155,7 +144,6 @@ def load_and_filter_bremen(data_path: str) -> gpd.GeoDataFrame:
         df[x_col] = pd.to_numeric(df[x_col], errors='coerce')
         df[y_col] = pd.to_numeric(df[y_col], errors='coerce')
         
-        # Filter out invalid coordinates
         df = df.dropna(subset=[x_col, y_col])
         df = df[(df[x_col] != 0) & (df[y_col] != 0)]
         

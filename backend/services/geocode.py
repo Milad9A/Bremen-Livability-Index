@@ -22,7 +22,6 @@ class GeocodeService:
         Returns:
             List of geocoded results with coordinates and formatted addresses
         """
-        # Prioritize Bremen, Germany results
         search_query = f"{query}, Bremen, Germany" if "Bremen" not in query else query
         
         params = {

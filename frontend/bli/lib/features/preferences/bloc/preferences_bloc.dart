@@ -35,11 +35,9 @@ class PreferencesBloc extends Bloc<PreferencesEvent, PreferencesState> {
     emit(state.copyWith(isLoading: true, clearError: true));
 
     try {
-      // Always load local preferences first
       final localPrefs = await _preferencesService.getLocalPreferences();
       emit(state.copyWith(preferences: localPrefs, isLoading: false));
 
-      // If user is authenticated, try to load cloud preferences
       if (event.userId != null) {
         add(UserAuthenticated(userId: event.userId!));
       }
@@ -63,10 +61,8 @@ class PreferencesBloc extends Bloc<PreferencesEvent, PreferencesState> {
 
     emit(state.copyWith(preferences: updatedPrefs));
 
-    // Auto-save locally
     await _preferencesService.saveLocalPreferences(updatedPrefs);
 
-    // Auto-sync to cloud if authenticated
     if (state.syncedUserId != null) {
       add(SyncToCloud(userId: state.syncedUserId!));
     }
@@ -78,10 +74,8 @@ class PreferencesBloc extends Bloc<PreferencesEvent, PreferencesState> {
   ) async {
     emit(state.copyWith(preferences: UserPreferences.defaults));
 
-    // Save locally
     await _preferencesService.saveLocalPreferences(UserPreferences.defaults);
 
-    // Sync to cloud if authenticated
     if (state.syncedUserId != null) {
       add(SyncToCloud(userId: state.syncedUserId!));
     }
@@ -113,21 +107,17 @@ class PreferencesBloc extends Bloc<PreferencesEvent, PreferencesState> {
   ) async {
     emit(state.copyWith(syncedUserId: event.userId));
 
-    // Cancel any existing subscription
     await _cloudSubscription?.cancel();
 
     try {
-      // Try to load cloud preferences
       final cloudPrefs = await _preferencesService.getCloudPreferences(
         event.userId,
       );
 
       if (cloudPrefs != null) {
-        // Cloud preferences exist - use them
         emit(state.copyWith(preferences: cloudPrefs));
         await _preferencesService.saveLocalPreferences(cloudPrefs);
       } else {
-        // No cloud preferences - upload local preferences
         await _preferencesService.saveCloudPreferences(
           event.userId,
           state.preferences,
@@ -145,7 +135,6 @@ class PreferencesBloc extends Bloc<PreferencesEvent, PreferencesState> {
     await _cloudSubscription?.cancel();
     _cloudSubscription = null;
 
-    // Keep local preferences, just clear sync status
     emit(state.copyWith(clearSyncedUserId: true));
   }
 

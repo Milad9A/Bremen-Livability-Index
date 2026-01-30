@@ -24,7 +24,6 @@ class FactorPreferenceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Use app theme colors
     final positiveColor = AppColors.successDark;
     final positiveBg = AppColors.successLight;
     final negativeColor = AppColors.scoreMedium; // Orange/Warning color

@@ -404,7 +404,6 @@ class ScoreFactorItem extends StatelessWidget {
       factorIcon = isPositive ? Icons.add_circle : Icons.remove_circle;
     }
 
-    // Sort by distance
     features.sort((a, b) => a.distance.compareTo(b.distance));
     final displayFeatures = features.take(10).toList();
 

@@ -43,20 +43,17 @@ class _MapScreenContent extends StatefulWidget {
 
 class _MapScreenContentState extends State<_MapScreenContent>
     with TickerProviderStateMixin {
-  // Track search state for rendering results separately
   List<GeocodeResult> _searchResults = [];
   bool _isSearching = false;
   String? _searchError;
   bool _hasSearchQuery = false;
 
-  // Animation controllers for tap effects
   late final AnimationController _searchController;
   late final AnimationController _searchExpansionController;
   late final AnimationController _profileController;
 
   late final AnimationController _locationController;
 
-  // Track press state to coordinate animation sequences
   bool _isSearchPressed = false;
   bool _isProfilePressed = false;
   bool _isLocationPressed = false;
@@ -65,16 +62,13 @@ class _MapScreenContentState extends State<_MapScreenContent>
   void initState() {
     super.initState();
 
-    // Initialize animation controllers (scale from 1.0 to 0.92)
-    // Initialize animation controllers (scale from 1.0 down to 0.92, overshoot to 1.1)
-    // Initialize animation controllers (unbounded for overshoot)
     _searchController =
         AnimationController(
             vsync: this,
             duration: const Duration(milliseconds: 100),
             value: 1.0,
             upperBound: 2.0,
-          ) // Allow expansion > 1.0
+          )
           ..addListener(() => setState(() {}));
 
     _searchExpansionController = AnimationController(
@@ -104,7 +98,6 @@ class _MapScreenContentState extends State<_MapScreenContent>
           ScaffoldMessenger.of(context).showMessageSnackBar(message);
         }
       };
-      // Wire up preferences retrieval for API calls
       bloc.getPreferences = () {
         final prefsState = context.read<PreferencesBloc>().state;
         return prefsState.preferences.toJson();
@@ -142,26 +135,19 @@ class _MapScreenContentState extends State<_MapScreenContent>
   ) {
     final lenses = <LiquidGlass>[];
 
-    // Helper to keep buttons centered while scaling
     double getCenteredOffset(double scale) => (56 * (scale - 1)) / 2;
 
-    // Calculate unified properties
     final expansionValue = _searchExpansionController.value;
     final buttonScale = _searchController.value;
     final collapsedSize = 56 * buttonScale;
-    // Limit search bar width on larger screens (max 500px)
     final expandedWidth = (screenWidth - 96).clamp(0.0, 500.0);
 
-    // Interpolate width
     final currentWidth =
         collapsedSize + (expandedWidth - collapsedSize) * expansionValue;
 
-    // Interpolate offset for centering when collapsed (expansionValue = 0)
-    // When fully expanded (value = 1), offset should be 0 (anchored at 16, topPadding+10)
     final centeredOffset =
         getCenteredOffset(buttonScale) * (1 - expansionValue);
 
-    // Adjust for web performance
     final double effectMagnification = kIsWeb ? 1.0 : 1.05;
     final double effectDistortion = kIsWeb ? 0.0 : 0.10;
 
@@ -256,7 +242,6 @@ class _MapScreenContentState extends State<_MapScreenContent>
       ),
     );
 
-    // Search results lens (below input)
     if (_isSearching ||
         _searchError != null ||
         _searchResults.isNotEmpty ||
@@ -270,7 +255,7 @@ class _MapScreenContentState extends State<_MapScreenContent>
           distortionWidth: 35,
           position: LiquidGlassOffsetPosition(
             left: 16,
-            top: topPadding + 10 + 56 + 8, // Below input + gap
+            top: topPadding + 10 + 56 + 8,
           ),
           shape: const RoundedRectangleShape(cornerRadius: 20),
           color: AppColors.white.withValues(alpha: 0.15),
@@ -286,7 +271,6 @@ class _MapScreenContentState extends State<_MapScreenContent>
                 bloc.add(
                   MapEvent.locationSelected(location, result.displayName),
                 );
-                // Clear state after selection
                 setState(() {
                   _searchResults = [];
                   _isSearching = false;
@@ -415,7 +399,6 @@ class _MapScreenContentState extends State<_MapScreenContent>
       ),
     );
 
-    // Loading lens (centered)
     if (state.isLoading) {
       lenses.add(
         LiquidGlass(
@@ -440,13 +423,13 @@ class _MapScreenContentState extends State<_MapScreenContent>
         lenses.add(
           LiquidGlass(
             width: screenWidth - 80,
-            height: 200, // Approximate height for message
+            height: 200,
             magnification: effectMagnification,
             distortion: effectDistortion,
             distortionWidth: 30,
             position: LiquidGlassOffsetPosition(
               left: 40,
-              top: (screenHeight / 2) + 60, // Below the spinner
+              top: (screenHeight / 2) + 60,
             ),
             shape: const RoundedRectangleShape(cornerRadius: 20),
             color: AppColors.white.withValues(alpha: 0.15),
@@ -500,7 +483,6 @@ class _MapScreenContentState extends State<_MapScreenContent>
         ),
         BlocListener<MapBloc, MapState>(
           listener: (context, state) {
-            // Drive search expansion animation
             if (state.showSearch) {
               _searchExpansionController.forward();
             } else {
@@ -595,7 +577,6 @@ class _MapScreenContentState extends State<_MapScreenContent>
                   },
                 ),
 
-                // Error messages - regular overlay
                 if (state.errorMessage != null)
                   Positioned(
                     top: topPadding + 80,
@@ -607,7 +588,6 @@ class _MapScreenContentState extends State<_MapScreenContent>
                     ),
                   ),
 
-                // Score card - regular overlay
                 if (state.currentScore != null)
                   Positioned(
                     bottom: 20,

@@ -90,9 +90,6 @@ class DeepLinkService {
 
       if (email != null) {
         _authBloc.add(AuthEvent.emailLinkVerified(email, link));
-      } else {
-        // TODO: If no email found (e.g. different device), prompt user.
-        // For now, we assume same device flow.
       }
     }
   }

@@ -6,8 +6,6 @@ from sqlalchemy import text
 from fastapi import Depends
 from config import settings
 
-# Create the SQLAlchemy engine
-# The pool_pre_ping ensures connections are valid before use
 engine = create_engine(
     settings.database_url,
     echo=False,

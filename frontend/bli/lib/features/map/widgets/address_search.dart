@@ -45,7 +45,6 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
   void initState() {
     super.initState();
     _apiService = widget.apiService ?? ApiService();
-    // Request focus immediately when the widget is built
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
@@ -110,7 +109,6 @@ class _AddressSearchWidgetState extends State<AddressSearchWidget> {
     );
   }
 
-  // Public method for MapScreen to handle result selection
   void selectResult(GeocodeResult result) {
     final location = LatLng(result.latitude, result.longitude);
     widget.onLocationSelected(location, result.displayName);

@@ -13,17 +13,10 @@ class Settings(BaseSettings):
         extra="ignore"
     )
     
-    # Database
     database_url: str = "postgresql://postgres:postgres@localhost:5433/bremen_livability"
-    
-    # API Server
     api_host: str = "0.0.0.0"
     api_port: int = Field(default=8000, validation_alias="PORT")
-    
-    # CORS
     cors_origins: str = "*"
-    
-    # Logging
     log_level: str = "INFO"
     
     @property

@@ -58,7 +58,7 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
     _authBloc.add(const AuthCheckRequested());
     _preferencesBloc.add(
       const LoadPreferences(),
-    ); // Load local preferences on startup
+    );
 
     _deepLinkService = DeepLinkService(
       authBloc: _authBloc,
@@ -92,7 +92,6 @@ class _BremenLivabilityAppState extends State<BremenLivabilityApp> {
             _favoritesBloc.add(
               FavoritesEvent.loadFavoritesRequested(state.user!.id),
             );
-            // Sync preferences for authenticated users
             _preferencesBloc.add(UserAuthenticated(userId: state.user!.id));
           } else {
             _favoritesBloc.add(const FavoritesEvent.clearFavorites());
