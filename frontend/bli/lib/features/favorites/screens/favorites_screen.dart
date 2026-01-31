@@ -109,12 +109,10 @@ class _FavoritesScreenState extends State<FavoritesScreen>
                       decoration: BoxDecoration(
                         color: AppColors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: AppColors.greyLight.withValues(alpha: 0.5),
-                        ),
+                        border: Border.all(color: AppColors.greyLight),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.black.withValues(alpha: 0.08),
+                            color: AppColors.black.withValues(alpha: 0.15),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
