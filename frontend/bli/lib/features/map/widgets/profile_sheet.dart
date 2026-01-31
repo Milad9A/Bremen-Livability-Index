@@ -184,6 +184,7 @@ class ProfileSheet extends StatelessWidget {
                       ),
                     ),
                   ),
+                  SizedBox(height: 8),
                 ],
               ),
             ),
