@@ -1,4 +1,6 @@
+import 'package:bli/core/widgets/liquid_back_button.dart';
 import 'package:flutter/services.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
 import 'package:bli/features/preferences/bloc/preferences_event.dart';
 import 'package:bli/features/preferences/bloc/preferences_state.dart';
@@ -8,11 +10,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:bli/core/theme/app_theme.dart';
 
-/// Screen for configuring scoring factor preferences.
-class PreferencesScreen extends StatelessWidget {
+class PreferencesScreen extends StatefulWidget {
   const PreferencesScreen({super.key});
 
-  // Factor display data: (key, label, isNegative)
+  @override
+  State<PreferencesScreen> createState() => _PreferencesScreenState();
+}
+
+class _PreferencesScreenState extends State<PreferencesScreen>
+    with SingleTickerProviderStateMixin {
+  late final LiquidButtonManager _backButtonManager;
+
   static const List<(String, String, bool)> _positiveFactors = [
     ('greenery', 'Parks & Trees', false),
     ('amenities', 'Shops & Services', false),
@@ -38,6 +46,18 @@ class PreferencesScreen extends StatelessWidget {
     ('airport', 'Airports & Helipads', true),
     ('construction', 'Construction Sites', true),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _backButtonManager = LiquidButtonManager(this, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _backButtonManager.dispose();
+    super.dispose();
+  }
 
   ImportanceLevel _getLevelForFactor(UserPreferences prefs, String key) {
     switch (key) {
@@ -90,188 +110,202 @@ class PreferencesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Score Preferences'),
-        actions: [
-          BlocBuilder<PreferencesBloc, PreferencesState>(
-            builder: (context, state) {
-              if (!state.isCustomized) return const SizedBox.shrink();
-              return TextButton(
-                onPressed: () {
-                  context.read<PreferencesBloc>().add(const ResetToDefaults());
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Preferences reset to defaults'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
-                child: const Text('Reset'),
-              );
-            },
-          ),
-        ],
-      ),
-      body: BlocBuilder<PreferencesBloc, PreferencesState>(
-        builder: (context, state) {
-          final prefs = state.preferences;
-
-          return ListView(
-            children: [
-              if (state.isCustomized)
-                Container(
-                  margin: const EdgeInsets.all(16),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.tune, color: AppColors.primaryDark),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Custom preferences active. Scores will be calculated using your settings.',
-                          style: TextStyle(
-                            color: AppColors.primaryDark,
-                            fontSize: 13,
+    return AnimatedBuilder(
+      animation: _backButtonManager.animation,
+      builder: (context, child) {
+        return LiquidGlassView(
+          backgroundWidget: Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              toolbarHeight: 64,
+              leadingWidth: 68,
+              centerTitle: true,
+              leading: const SizedBox(),
+              title: const Text('Score Preferences'),
+              actions: [
+                BlocBuilder<PreferencesBloc, PreferencesState>(
+                  builder: (context, state) {
+                    if (!state.isCustomized) return const SizedBox.shrink();
+                    return TextButton(
+                      onPressed: () {
+                        context.read<PreferencesBloc>().add(
+                          const ResetToDefaults(),
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Preferences reset to defaults'),
+                            duration: Duration(seconds: 2),
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (state.isSyncedToCloud)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.cloud_done,
-                        size: 16,
-                        color: AppColors.success,
-                      ),
-                      const SizedBox(width: 8),
-                      const Text(
-                        'Synced to your account',
-                        style: TextStyle(
-                          color: AppColors.success,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              const SizedBox(height: 8),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                child: Text(
-                  'Positive Factors',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.successDark,
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'These features increase your livability score',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ..._positiveFactors.map((factor) {
-                final (key, label, isNegative) = factor;
-                return FactorPreferenceRow(
-                  label: label,
-                  factorKey: key,
-                  currentLevel: _getLevelForFactor(prefs, key),
-                  isNegative: isNegative,
-                  onChanged: (level) {
-                    context.read<PreferencesBloc>().add(
-                      UpdateFactor(factorKey: key, level: level),
+                        );
+                      },
+                      child: const Text('Reset'),
                     );
                   },
-                );
-              }),
-
-              const Divider(height: 32),
-
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Text(
-                  'Penalty Factors',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.scoreMedium,
-                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'These features decrease your livability score',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              ..._negativeFactors.map((factor) {
-                final (key, label, isNegative) = factor;
-                return FactorPreferenceRow(
-                  label: label,
-                  factorKey: key,
-                  currentLevel: _getLevelForFactor(prefs, key),
-                  isNegative: isNegative,
-                  onChanged: (level) {
-                    context.read<PreferencesBloc>().add(
-                      UpdateFactor(factorKey: key, level: level),
-                    );
-                  },
-                );
-              }),
+              ],
+            ),
+            body: BlocBuilder<PreferencesBloc, PreferencesState>(
+              builder: (context, state) {
+                final prefs = state.preferences;
 
-              const SizedBox(height: 24),
-
-              Container(
-                margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                return ListView(
                   children: [
-                    Text(
-                      'Importance Levels',
-                      style: theme.textTheme.titleSmall,
+                    if (state.isCustomized)
+                      Container(
+                        margin: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.tune, color: AppColors.primaryDark),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Custom preferences active. Scores will be calculated using your settings.',
+                                style: TextStyle(
+                                  color: AppColors.primaryDark,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (state.isSyncedToCloud)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.cloud_done,
+                              size: 16,
+                              color: AppColors.success,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'Synced to your account',
+                              style: TextStyle(
+                                color: AppColors.success,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                      child: Text(
+                        'Positive Factors',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.successDark,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'These features increase your livability score',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 8),
-                    _buildLegendItem('Off', 'Factor is completely ignored'),
-                    _buildLegendItem('Low', 'Factor has reduced impact (0.5x)'),
-                    _buildLegendItem('Med', 'Default importance (1.0x)'),
-                    _buildLegendItem(
-                      'High',
-                      'Factor has increased impact (1.5x)',
+                    ..._positiveFactors.map((factor) {
+                      final (key, label, isNegative) = factor;
+                      return FactorPreferenceRow(
+                        label: label,
+                        factorKey: key,
+                        currentLevel: _getLevelForFactor(prefs, key),
+                        isNegative: isNegative,
+                        onChanged: (level) {
+                          context.read<PreferencesBloc>().add(
+                            UpdateFactor(factorKey: key, level: level),
+                          );
+                        },
+                      );
+                    }),
+                    const Divider(height: 32),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                      child: Text(
+                        'Penalty Factors',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.scoreMedium,
+                        ),
+                      ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'These features decrease your livability score',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ..._negativeFactors.map((factor) {
+                      final (key, label, isNegative) = factor;
+                      return FactorPreferenceRow(
+                        label: label,
+                        factorKey: key,
+                        currentLevel: _getLevelForFactor(prefs, key),
+                        isNegative: isNegative,
+                        onChanged: (level) {
+                          context.read<PreferencesBloc>().add(
+                            UpdateFactor(factorKey: key, level: level),
+                          );
+                        },
+                      );
+                    }),
+                    const SizedBox(height: 24),
+                    Container(
+                      margin: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Importance Levels',
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildLegendItem(
+                            'Off',
+                            'Factor is completely ignored',
+                          ),
+                          _buildLegendItem(
+                            'Low',
+                            'Factor has reduced impact (0.5x)',
+                          ),
+                          _buildLegendItem('Med', 'Default importance (1.0x)'),
+                          _buildLegendItem(
+                            'High',
+                            'Factor has increased impact (1.5x)',
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                   ],
-                ),
-              ),
-
-              const SizedBox(height: 24),
-            ],
-          );
-        },
-      ),
+                );
+              },
+            ),
+          ),
+          children: [_backButtonManager.buildLens(context)],
+        );
+      },
     );
   }
 

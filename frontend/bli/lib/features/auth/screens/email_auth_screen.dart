@@ -1,4 +1,6 @@
+import 'package:bli/core/widgets/liquid_back_button.dart';
 import 'package:bli/core/theme/app_theme.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/bloc/auth_event.dart';
 import 'package:bli/features/auth/bloc/auth_state.dart';
@@ -12,13 +14,22 @@ class EmailAuthScreen extends StatefulWidget {
   State<EmailAuthScreen> createState() => _EmailAuthScreenState();
 }
 
-class _EmailAuthScreenState extends State<EmailAuthScreen> {
+class _EmailAuthScreenState extends State<EmailAuthScreen>
+    with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  late final LiquidButtonManager _backButtonManager;
+
+  @override
+  void initState() {
+    super.initState();
+    _backButtonManager = LiquidButtonManager(this, vsync: this);
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
+    _backButtonManager.dispose();
     super.dispose();
   }
 
@@ -43,39 +54,54 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: AppBar(backgroundColor: AppColors.transparent, elevation: 0),
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state.error != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.error!),
-                backgroundColor: AppColors.error,
-              ),
-            );
-          }
-        },
-        child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: BlocBuilder<AuthBloc, AuthState>(
-                  builder: (context, state) {
-                    if (state.emailLinkSent) {
-                      return _buildEmailSentView(state.pendingEmail ?? '');
-                    }
-                    return _buildEmailInputView(state);
-                  },
+    return AnimatedBuilder(
+      animation: _backButtonManager.animation,
+      builder: (context, child) {
+        return LiquidGlassView(
+          backgroundWidget: Scaffold(
+            backgroundColor: AppColors.white,
+            appBar: AppBar(
+              backgroundColor: AppColors.transparent,
+              elevation: 0,
+              automaticallyImplyLeading: false,
+              toolbarHeight: 64,
+            ),
+            body: BlocListener<AuthBloc, AuthState>(
+              listener: (context, state) {
+                if (state.error != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.error!),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              },
+              child: SafeArea(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: BlocBuilder<AuthBloc, AuthState>(
+                        builder: (context, state) {
+                          if (state.emailLinkSent) {
+                            return _buildEmailSentView(
+                              state.pendingEmail ?? '',
+                            );
+                          }
+                          return _buildEmailInputView(state);
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ),
+          children: [_backButtonManager.buildLens(context)],
+        );
+      },
     );
   }
 
