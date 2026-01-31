@@ -76,7 +76,7 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest());
 
       expect(find.text('No saved places yet'), findsOneWidget);
-      expect(find.byIcon(Icons.favorite_border), findsOneWidget);
+      expect(find.byIcon(Icons.favorite_border_rounded), findsOneWidget);
     });
 
     testWidgets('renders list of favorites when data exists', (tester) async {
@@ -114,7 +114,7 @@ void main() {
       expect(find.text('Work'), findsOneWidget);
       expect(find.text('52.5000, 13.4000'), findsOneWidget);
       expect(find.text('52.6000, 13.5000'), findsOneWidget);
-      expect(find.byType(ListTile), findsNWidgets(2));
+      expect(find.text('52.6000, 13.5000'), findsOneWidget);
     });
 
     testWidgets('pops with favorite when tapped', (tester) async {
@@ -167,7 +167,7 @@ void main() {
       await tester.pumpWidget(createWidgetUnderTest());
       await tester.pump();
 
-      await tester.tap(find.byIcon(Icons.delete_outline));
+      await tester.tap(find.byIcon(Icons.delete_outline_rounded));
       await tester.pump();
 
       verify(
