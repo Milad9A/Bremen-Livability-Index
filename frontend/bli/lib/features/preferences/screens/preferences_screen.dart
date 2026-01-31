@@ -1,6 +1,5 @@
 import 'package:bli/core/widgets/liquid_back_button.dart';
-import 'package:flutter/services.dart';
-import 'package:liquid_glass_easy/liquid_glass_easy.dart';
+import 'package:bli/core/widgets/safe_liquid_glass_view.dart';
 import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
 import 'package:bli/features/preferences/bloc/preferences_event.dart';
 import 'package:bli/features/preferences/bloc/preferences_state.dart';
@@ -113,7 +112,7 @@ class _PreferencesScreenState extends State<PreferencesScreen>
     return AnimatedBuilder(
       animation: _backButtonManager.animation,
       builder: (context, child) {
-        return LiquidGlassView(
+        return SafeLiquidGlassView(
           backgroundWidget: Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,

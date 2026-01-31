@@ -1,11 +1,13 @@
 import 'package:bli/core/widgets/liquid_back_button.dart';
 import 'package:bli/core/theme/app_theme.dart';
-import 'package:liquid_glass_easy/liquid_glass_easy.dart';
+
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/bloc/auth_event.dart';
 import 'package:bli/features/auth/bloc/auth_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:bli/core/widgets/safe_liquid_glass_view.dart';
 
 class EmailAuthScreen extends StatefulWidget {
   const EmailAuthScreen({super.key});
@@ -57,7 +59,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen>
     return AnimatedBuilder(
       animation: _backButtonManager.animation,
       builder: (context, child) {
-        return LiquidGlassView(
+        return SafeLiquidGlassView(
           backgroundWidget: Scaffold(
             backgroundColor: AppColors.white,
             appBar: AppBar(

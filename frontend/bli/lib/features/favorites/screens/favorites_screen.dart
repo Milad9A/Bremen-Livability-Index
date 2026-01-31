@@ -1,12 +1,13 @@
 import 'package:bli/core/widgets/liquid_back_button.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
-import 'package:liquid_glass_easy/liquid_glass_easy.dart';
+
 import 'package:bli/features/favorites/bloc/favorites_bloc.dart';
 import 'package:bli/features/favorites/bloc/favorites_event.dart';
 import 'package:bli/features/favorites/bloc/favorites_state.dart';
 import 'package:bli/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:bli/core/widgets/safe_liquid_glass_view.dart';
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -36,7 +37,7 @@ class _FavoritesScreenState extends State<FavoritesScreen>
     return AnimatedBuilder(
       animation: _backButtonManager.animation,
       builder: (context, child) {
-        return LiquidGlassView(
+        return SafeLiquidGlassView(
           backgroundWidget: Scaffold(
             appBar: AppBar(
               title: const Text('Saved Places'),

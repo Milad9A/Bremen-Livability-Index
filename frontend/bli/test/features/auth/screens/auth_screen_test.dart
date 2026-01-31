@@ -15,6 +15,7 @@ import 'package:mockito/mockito.dart';
 
 @GenerateNiceMocks([MockSpec<AuthService>(), MockSpec<AuthBloc>()])
 import 'auth_screen_test.mocks.dart';
+import 'package:bli/core/widgets/safe_liquid_glass_view.dart';
 
 class TestNavigatorObserver extends NavigatorObserver {
   final List<Route<dynamic>> pushedRoutes = [];
@@ -131,6 +132,7 @@ void main() {
   late TestNavigatorObserver mockObserver;
 
   setUp(() {
+    SafeLiquidGlassView.useMock = true;
     mockAuthBloc = MockAuthBloc();
     mockObserver = TestNavigatorObserver(); // No registerFallbackValue needed
 

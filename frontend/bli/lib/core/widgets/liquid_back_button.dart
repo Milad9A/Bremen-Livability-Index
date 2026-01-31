@@ -61,7 +61,7 @@ class LiquidButtonManager {
     if (onTap != null) {
       onTap();
     } else {
-      if (_state.mounted) Navigator.of(context).pop();
+      if (context.mounted) Navigator.of(context).pop();
     }
   }
 

@@ -3,6 +3,7 @@ import 'package:bli/features/preferences/bloc/preferences_event.dart';
 import 'package:bli/features/preferences/models/user_preferences.dart';
 import 'package:bli/features/preferences/screens/preferences_screen.dart';
 import 'package:bli/features/preferences/services/preferences_service.dart';
+import 'package:bli/core/widgets/safe_liquid_glass_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,6 +29,7 @@ void main() {
     late PreferencesBloc bloc;
 
     setUp(() {
+      SafeLiquidGlassView.useMock = true;
       mockService = MockPreferencesService();
       bloc = PreferencesBloc(preferencesService: mockService);
     });

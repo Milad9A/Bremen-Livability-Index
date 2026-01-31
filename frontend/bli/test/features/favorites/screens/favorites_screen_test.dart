@@ -13,6 +13,7 @@ import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
 import 'favorites_screen_test.mocks.dart';
+import 'package:bli/core/widgets/safe_liquid_glass_view.dart';
 
 @GenerateNiceMocks([MockSpec<AuthBloc>(), MockSpec<FavoritesBloc>()])
 void main() {
@@ -20,6 +21,7 @@ void main() {
   late MockFavoritesBloc mockFavoritesBloc;
 
   setUp(() {
+    SafeLiquidGlassView.useMock = true;
     mockAuthBloc = MockAuthBloc();
     mockFavoritesBloc = MockFavoritesBloc();
 
