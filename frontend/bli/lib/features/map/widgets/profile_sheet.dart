@@ -28,7 +28,7 @@ class ProfileSheet extends StatelessWidget {
         24,
         0,
         24,
-        MediaQuery.of(context).padding.bottom + 12,
+        MediaQuery.of(context).padding.bottom + 6,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
