@@ -51,7 +51,7 @@ class AuthHeader extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'Sign in to save your favorite locations',
+          'Sign in to save your preferences and favorite locations',
           style: TextStyle(
             fontSize: 15,
             color: AppColors.greyMedium,
