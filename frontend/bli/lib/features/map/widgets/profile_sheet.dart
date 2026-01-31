@@ -51,73 +51,103 @@ class ProfileSheet extends StatelessWidget {
               ),
             ),
           ),
-          SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                  child: Icon(
-                    user?.isAnonymous == true
-                        ? Icons.person_outline
-                        : Icons.person,
-                    size: 40,
-                    color: AppColors.primaryDark,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  user?.displayName ??
-                      (user?.isAnonymous == true ? 'Guest User' : 'User'),
-                  style: AppTextStyles.subheading,
-                ),
-                if (user?.email != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    user!.email!,
-                    style: AppTextStyles.body.copyWith(
-                      color: AppColors.greyMedium,
+          Flexible(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                    child: Icon(
+                      user?.isAnonymous == true
+                          ? Icons.person_outline
+                          : Icons.person,
+                      size: 40,
+                      color: AppColors.primaryDark,
                     ),
                   ),
-                ],
-                const SizedBox(height: 24),
-                if (user?.isAnonymous == true)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Text(
-                      'Sign in with an account to save your favorites',
-                      style: AppTextStyles.caption.copyWith(
+                  const SizedBox(height: 16),
+                  Text(
+                    user?.displayName ??
+                        (user?.isAnonymous == true ? 'Guest User' : 'User'),
+                    style: AppTextStyles.subheading,
+                  ),
+                  if (user?.email != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      user!.email!,
+                      style: AppTextStyles.body.copyWith(
                         color: AppColors.greyMedium,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                  ),
-                if (user?.isAnonymous == false) ...[
+                  ],
+                  const SizedBox(height: 24),
+                  if (user?.isAnonymous == true)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Text(
+                        'Sign in with an account to save your favorites',
+                        style: AppTextStyles.caption.copyWith(
+                          color: AppColors.greyMedium,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  if (user?.isAnonymous == false) ...[
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () async {
+                          final navigator = Navigator.of(context);
+                          final mapBloc = context.read<MapBloc>();
+                          navigator.pop();
+                          final result = await navigator.push(
+                            MaterialPageRoute(
+                              builder: (_) => const FavoritesScreen(),
+                            ),
+                          );
+
+                          if (result != null && result is FavoriteAddress) {
+                            mapBloc.add(
+                              MapEvent.locationSelected(
+                                LatLng(result.latitude, result.longitude),
+                                result.label,
+                              ),
+                            );
+                          }
+                        },
+                        icon: const Icon(Icons.favorite_border),
+                        label: const Text('Saved Places'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: BorderSide(color: AppColors.primary),
+                          foregroundColor: AppColors.primary,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () async {
-                        final navigator = Navigator.of(context);
-                        final mapBloc = context.read<MapBloc>();
-                        navigator.pop();
-                        final result = await navigator.push(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
                           MaterialPageRoute(
-                            builder: (_) => const FavoritesScreen(),
+                            builder: (_) => BlocProvider.value(
+                              value: context.read<PreferencesBloc>(),
+                              child: const PreferencesScreen(),
+                            ),
                           ),
                         );
-
-                        if (result != null && result is FavoriteAddress) {
-                          mapBloc.add(
-                            MapEvent.locationSelected(
-                              LatLng(result.latitude, result.longitude),
-                              result.label,
-                            ),
-                          );
-                        }
                       },
-                      icon: const Icon(Icons.favorite_border),
-                      label: const Text('Saved Places'),
+                      icon: const Icon(Icons.tune),
+                      label: const Text('Score Preferences'),
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(color: AppColors.primary),
@@ -129,61 +159,33 @@ class ProfileSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                ],
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BlocProvider.value(
-                            value: context.read<PreferencesBloc>(),
-                            child: const PreferencesScreen(),
-                          ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        context.read<AuthBloc>().add(const SignOutRequested());
+                      },
+                      icon: const Icon(Icons.logout),
+                      label: Text(
+                        user?.isAnonymous == true
+                            ? 'Sign In with Account'
+                            : 'Sign Out',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: user?.isAnonymous == true
+                            ? AppColors.primary
+                            : AppColors.error,
+                        foregroundColor: AppColors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                    },
-                    icon: const Icon(Icons.tune),
-                    label: const Text('Score Preferences'),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: BorderSide(color: AppColors.primary),
-                      foregroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      context.read<AuthBloc>().add(const SignOutRequested());
-                    },
-                    icon: const Icon(Icons.logout),
-                    label: Text(
-                      user?.isAnonymous == true
-                          ? 'Sign In with Account'
-                          : 'Sign Out',
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: user?.isAnonymous == true
-                          ? AppColors.primary
-                          : AppColors.error,
-                      foregroundColor: AppColors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
