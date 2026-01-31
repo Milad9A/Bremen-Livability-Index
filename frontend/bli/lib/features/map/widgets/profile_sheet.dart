@@ -40,7 +40,7 @@ class ProfileSheet extends StatelessWidget {
             },
             behavior: HitTestBehavior.translucent,
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24.0),
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
               child: Container(
                 width: 40,
                 height: 4,
