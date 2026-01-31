@@ -1208,6 +1208,9 @@ test/
     │                       # NearbyFeatures, MapControlButtons, ProfileSheet tests (50+ tests)
     ├── favorites/
     │   └── bloc/           # favorites_bloc_test.dart (10+ tests)
+    ├── preferences/
+    │   ├── bloc/           # preferences_bloc_test.dart
+    │   └── services/       # preferences_service_test.dart
     └── onboarding/
         ├── screens/        # start_screen_test.dart
         └── widgets/        # start_screen_title_test.dart, start_screen_actions_test.dart (20+ tests)
@@ -1500,6 +1503,7 @@ engine = create_engine(
 | **Dio** | [pub.dev/packages/dio](https://pub.dev/packages/dio) | 5.x |
 | **Freezed** | [pub.dev/packages/freezed](https://pub.dev/packages/freezed) | 2.x |
 | **flutter_map** | [fleaflet.dev](https://fleaflet.dev) | 8.x |
+| **liquid_glass_easy** | [pub.dev/packages/liquid_glass_easy](https://pub.dev/packages/liquid_glass_easy) | 1.1.x |
 | **Overpy** | [pypi.org/project/overpy](https://pypi.org/project/overpy/) | 0.7 |
 
 ### Spatial Function Reference
