@@ -18,7 +18,12 @@ class AuthService {
 
     FlutterSecureStorage? secureStorage,
   }) : _auth = auth ?? FirebaseAuth.instance,
-       _googleSignIn = googleSignIn ?? GoogleSignIn(),
+       _googleSignIn =
+           googleSignIn ??
+           GoogleSignIn(
+             serverClientId:
+                 '402145256946-4siurt3n0396di09m6622ttcj4u35s5o.apps.googleusercontent.com',
+           ),
 
        _secureStorage =
            secureStorage ??
@@ -40,8 +45,12 @@ class AuthService {
       if (kIsWeb) {
         // Web: Use popup-based sign-in
         userCredential = await _auth.signInWithPopup(GoogleAuthProvider());
+      } else if (defaultTargetPlatform == TargetPlatform.windows ||
+          defaultTargetPlatform == TargetPlatform.linux) {
+        // Desktop (non-macOS): Use provider-based sign-in (browser flow)
+        userCredential = await _auth.signInWithProvider(GoogleAuthProvider());
       } else {
-        // Mobile/Desktop: Use Google Sign-In package
+        // Mobile (Android/iOS) & macOS: Use Google Sign-In package
         final googleUser = await _googleSignIn.signIn();
         if (googleUser == null) {
           return null; // User cancelled
