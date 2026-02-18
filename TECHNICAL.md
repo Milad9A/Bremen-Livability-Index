@@ -1026,6 +1026,9 @@ The application uses the **BLoC (Business Logic Component)** pattern with `flutt
 **Authentication Flow:**
 - `AuthBloc` manages user login/logout using Firebase Authentication
 - Supports multi-provider auth: Google, GitHub, Email, Guest (Anonymous)
+- **Desktop apps (macOS, Windows, Linux)**: Authentication is bypassed entirely; users enter as local guests without Firebase. This is because Firebase Auth has limited desktop support:
+  - **macOS**: `signInAnonymously()` fails with a `keychain-error` due to sandboxing restrictions that prevent keychain access
+  - **Windows/Linux**: `signInWithProvider()` (used for Google/GitHub OAuth) throws "Operation is not supported on non-mobile systems"
 - Auth state is persisted and checked on app startup
 - Cross-device email flow: `pendingEmailLink` state triggers `EmailLinkPromptScreen`
 
@@ -1085,11 +1088,12 @@ The app uses Firebase for authentication and favorites sync:
 
 1. **Web**: Uses Firebase OAuth popup authentication (`signInWithPopup`) for Google/GitHub
 2. **Mobile**: Uses native authentication packages with deep link handling
-3. **Email Magic Links**: Firebase Hosting redirects email links to the web/mobile app
-4. **Cross-Device Email Flow**: When a user clicks an email link on a different device/browser, the app prompts them to re-enter their email to complete authentication
-5. **Android Release Signing**: Production builds are signed via GitHub Actions using repository secrets
+3. **Desktop (macOS, Windows, Linux)**: Authentication is disabled; users enter directly as local guests. Firebase Auth has limited support for desktop platforms—macOS sandboxing causes `keychain-error` on anonymous sign-in, and Windows/Linux do not support `signInWithProvider()` for OAuth flows (Google, GitHub). The `AuthService.signInAsGuest()` method returns a local `AppUser.guest()` instance without contacting Firebase.
+4. **Email Magic Links**: Firebase Hosting redirects email links to the web/mobile app
+5. **Cross-Device Email Flow**: When a user clicks an email link on a different device/browser, the app prompts them to re-enter their email to complete authentication
+6. **Android Release Signing**: Production builds are signed via GitHub Actions using repository secrets
 
-**Authentication Providers**: Google, GitHub, Email (Magic Link), Anonymous (Guest)
+**Authentication Providers (Web/Mobile only)**: Google, GitHub, Email (Magic Link), Anonymous (Guest)
 
 **Email Deep Links Setup**:
 - Firebase Hosting serves a redirect page at `bremen-livability-index.firebaseapp.com/login`

@@ -23,9 +23,12 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Check if we are running as a native macOS app (not web on macOS)
-    final isMacOSNative =
-        !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
+    // Check if we are running as a native desktop app (not web)
+    final isDesktopNative =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.linux);
 
     return Scaffold(
       backgroundColor: AppColors.white,
@@ -54,7 +57,7 @@ class AuthScreen extends StatelessWidget {
                     const Spacer(flex: 1),
                     const AuthHeader(),
                     const Spacer(flex: 1),
-                    if (!isMacOSNative) ...[
+                    if (!isDesktopNative) ...[
                       AuthButtonsGroup(
                         onEmailTap: () => _navigateToEmailAuth(context),
                       ),

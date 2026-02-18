@@ -47,6 +47,8 @@ RESTful API for livability analysis and geocoding.
 > - **macOS**: Right-click the app → "Open" → "Open" (bypasses Gatekeeper)
 > - **Linux**: Run `chmod +x bli` before running
 > All platforms use the same backend API and provide the same core functionality.
+>
+> 💡 **Desktop apps do not require login.** Firebase Authentication has limited support for desktop platforms (macOS sandboxing blocks keychain access, Windows/Linux lack OAuth support), so desktop users enter directly as guests. Sign-in is available on web and mobile.
 
 ## ✨ Features
 
@@ -54,7 +56,7 @@ RESTful API for livability analysis and geocoding.
 - 📍 **Instant Analysis** – Tap any location to calculate a detailed livability score based on 20+ spatial factors.
 - ⚙️ **Personalized Scoring** – Customize factor importance to tailor scores to your lifestyle.
 - � **Smart Search & Favorites** – "Apple-style" expandable search bar and cross-device sync.
-- 🔐 **Secure & Reliable** – Multi-provider authentication (Google, GitHub, Email) with >90% test coverage.
+- 🔐 **Secure & Reliable** – Multi-provider authentication on web/mobile (Google, GitHub, Email); desktop apps run without login. >90% test coverage.
 
 
 ## 📊 Scoring System

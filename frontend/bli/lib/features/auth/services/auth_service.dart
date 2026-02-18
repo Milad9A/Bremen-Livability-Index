@@ -128,9 +128,12 @@ class AuthService {
 
   Future<AppUser?> signInAsGuest() async {
     try {
-      // On native macOS, Firebase anonymous auth causes keychain errors.
-      // Skip it and return a local guest user directly.
-      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS) {
+      // On native desktop, Firebase anonymous auth causes issues (keychain on macOS,
+      // unsupported operations on Windows/Linux). Skip it and return a local guest user.
+      if (!kIsWeb &&
+          (defaultTargetPlatform == TargetPlatform.macOS ||
+              defaultTargetPlatform == TargetPlatform.windows ||
+              defaultTargetPlatform == TargetPlatform.linux)) {
         return AppUser.guest();
       }
 

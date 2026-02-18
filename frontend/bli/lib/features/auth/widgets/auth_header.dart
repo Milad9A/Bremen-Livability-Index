@@ -1,4 +1,5 @@
 import 'package:bli/core/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class AuthHeader extends StatelessWidget {
@@ -6,6 +7,16 @@ class AuthHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktopNative =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.linux);
+
+    final subtitle = isDesktopNative
+        ? 'Explore livability scores across Bremen'
+        : 'Sign in to save your preferences and favorite locations';
+
     return Column(
       children: [
         Container(
@@ -51,7 +62,7 @@ class AuthHeader extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text(
-          'Sign in to save your preferences and favorite locations',
+          subtitle,
           style: TextStyle(
             fontSize: 15,
             color: AppColors.greyMedium,

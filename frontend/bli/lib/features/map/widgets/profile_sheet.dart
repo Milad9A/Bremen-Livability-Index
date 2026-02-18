@@ -1,4 +1,5 @@
 import 'package:bli/core/theme/app_theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/bloc/auth_event.dart';
@@ -18,6 +19,11 @@ class ProfileSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final authState = context.watch<AuthBloc>().state;
     final user = authState.user;
+    final isDesktopNative =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.linux);
 
     return Container(
       decoration: BoxDecoration(
@@ -83,7 +89,7 @@ class ProfileSheet extends StatelessWidget {
                     ),
                   ],
                   const SizedBox(height: 24),
-                  if (user?.isAnonymous == true)
+                  if (user?.isAnonymous == true && !isDesktopNative)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 12),
                       child: Text(
@@ -159,31 +165,34 @@ class ProfileSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pop(context);
-                        context.read<AuthBloc>().add(const SignOutRequested());
-                      },
-                      icon: const Icon(Icons.logout),
-                      label: Text(
-                        user?.isAnonymous == true
-                            ? 'Sign In with Account'
-                            : 'Sign Out',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: user?.isAnonymous == true
-                            ? AppColors.primary
-                            : AppColors.error,
-                        foregroundColor: AppColors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                  if (!isDesktopNative || user?.isAnonymous == false)
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          context.read<AuthBloc>().add(
+                            const SignOutRequested(),
+                          );
+                        },
+                        icon: const Icon(Icons.logout),
+                        label: Text(
+                          user?.isAnonymous == true
+                              ? 'Sign In with Account'
+                              : 'Sign Out',
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: user?.isAnonymous == true
+                              ? AppColors.primary
+                              : AppColors.error,
+                          foregroundColor: AppColors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
                     ),
-                  ),
                   SizedBox(height: 8),
                 ],
               ),

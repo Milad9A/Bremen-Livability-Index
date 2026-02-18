@@ -7,6 +7,7 @@ import 'package:bli/features/favorites/bloc/favorites_state.dart';
 import 'package:bli/features/map/models/location_marker.dart';
 import 'package:bli/features/map/models/livability_score.dart';
 import 'package:bli/features/map/widgets/score_card_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -42,9 +43,18 @@ class ScoreCard extends StatelessWidget {
             final userId = authState.user?.id;
 
             if (userId == null || authState.isGuest) {
+              final isDesktopNative =
+                  !kIsWeb &&
+                  (defaultTargetPlatform == TargetPlatform.macOS ||
+                      defaultTargetPlatform == TargetPlatform.windows ||
+                      defaultTargetPlatform == TargetPlatform.linux);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: const Text('Please sign in to save favorites'),
+                  content: Text(
+                    isDesktopNative
+                        ? 'Favorites are available on the web and mobile apps'
+                        : 'Please sign in to save favorites',
+                  ),
                   backgroundColor: AppColors.error,
                 ),
               );
