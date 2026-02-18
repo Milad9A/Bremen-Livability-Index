@@ -128,6 +128,12 @@ class AuthService {
 
   Future<AppUser?> signInAsGuest() async {
     try {
+      // On native macOS, Firebase anonymous auth causes keychain errors.
+      // Skip it and return a local guest user directly.
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.macOS) {
+        return AppUser.guest();
+      }
+
       final userCredential = await _auth.signInAnonymously();
       return _mapFirebaseUser(userCredential.user, AppAuthProvider.guest);
     } catch (e) {
