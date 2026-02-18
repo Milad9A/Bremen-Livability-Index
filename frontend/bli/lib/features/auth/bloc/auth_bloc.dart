@@ -53,7 +53,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         case 'unauthorized-domain':
           return 'App domain is not authorized in Firebase. Please allowlist it in the console.';
         default:
-          return '$providerName sign-in failed. Please try again.';
+          return '$providerName sign-in failed (${error.code}): ${error.message}';
       }
     }
 
