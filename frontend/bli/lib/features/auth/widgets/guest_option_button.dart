@@ -7,8 +7,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class GuestOptionButton extends StatelessWidget {
   final VoidCallback? onPressed;
+  final String label;
 
-  const GuestOptionButton({super.key, this.onPressed});
+  const GuestOptionButton({
+    super.key,
+    this.onPressed,
+    this.label = 'Continue as Guest',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +37,7 @@ class GuestOptionButton extends StatelessWidget {
               decoration: TextDecoration.underline,
             ),
           ),
-          child: const Text('Continue as Guest'),
+          child: Text(label),
         );
       },
     );

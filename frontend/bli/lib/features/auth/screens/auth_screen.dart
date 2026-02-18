@@ -8,6 +8,8 @@ import 'package:bli/core/navigation/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:flutter/foundation.dart';
+
 class AuthScreen extends StatelessWidget {
   const AuthScreen({super.key});
 
@@ -21,6 +23,10 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check if we are running as a native macOS app (not web on macOS)
+    final isMacOSNative =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.macOS;
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: BlocListener<AuthBloc, AuthState>(
@@ -48,11 +54,15 @@ class AuthScreen extends StatelessWidget {
                     const Spacer(flex: 1),
                     const AuthHeader(),
                     const Spacer(flex: 1),
-                    AuthButtonsGroup(
-                      onEmailTap: () => _navigateToEmailAuth(context),
-                    ),
-                    const SizedBox(height: 24),
-                    const GuestOptionButton(),
+                    if (!isMacOSNative) ...[
+                      AuthButtonsGroup(
+                        onEmailTap: () => _navigateToEmailAuth(context),
+                      ),
+                      const SizedBox(height: 24),
+                      const GuestOptionButton(),
+                    ] else ...[
+                      GuestOptionButton(label: 'Continue'),
+                    ],
                     const SizedBox(height: 48),
                   ],
                 ),
