@@ -38,8 +38,8 @@ dev_dependencies:
   flutter_native_splash: ^2.4.4
   mockito: ^5.4.4
   build_runner: ^2.4.13
-  freezed: ^2.4.7
-  json_serializable: ^6.7.1
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
   bloc_test: ^10.0.0
   mocktail: ^1.0.4
 
