@@ -1,6 +1,7 @@
 import 'package:bli/core/theme/app_theme.dart';
 import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/bloc/auth_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -18,6 +19,12 @@ class StartScreenActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDesktopNative =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.macOS ||
+            defaultTargetPlatform == TargetPlatform.windows ||
+            defaultTargetPlatform == TargetPlatform.linux);
+
     return Positioned(
       left: 0,
       right: 0,
@@ -35,75 +42,122 @@ class StartScreenActions extends StatelessWidget {
                   opacity: textOpacity,
                   child: Column(
                     children: [
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: onLogin,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.white,
-                            foregroundColor: AppColors.primary,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 48,
-                              vertical: 16,
+                      // On desktop, skip the "Log In" button entirely
+                      if (!isDesktopNative) ...[
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: onLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.white,
+                              foregroundColor: AppColors.primary,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 48,
+                                vertical: 16,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 8,
+                              shadowColor: AppColors.black.withValues(
+                                alpha: 0.3,
+                              ),
                             ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            elevation: 8,
-                            shadowColor: AppColors.black.withValues(alpha: 0.3),
-                          ),
-                          child: const Text(
-                            'Log In',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                            child: const Text(
+                              'Log In',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
+                        const SizedBox(height: 16),
+                      ],
                       SizedBox(
                         width: double.infinity,
                         child: BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
-                            return OutlinedButton(
-                              onPressed: state.isLoading
-                                  ? null
-                                  : onContinueAsGuest,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.white,
-                                side: const BorderSide(
-                                  color: AppColors.white,
-                                  width: 2,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 48,
-                                  vertical: 16,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                              child: state.isLoading
-                                  ? const SizedBox(
-                                      width: 24,
-                                      height: 24,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              AppColors.white,
-                                            ),
+                            return isDesktopNative
+                                // Desktop: single prominent "Continue" button
+                                ? ElevatedButton(
+                                    onPressed: state.isLoading
+                                        ? null
+                                        : onContinueAsGuest,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.white,
+                                      foregroundColor: AppColors.primary,
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 48,
+                                        vertical: 16,
                                       ),
-                                    )
-                                  : const Text(
-                                      'Continue as Guest',
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                      elevation: 8,
+                                      shadowColor: AppColors.black.withValues(
+                                        alpha: 0.3,
                                       ),
                                     ),
-                            );
+                                    child: state.isLoading
+                                        ? const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    AppColors.primary,
+                                                  ),
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Continue',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                  )
+                                // Web/Mobile: outlined "Continue as Guest" button
+                                : OutlinedButton(
+                                    onPressed: state.isLoading
+                                        ? null
+                                        : onContinueAsGuest,
+                                    style: OutlinedButton.styleFrom(
+                                      foregroundColor: AppColors.white,
+                                      side: const BorderSide(
+                                        color: AppColors.white,
+                                        width: 2,
+                                      ),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 48,
+                                        vertical: 16,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      ),
+                                    ),
+                                    child: state.isLoading
+                                        ? const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                    AppColors.white,
+                                                  ),
+                                            ),
+                                          )
+                                        : const Text(
+                                            'Continue as Guest',
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                  );
                           },
                         ),
                       ),
