@@ -81,15 +81,22 @@ class DeepLinkService {
 
   Future<void> _handleLink(Uri uri) async {
     final link = uri.toString();
+    debugPrint('DeepLinkService: Handling deep link: $link');
 
     if (uri.queryParameters.containsKey('oobCode') ||
         uri.queryParameters.containsKey('mode') ||
         uri.path.contains('/login') ||
         uri.path.contains('/email-signin')) {
+      debugPrint('DeepLinkService: Found email link parameters');
       final email = await _authService.getPendingEmail();
+      debugPrint('DeepLinkService: Pending email: $email');
 
       if (email != null) {
         _authBloc.add(AuthEvent.emailLinkVerified(email, link));
+      } else {
+        // Cross-device flow: prompt user for email (matching web behavior)
+        debugPrint('DeepLinkService: No pending email, will prompt user');
+        _authBloc.add(AuthEvent.emailLinkPendingEmail(link));
       }
     }
   }

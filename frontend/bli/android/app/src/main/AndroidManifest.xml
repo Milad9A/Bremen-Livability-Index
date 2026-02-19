@@ -31,12 +31,13 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https" android:host="bremen-livability-index.firebaseapp.com" />
+                <data android:scheme="https" android:host="bremen-livability-index.web.app" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="bremen-livability-index.web.app" />
+                <data android:scheme="https" android:host="bremen-livability-frontend.onrender.com" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
