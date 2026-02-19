@@ -5,6 +5,8 @@ import 'package:bli/features/auth/bloc/auth_state.dart';
 import 'package:bli/features/auth/models/user.dart';
 import 'package:bli/features/auth/services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
@@ -55,6 +57,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         default:
           return '$providerName sign-in failed (${error.code}): ${error.message}';
       }
+    }
+
+    // Handle PlatformException from google_sign_in plugin
+    if (error is PlatformException) {
+      debugPrint(
+        '$providerName PlatformException: code=${error.code}, '
+        'message=${error.message}, details=${error.details}',
+      );
+      final details = error.message ?? '';
+      if (details.contains('ApiException: 10') ||
+          details.contains('DEVELOPER_ERROR')) {
+        return '$providerName sign-in configuration error (code 10). '
+            'Check SHA-1 fingerprint and OAuth client setup in Google Cloud Console.';
+      }
+      if (details.contains('ApiException: 7')) {
+        return 'Network error. Please check your connection.';
+      }
+      if (details.contains('ApiException: 12500')) {
+        return '$providerName sign-in is not enabled in Google Cloud Console.';
+      }
+      if (details.contains('ApiException: 12501') ||
+          error.code == 'sign_in_canceled') {
+        return 'Sign-in was cancelled.';
+      }
+      return '$providerName sign-in failed: ${error.code} - ${error.message}';
     }
 
     final errorString = error.toString();
