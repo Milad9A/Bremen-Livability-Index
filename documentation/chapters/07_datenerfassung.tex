@@ -1,0 +1,114 @@
+% ============================================================
+\chapter{Datenerfassung}
+\label{ch:datenerfassung}
+% ============================================================
+
+Die Befüllung der Datenbank erfolgt automatisiert über Python-Skripte, die
+im Verzeichnis \path{backend/scripts/data_ingestion/} organisiert sind.
+Der Einstiegspunkt \texttt{ingest\_all\_data.py} ruft beide
+Ingestion-Module nacheinander auf.
+
+\section{OSM-Datenerfassung}
+\label{sec:osm_ingestion}
+
+Die Erfassung der 20 \acrshort{osm}-Kategorien erfolgt über die
+Python-Bibliothek \texttt{overpy} \parencite{overpy}, einen Wrapper für die
+Overpass API \parencite{overpass_api}.
+
+\subsection{Ablauf}
+
+Für jede Kategorie wird folgende Pipeline durchlaufen:
+
+\begin{enumerate}
+      \item \textbf{Overpass-Abfrage}: Eine Overpass-QL-Abfrage wird mit dem
+            Bounding-Box-Filter für Bremen formuliert und an die Overpass API
+            gesendet.
+      \item \textbf{Retry-Logik}: Bei Überlastung der API (HTTP~429 oder
+            Gateway-Timeout) wird ein exponentieller Backoff mit Jitter
+            angewendet:
+            \[
+                  \text{Wartezeit} = 10 \cdot 2^{\text{Versuch}} + r
+                  \qquad r \sim \mathcal{U}(0, 5)
+            \]
+            Maximal werden 5 Versuche unternommen.
+      \item \textbf{Tabelle leeren}: \texttt{TRUNCATE TABLE gis\_data.xxx CASCADE}
+            entfernt alle bestehenden Daten, um eine idempotente
+            Neuerfassung zu gewährleisten.
+      \item \textbf{Bulk-Insert}: Die empfangenen Nodes, Ways oder Relationen
+            werden einzeln in die zugehörige Tabelle eingefügt.
+\end{enumerate}
+
+\subsection{Geometriekonvertierung}
+
+Die von der Overpass API zurückgegebenen Objekte werden je nach Typ
+unterschiedlich verarbeitet:
+
+\begin{description}
+      \item[Punkte (Nodes)] werden mit \texttt{ST\_MakePoint(lon, lat)} in einen
+            PostGIS-Point konvertiert und mit \texttt{ST\_SetSRID(..., 4326)} dem
+            \acrshort{wgs84}-System zugewiesen.
+      \item[Polygone (Ways)] Die Koordinaten der Way-Nodes werden zu einem
+            WKT-String \texttt{POLYGON(({coords}))} zusammengesetzt. Falls der
+            erste und letzte Node nicht identisch sind, wird der Ring automatisch
+            geschlossen.
+      \item[Linienzüge (Ways)] Analog werden die Koordinaten als
+            \texttt{LINESTRING({coords})} zusammengesetzt.
+\end{description}
+
+Alle Geometrien werden abschließend nach \texttt{GEOGRAPHY(type, 4326)} gecastet.
+Die Datenbankverbindung wird über \texttt{psycopg2} direkt aufgebaut
+(ohne ORM), da Bulk-Inserts so effizienter sind.
+
+% ──────────────────────────────────────────────────────────────
+
+\section{Unfallatlas-Datenerfassung}
+\label{sec:unfallatlas_ingestion}
+
+Die Erfassung der Unfalldaten \parencite{unfallatlas_download} umfasst
+mehrere Schritte, da die Quelldaten in einem anderen Format und
+Koordinatensystem vorliegen.
+
+\subsection{Download und Extraktion}
+
+Die Daten werden als gezippte CSV-Datei von der Open-Data-Plattform des
+Landes Nordrhein-Westfalen heruntergeladen:
+
+\begin{lstlisting}[basicstyle=\ttfamily\small,breaklines=true,frame=none]
+https://www.opengeodata.nrw.de/produkte/transport_verkehr/
+  unfallatlas/Unfallorte2024_EPSG25832_CSV.zip
+\end{lstlisting}
+
+\subsection{Filterung nach Bremen}
+
+Die CSV-Datei enthält Unfalldaten für ganz Deutschland. Die Filterung auf
+Bremen erfolgt anhand des Bundeslandschlüssels:
+
+\begin{lstlisting}[style=python,caption={Filterung auf Bremen},label={lst:filter_bremen}]
+# ULAND = 4 entspricht dem Bundesland Bremen
+df = df[df["ULAND"] == 4]
+\end{lstlisting}
+
+\subsection{Koordinatentransformation}
+
+Die Unfalldaten liegen im projizierten Koordinatensystem EPSG:25832
+(\acrshort{utm} Zone 32N) vor \parencite{epsg25832}. Für die Speicherung in
+der PostGIS-Datenbank (EPSG:4326) ist eine Reprojektion erforderlich.
+
+Das Skript erkennt automatisch die Koordinatenspalten
+(\path{XGCSWGS84}/\path{YGCSWGS84}
+bzw.\ \path{LINREFX}/\path{LINREFY}),
+konvertiert das deutsche Dezimalkomma-Format und reprojiziert die Daten
+mithilfe von GeoPandas \parencite{geopandas} nach EPSG:4326.
+
+\subsection{Schweregrad-Mapping}
+
+Das Feld \texttt{UKATEGORIE} wird in lesbare Schweregrade konvertiert
+(siehe Tabelle~\ref{tab:unfall_severity} in Kapitel~\ref{ch:datenquellen}):
+$1 \rightarrow \texttt{fatal}$, $2 \rightarrow \texttt{severe}$,
+$3 \rightarrow \texttt{minor}$.
+
+\subsection{Verfügbare Jahrgänge}
+
+Es stehen Daten für die Jahrgänge 2016\,--\,2024 zur Verfügung. Das
+Ingestion-Skript akzeptiert das gewünschte Jahr als Parameter und versucht,
+bei Nicht-Verfügbarkeit automatisch das nächstältere Jahr zu verwenden.

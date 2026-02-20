@@ -1,0 +1,238 @@
+% ============================================================
+% Bremen Livability Index – Projektdokumentation
+% Hochschule Bremen · Geodatenverarbeitung · WS 2025/26
+% Autor: Milad Awad (5358834)
+% ============================================================
+\documentclass[
+  11pt,
+  a4paper,
+  parskip=half-,
+  bibliography=totoc
+]{scrreprt}
+
+% ── Sprache & Kodierung ──────────────────────────────────────
+\usepackage[ngerman]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{csquotes}
+\usepackage{lmodern}
+
+% ── Seitenränder ─────────────────────────────────────────────
+\usepackage[
+  left=2cm,
+  right=2cm,
+  top=2cm,
+  bottom=2cm
+]{geometry}
+
+% ── Zeilenabstand ────────────────────────────────────────────
+\usepackage{setspace}
+\singlespacing
+
+% ── Typografie ───────────────────────────────────────────────
+\usepackage{microtype}
+\usepackage{xurl}
+
+% ── Mathematik ───────────────────────────────────────────────
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ── Tabellen ─────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{array}
+
+% ── Grafiken ─────────────────────────────────────────────────
+\usepackage{graphicx}
+\graphicspath{{images/}}
+
+% ── Farben ───────────────────────────────────────────────────
+\usepackage[dvipsnames,table]{xcolor}
+
+% ── Quellcode-Listings ───────────────────────────────────────
+\usepackage{listings}
+\lstset{
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray},
+  stringstyle=\color{OliveGreen},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=8pt,
+  frame=single,
+  breaklines=true,
+  breakatwhitespace=false,
+  showspaces=false,
+  showstringspaces=false,
+  tabsize=4,
+  captionpos=b,
+  xleftmargin=1.5em,
+  framexleftmargin=1em,
+  aboveskip=0.6em,
+  belowskip=0.6em
+}
+\lstdefinestyle{python}{
+  language=Python,
+  morekeywords={self, True, False, None, async, await}
+}
+\lstdefinestyle{sql}{
+  language=SQL,
+  morekeywords={GEOGRAPHY, GIST, SCHEMA, CASCADE, TRUNCATE}
+}
+\lstdefinestyle{json}{
+  string=[s]{"}{"},
+  comment=[l]{:\ "},
+  morecomment=[l]{:"},
+  literate=
+    *{0}{{{\color{purple}0}}}{1}
+    {1}{{{\color{purple}1}}}{1}
+    {2}{{{\color{purple}2}}}{1}
+    {3}{{{\color{purple}3}}}{1}
+    {4}{{{\color{purple}4}}}{1}
+    {5}{{{\color{purple}5}}}{1}
+    {6}{{{\color{purple}6}}}{1}
+    {7}{{{\color{purple}7}}}{1}
+    {8}{{{\color{purple}8}}}{1}
+    {9}{{{\color{purple}9}}}{1}
+}
+
+% ── Hyperlinks ───────────────────────────────────────────────
+\usepackage[
+  colorlinks=true,
+  linkcolor=NavyBlue,
+  citecolor=OliveGreen,
+  urlcolor=BrickRed,
+  pdfauthor={Milad Awad},
+  pdftitle={Bremen Livability Index},
+  pdfsubject={Geodatenverarbeitung},
+  pdfkeywords={GIS, PostGIS, Livability, Bremen, OpenStreetMap}
+]{hyperref}
+
+% ── Literatur ────────────────────────────────────────────────
+\usepackage[
+  backend=bibtex,
+  style=authoryear,
+  sorting=nyt,
+  maxcitenames=2,
+  maxbibnames=99,
+  giveninits=true,
+  uniquename=init,
+  dashed=false
+]{biblatex}
+\addbibresource{references.bib}
+
+% ── Glossar / Abkürzungen (optional) ────────────────────────
+\usepackage[acronym,toc]{glossaries}
+\makeglossaries
+\renewcommand*{\glsgroupskip}{}
+
+\newacronym{gis}{GIS}{Geoinformationssystem}
+\newacronym{osm}{OSM}{OpenStreetMap}
+\newacronym{api}{API}{Application Programming Interface}
+\newacronym{crs}{CRS}{Coordinate Reference System (Koordinatenreferenzsystem)}
+\newacronym{wgs84}{WGS\,84}{World Geodetic System 1984}
+\newacronym{utm}{UTM}{Universal Transverse Mercator}
+\newacronym{orm}{ORM}{Object-Relational Mapping}
+\newacronym{crud}{CRUD}{Create, Read, Update, Delete}
+\newacronym{ci}{CI/CD}{Continuous Integration \slash Continuous Deployment}
+\newacronym{bloc}{BLoC}{Business Logic Component}
+\newacronym{cors}{CORS}{Cross-Origin Resource Sharing}
+\newacronym{rest}{REST}{Representational State Transfer}
+\newacronym{sql}{SQL}{Structured Query Language}
+
+% ── Kopf- und Fußzeilen ─────────────────────────────────────
+\usepackage[headsepline]{scrlayer-scrpage}
+\pagestyle{scrheadings}
+\automark[section]{chapter}
+
+% ── Sonstige ─────────────────────────────────────────────────
+\usepackage{enumitem}
+\setlist{nosep,leftmargin=*}
+\setlist[description]{style=nextline,nosep,leftmargin=1em}
+\usepackage{float}
+% Kompaktere Kapitelüberschriften
+\RedeclareSectionCommand[
+  beforeskip=1em,
+  afterskip=0.5em
+]{chapter}
+\RedeclareSectionCommand[
+  beforeskip=0.8em,
+  afterskip=0.3em
+]{section}
+\RedeclareSectionCommand[
+  beforeskip=0.5em,
+  afterskip=0.2em
+]{subsection}
+% ==============================================================
+%  TITELSEITE
+% ==============================================================
+\begin{document}
+
+\begin{titlepage}
+  \centering
+  \vspace*{1cm}
+
+  \includegraphics[width=0.45\textwidth]{hsb_logo}
+
+  \vspace{1.5cm}
+
+  {\LARGE\textbf{Bremen Livability Index}}\\[0.8em]
+  {\large\textit{Ein geodatenbasiertes Bewertungssystem\\
+    für die Lebensqualität in Bremen}}
+
+  \vspace{2.5cm}
+
+  {\large Projektdokumentation im Modul}\\[0.4em]
+  {\Large\textbf{Geodatenverarbeitung}}\\[0.4em]
+  {\large Wintersemester 2025\,/\,2026}
+
+  \vspace{2cm}
+
+  \begin{tabular}{rl}
+    \textbf{Autor:}        & Milad Awad              \\
+    \textbf{Matrikel-Nr.:} & 5358834                 \\[0.8em]
+    \textbf{Dozent:}       & Dr.-Ing. Christian Seip \\
+  \end{tabular}
+
+  \vfill
+
+  {\large Bremen, \today}
+\end{titlepage}
+
+% ==============================================================
+%  VERZEICHNISSE
+% ==============================================================
+\pagenumbering{roman}
+
+\tableofcontents
+\clearpage
+
+\printglossary[type=\acronymtype, title={Abkürzungsverzeichnis}]
+\clearpage
+
+% ==============================================================
+%  KAPITEL
+% ==============================================================
+\pagenumbering{arabic}
+
+\input{chapters/01_einleitung}
+\input{chapters/02_grundlagen}
+\input{chapters/03_datenquellen}
+\input{chapters/04_systemarchitektur}
+\input{chapters/05_datenbankdesign}
+\input{chapters/06_bewertungsmethodik}
+\input{chapters/07_datenerfassung}
+\input{chapters/08_backend_api}
+\input{chapters/09_frontend}
+\input{chapters/10_testing_deployment}
+\input{chapters/11_ergebnisse_diskussion}
+\input{chapters/12_fazit}
+
+% ==============================================================
+%  LITERATURVERZEICHNIS
+% ==============================================================
+\clearpage
+\printbibliography[title={Literaturverzeichnis}]
+
+\end{document}

@@ -1,0 +1,96 @@
+% ============================================================
+\chapter{Ergebnisse und Diskussion}
+\label{ch:ergebnisse}
+% ============================================================
+
+Dieses Kapitel präsentiert exemplarische Ergebnisse des Bremen Livability
+Index und diskutiert Stärken, Schwächen sowie Limitierungen der gewählten
+Methodik.
+
+\section{Exemplarische Standortbewertungen}
+\label{sec:beispiel_scores}
+
+Um die Funktionalität des Systems zu demonstrieren, wurden Livability Scores
+für fünf repräsentative Bremer Standorte mit den Standardpräferenzen
+(\texttt{medium} für alle Faktoren) berechnet:
+
+\begin{table}[H]
+      \centering
+      \caption{Exemplarische Livability Scores für Bremer Standorte}
+      \label{tab:beispiel_scores}
+      \begin{tabularx}{\textwidth}{Xccl}
+            \toprule
+            \textbf{Standort} & \textbf{Lat.} & \textbf{Lon.} & \textbf{Score}     \\
+            \midrule
+            Marktplatz (Innenstadt)
+                              & 53.076        & 8.808         & $\sim$\,75\,--\,85 \\
+            Bürgerpark (Schwachhausen)
+                              & 53.092        & 8.822         & $\sim$\,70\,--\,80 \\
+            Universität Bremen
+                              & 53.106        & 8.853         & $\sim$\,65\,--\,75 \\
+            Industriehafen
+                              & 53.120        & 8.760         & $\sim$\,25\,--\,35 \\
+            Flughafen Bremen
+                              & 53.047        & 8.787         & $\sim$\,20\,--\,30 \\
+            \bottomrule
+      \end{tabularx}
+\end{table}
+
+\textit{Hinweis: Die exakten Scores variieren je nach aktuellem Datenbestand
+      in der Datenbank und dem gewählten Abfragepunkt.}
+
+\subsection{Interpretation}
+
+Die Ergebnisse zeigen ein plausibles Muster:
+
+\begin{itemize}
+      \item \textbf{Innenstadt und Parks}: Hohe Scores aufgrund dichter
+            Nahversorgung, guter ÖPNV-Anbindung und vieler Grünflächen.
+      \item \textbf{Universität}: Guter Score durch Bildungseinrichtungen
+            und ÖPNV, leicht geringer wegen weniger Nahversorgung.
+      \item \textbf{Industriehafen}: Niedriger Score durch starke negative
+            Faktoren (Industriegebiete, Hauptstraßen, Eisenbahn) bei
+            gleichzeitig geringer positiver Infrastruktur.
+      \item \textbf{Flughafen}: Niedrigster Score durch die Kombination
+            aus Flughafen-Nähe (7 Strafpunkte), Hauptstraßen und fehlender
+            Wohninfrastruktur.
+\end{itemize}
+
+\section{Stärken des Systems}
+
+Das System bietet feinräumige Auflösung (Scores für jeden Punkt statt ganzer
+Städte), transparente Faktoraufschlüsselung, Personalisierbarkeit durch
+dynamische Gewichtung, Echtzeitberechnung dank GiST-Indizes,
+ausschließliche Nutzung offener Daten und plattformübergreifende Verfügbarkeit.
+
+\section{Limitierungen}
+
+Das System ist räumlich auf Bremen beschränkt. Die Vollständigkeit der
+\acrshort{osm}-Daten variiert je nach Kategorie (vgl.\
+Abschnitt~\ref{sec:osm_datenqualitaet}). Echtzeitdaten (Luftqualität,
+Lärmpegel) fließen nicht ein. Die Basisgewichtungen basieren auf
+Erfahrungswerten statt empirischen Studien. Binäre Faktoren differenzieren
+nicht nach Größe/Intensität. Unfalldaten werden nur für ein Jahr importiert.
+
+\section{Verbesserungspotenzial}
+\label{sec:verbesserungen}
+
+Auf Basis der identifizierten Limitierungen lassen sich mehrere
+Weiterentwicklungen ableiten:
+
+\begin{itemize}
+      \item \textbf{Skalierung}: Generalisierung der Bounding-Box-Konfiguration
+            und Erweiterung auf weitere deutsche Städte oder den gesamten DACH-Raum.
+      \item \textbf{Echtzeitdaten}: Integration von Echtzeit-APIs für
+            Luftqualität (z.\,B.\ Umweltbundesamt), Lärmkarten und
+            ÖPNV-Verspätungen.
+      \item \textbf{Machine Learning}: Erlernung optimaler Gewichtungen aus
+            Nutzerfeedback (implizit durch Favoriten, explizit durch Bewertungen).
+      \item \textbf{Differenzierte negative Faktoren}: Abstufung der Strafpunkte
+            basierend auf der Distanz zum negativen Objekt (\textit{distance
+                  decay}).
+      \item \textbf{Aggregierte Unfalldaten}: Import und Mittelung über
+            mehrere Jahrgänge zur Glättung von Ausreißern.
+      \item \textbf{Offene API}: Bereitstellung einer öffentlichen API für
+            Drittanwendungen und Forschungszwecke.
+\end{itemize}

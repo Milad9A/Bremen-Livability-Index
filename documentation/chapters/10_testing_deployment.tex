@@ -1,0 +1,124 @@
+% ============================================================
+\chapter{Testing und Deployment}
+\label{ch:testing}
+% ============================================================
+
+Dieses Kapitel beschreibt die Qualitätssicherung durch automatisierte Tests
+sowie die \acrfull{ci}-Pipeline und die Deployment-Strategie.
+
+\section{Backend-Tests}
+\label{sec:backend_tests}
+
+Das Backend wird mit \textbf{pytest} \parencite{pytest_docs} getestet. Die
+Testdateien befinden sich im Verzeichnis \texttt{backend/tests/} und decken
+vier Bereiche ab:
+
+\begin{table}[H]
+      \centering
+      \caption{Backend-Testdateien und Testumfang}
+      \label{tab:backend_tests}
+      \begin{tabularx}{\textwidth}{lrX}
+            \toprule
+            \textbf{Datei} & \textbf{Tests}                                                & \textbf{Schwerpunkt} \\
+            \midrule
+            \texttt{test\_scoring.py}
+                           & 58
+                           & Alle Scoring-Funktionen: Grenzwerte, Rand\-fälle (0, 1, viele
+            Objekte), logarithmische Skalierung, binäre Faktoren,
+            Importance-Multiplikatoren                                                                            \\
+            \texttt{test\_api.py}
+                           & --
+                           & FastAPI-Endpunkt-Tests mit \texttt{TestClient}                                       \\
+            \texttt{test\_database.py}
+                           & --
+                           & Datenbank-Verbindungstests                                                           \\
+            \texttt{test\_main.py}
+                           & --
+                           & Integrationstests der Hauptanwendung                                                 \\
+            \bottomrule
+      \end{tabularx}
+\end{table}
+
+Die Scoring-Tests sind besonders umfangreich, da der Bewertungsalgorithmus
+das Kernstück der Anwendung bildet. Jede der 20 Berechnungsfunktionen wird
+mit mindestens den folgenden Szenarien getestet:
+
+\begin{itemize}
+      \item \textbf{Leereingabe}: $n = 0$ muss Score $0{,}0$ ergeben.
+      \item \textbf{Einzelner Treffer}: Korrektheit der Formeln bei $n = 1$.
+      \item \textbf{Sättigungsfall}: Sehr hohe $n$-Werte dürfen das jeweilige
+            Maximum nicht überschreiten.
+      \item \textbf{Binäre Faktoren}: \texttt{True}/\texttt{False} muss exakt
+            die definierte Strafe bzw.\ $0{,}0$ ergeben.
+\end{itemize}
+
+\subsection{Code Coverage}
+
+Die Testabdeckung wird mit \texttt{pytest-cov} gemessen und an
+Codecov \parencite{codecov} übermittelt. Das Projekt erreicht eine
+Abdeckung von über 90\,\%.
+
+\section{Frontend-Tests}
+\label{sec:frontend_tests}
+
+Die Flutter-Tests befinden sich in \texttt{frontend/bli/test/} und verwenden
+die Bibliotheken \texttt{bloc\_test}, \texttt{mockito} und \texttt{mocktail}
+für BLoC-Tests mit gemockten Abhängigkeiten. Getestet werden insbesondere:
+
+\begin{itemize}
+      \item \textbf{BLoC-Logik}: Korrekte Zustandsübergänge bei
+            Events (z.\,B.\ \path{MapTapped} $\rightarrow$
+            \path{MapLoading} $\rightarrow$ \path{MapLoaded})
+      \item \textbf{Fehlerbehandlung}: Netzwerkfehler und ungültige
+            Serverantworten
+      \item \textbf{Authentifizierung}: Login-Flows für verschiedene Provider
+\end{itemize}
+
+\section{Continuous Integration}
+\label{sec:ci}
+
+Die \acrshort{ci}-Pipeline basiert auf \textbf{GitHub Actions}
+\parencite{github_actions} und umfasst drei Workflows:
+
+\begin{table}[H]
+      \centering
+      \caption{GitHub-Actions-Workflows}
+      \label{tab:workflows}
+      \begin{tabularx}{\textwidth}{lX}
+            \toprule
+            \textbf{Workflow} & \textbf{Beschreibung}                                           \\
+            \midrule
+            \texttt{backend-tests.yml}
+                              & Führt \texttt{pytest} bei jedem Push auf das Backend aus;
+            übermittelt Coverage an Codecov                                                     \\
+            \texttt{frontend-tests.yml}
+                              & Führt \texttt{flutter test} bei jedem Push auf das Frontend aus \\
+            \texttt{build-release.yml}
+                              & Baut APK- (Android), Windows-, macOS- und Linux-Binaries und
+            erstellt automatisch GitHub Releases                                                \\
+            \bottomrule
+      \end{tabularx}
+\end{table}
+
+Durch die Aufteilung in drei separate Workflows können Backend- und
+Frontend-Tests parallel und unabhängig voneinander ausgeführt werden.
+
+\section{Deployment}
+\label{sec:deployment_detail}
+
+Das Deployment erfolgt über die deklarative Datei \texttt{render.yaml} auf
+Render.com \parencite{render_docs}. Bei jedem Merge auf den
+\texttt{master}-Branch werden Backend und Frontend automatisch neu
+deployt.
+
+\begin{itemize}
+      \item \textbf{Backend}: Render.com baut den Docker-Container aus
+            \texttt{backend/Dockerfile} und startet Uvicorn auf Port~8000.
+            Die \texttt{DATABASE\_URL} wird als Secret konfiguriert.
+      \item \textbf{Frontend}: Das Build-Skript \texttt{render\_build.sh}
+            führt \texttt{flutter build web} aus; das Ergebnis wird als
+            statische Website gehostet (SPA-Rewrite auf \texttt{/index.html}).
+      \item \textbf{Datenbank}: PostgreSQL~16 mit PostGIS~3.4 auf
+            Neon.tech \parencite{neontech} (Serverless, EU-Standort Frankfurt,
+            automatische Skalierung auf null bei Inaktivität).
+\end{itemize}

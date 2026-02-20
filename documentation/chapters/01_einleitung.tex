@@ -1,0 +1,69 @@
+% ============================================================
+\chapter{Einleitung}
+\label{ch:einleitung}
+% ============================================================
+
+\section{Motivation}
+
+Die Wahl des Wohnortes ist eine der weitreichendsten Entscheidungen im Alltag.
+Faktoren wie die Nähe zu Grünflächen, die Erreichbarkeit von Nahversorgung und
+öffentlichem Nahverkehr, aber auch potenzielle Belastungen durch Lärm, Verkehr
+oder Industrieanlagen beeinflussen die Lebensqualität eines Standortes erheblich.
+Obwohl zahlreiche Geodaten zu diesen Aspekten frei verfügbar sind -- insbesondere
+über \acrfull{osm} und den Unfallatlas des Statistischen Bundesamtes -- fehlt es
+an Werkzeugen, die diese heterogenen Datenquellen standortbezogen aggregieren und
+in einem leicht verständlichen Index zusammenfassen.
+
+Internationale Lebensqualitätsrankings wie der \textit{Global Liveability Index}
+der Economist Intelligence Unit \parencite{economist_gla} oder der \textit{Quality
+      of Living Index} von Mercer \parencite{mercer2019} bewerten Städte auf nationaler
+oder globaler Ebene, bieten jedoch keine Auflösung auf Stadtteil- oder gar
+Adressebene. Hier setzt das vorliegende Projekt an.
+
+\section{Zielsetzung}
+
+Ziel des Projekts \textbf{Bremen Livability Index} (\textit{BLI}) ist die
+Entwicklung einer vollständigen Geodaten\-verarbeitungs\-Pipeline, die:
+
+\begin{enumerate}[label=\arabic*.]
+      \item räumliche Daten aus \acrshort{osm} und dem Unfallatlas automatisiert in
+            eine PostGIS-Datenbank importiert,
+      \item für einen beliebigen Standort innerhalb Bremens einen
+            \textbf{Livability Score} (0\,--\,100) in Echtzeit berechnet,
+      \item den Score in positive und negative Einflussfaktoren aufschlüsselt,
+      \item die umliegenden \acrshort{gis}-Features als GeoJSON-Objekte zur
+            Visualisierung auf einer interaktiven Karte bereitstellt und
+      \item dem Nutzer die Möglichkeit gibt, individuelle Gewichtungen
+            (\textit{Präferenzen}) für die einzelnen Faktoren festzulegen.
+\end{enumerate}
+
+Das System wird als produktionstaugliche Webanwendung mit Flutter-Frontend und
+FastAPI-Backend realisiert. Der vollständige Quellcode ist öffentlich auf
+GitHub verfügbar:\\\url{https://github.com/Milad9A/Bremen-Livability-Index}\\Die
+Webanwendung ist erreichbar unter:\\\url{https://bremen-livability-frontend.onrender.com/}
+
+\section{Abgrenzung}
+
+Die vorliegende Arbeit beschränkt sich räumlich auf das Gebiet der Freien
+Hansestadt Bremen (Bounding-Box $53{,}0\text{\textdegree}\,\text{N}$ --
+$53{,}2\text{\textdegree}\,\text{N}$,
+$8{,}5\text{\textdegree}\,\text{E}$ --
+$9{,}0\text{\textdegree}\,\text{E}$). Eine Übertragung auf andere Städte ist
+konzeptionell möglich, wird jedoch nicht umgesetzt. Es werden ausschließlich frei
+verfügbare, statische Datenquellen verwendet; Echtzeitdaten (z.\,B.\ aktuelle
+Lärmwerte, Luftqualität) werden nicht berücksichtigt.
+
+\section{Aufbau der Arbeit}
+
+Kapitel~\ref{ch:grundlagen} führt in die theoretischen Grundlagen der
+Geodatenverarbeitung und bestehender Lebensqualitätsindizes ein.
+Kapitel~\ref{ch:datenquellen} beschreibt die verwendeten Datenquellen im Detail.
+Die Systemarchitektur wird in Kapitel~\ref{ch:architektur} vorgestellt, gefolgt
+vom Datenbankdesign (Kapitel~\ref{ch:datenbankdesign}) und der
+Bewertungsmethodik (Kapitel~\ref{ch:bewertung}).
+Kapitel~\ref{ch:datenerfassung} erläutert die automatisierte Datenerfassung.
+Die Implementierung von Backend-\acrshort{api} (Kapitel~\ref{ch:backend})
+und Frontend (Kapitel~\ref{ch:frontend}) wird anschließend beschrieben.
+Kapitel~\ref{ch:testing} behandelt Testing und Deployment.
+Abschließend werden in Kapitel~\ref{ch:ergebnisse} die Ergebnisse diskutiert
+und in Kapitel~\ref{ch:fazit} ein Fazit sowie ein Ausblick formuliert.

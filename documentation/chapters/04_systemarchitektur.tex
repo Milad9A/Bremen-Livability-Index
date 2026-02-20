@@ -1,0 +1,141 @@
+% ============================================================
+\chapter{Systemarchitektur}
+\label{ch:architektur}
+% ============================================================
+
+Der Bremen Livability Index ist als klassische \textbf{Client-Server-Architektur}
+mit drei Schichten konzipiert: einer räumlichen Datenbank, einem
+\acrshort{rest}-Backend und einem plattformübergreifenden Frontend. Dieses
+Kapitel gibt einen Überblick über den Gesamtaufbau und den Technologiestack.
+
+\section{Architekturüberblick}
+\label{sec:architektur_ueberblick}
+
+Abbildung~\ref{fig:architektur_text} beschreibt die zentralen Komponenten und
+deren Zusammenspiel. Durch die Trennung der Schichten lassen sich Backend und
+Frontend unabhängig voneinander entwickeln, testen und deployen.
+
+\begin{figure}[H]
+  \centering
+  \fbox{\parbox{0.9\textwidth}{%
+      \textbf{Architekturdiagramm (textuell)}\\[0.5em]
+      \texttt{%
+        Flutter-App (Web / iOS / Android / Desktop)\\
+        \quad $\downarrow$ HTTP/JSON\\
+        FastAPI-Backend (Docker-Container auf Render.com)\\
+        \quad $\downarrow$ SQL / PostGIS-Queries\\
+        PostgreSQL 16 + PostGIS 3.4 (Neon.tech, Serverless)\\[0.5em]
+        Nebenkomponenten:\\
+        \quad Firebase Auth $\rightarrow$ Authentifizierung\\
+        \quad Firebase Firestore $\rightarrow$ Favoritensynchronisation\\
+        \quad Nominatim API $\rightarrow$ Adressgeokodierung\\
+        \quad Overpass API $\rightarrow$ OSM-Datenerfassung (offline)
+      }%
+    }}
+  \caption{Überblick der System\-architektur}
+  \label{fig:architektur_text}
+\end{figure}
+
+\section{Technologiestack}
+\label{sec:techstack}
+
+\begin{table}[ht!]
+  \centering
+  \caption{Verwendete Technologien}
+  \label{tab:techstack}
+  \small
+  \begin{tabularx}{\textwidth}{l>{\raggedright}p{4.5cm}>{\raggedright\arraybackslash}X}
+    \toprule
+    \textbf{Schicht} & \textbf{Technologie}                                                 & \textbf{Begründung} \\
+    \midrule
+    Datenbank
+                     & PostgreSQL~16 + PostGIS~3.4
+                     & Leistungsfähigste Open-Source-Lösung für räumliche Daten; native
+    \texttt{GEOGRAPHY}-Unterstützung \parencite{postgis_docs}                                                     \\
+    \addlinespace
+    Backend
+                     & FastAPI 0.115 (Python)
+                     & Hohe Performance (ASGI), automatische OpenAPI-Doku,
+    native Pydantic-Validierung \parencite{fastapi_docs}                                                          \\
+    \addlinespace
+    \acrshort{orm}
+                     & SQLModel + GeoAlchemy2
+                     & SQLAlchemy-Leistung mit Pydantic-Typisierung; PostGIS-Funktionen
+    als Python-Objekte \parencite{sqlmodel_docs, geoalchemy2_docs}                                                \\
+    \addlinespace
+    Frontend
+                     & Flutter 3.x (Dart)
+                     & Plattformübergreifend aus einer Codebasis
+    \parencite{flutter_docs}                                                                                      \\
+    \addlinespace
+    Karte
+                     & flutter\_map 8.x
+                     & Open-Source-Kartenwidget; CartoDB Voyager Tiles
+    \parencite{flutter_map}                                                                                       \\
+    \addlinespace
+    State Mgmt.
+                     & flutter\_bloc 9.x
+                     & \acrshort{bloc}-Muster für reaktive, testbare Zustandsverwaltung
+    \parencite{flutter_bloc}                                                                                      \\
+    \addlinespace
+    Auth
+                     & Firebase Authentication
+                     & Google, GitHub, Magic-Link, anonym; serverseitige Token-Validierung
+    \parencite{firebase_docs}                                                                                     \\
+    \addlinespace
+    Hosting
+                     & Render.com, Neon.tech
+                     & Containerbasiertes Hosting + Serverless-DB im Free Tier; EU-Standort
+    \parencite{render_docs, neontech}                                                                             \\
+    \addlinespace
+    Container
+                     & Docker
+                     & Reproduzierbare Build- und Deployment-Umgebung
+    \parencite{docker_docs}                                                                                       \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Projektstruktur}
+
+Das Projekt ist als öffentliches GitHub-Repository unter \\
+\url{https://github.com/Milad9A/Bremen-Livability-Index} verfügbar und in
+drei Hauptverzeichnisse gegliedert:
+
+\begin{description}
+  \item[\texttt{backend/}] Enthält das FastAPI-Backend mit den Unterordnern
+        \texttt{app/} (Endpunkte, Modelle), \texttt{core/} (Datenbank, Scoring,
+        Logging), \texttt{services/} (Geokodierung), \texttt{scripts/}
+        (Datenerfassung) und \texttt{tests/} (Unit-Tests).
+  \item[\texttt{frontend/bli/}] Enthält die Flutter-Anwendung mit der
+        Verzeichnisstruktur \texttt{lib/core/} (Services, Theme, Widgets),
+        \texttt{lib/features/} (Auth, Map, Favorites, Preferences, Onboarding)
+        und plattformspezifischen Ordnern (\texttt{android/}, \texttt{ios/},
+        \texttt{web/}, \texttt{macos/}, \texttt{windows/}, \texttt{linux/}).
+  \item[\texttt{documentation/}] Enthält die vorliegende LaTeX-Dokumentation
+        mit separaten Kapiteldateien und dem Literaturverzeichnis.
+\end{description}
+
+\section{Deployment-Architektur}
+\label{sec:deployment}
+
+Das Deployment erfolgt vollständig cloudbasiert über Infrastruktur im Free Tier
+und wird über eine deklarative \texttt{render.yaml}-Konfiguration gesteuert:
+
+\begin{itemize}
+  \item \textbf{Backend}: Docker-Container auf Render.com (Web Service,
+        Region Frankfurt). Der Container wird aus dem \texttt{backend/Dockerfile}
+        gebaut und stellt den FastAPI-Server auf Port~8000 bereit. Die
+        Umgebungsvariable \texttt{DATABASE\_URL} verbindet das Backend mit der
+        Neon.tech-Datenbank.
+  \item \textbf{Frontend}: Statische Flutter-Webanwendung auf Render.com
+        (Static Site). Das Build-Skript \texttt{render\_build.sh} führt
+        \texttt{flutter build web} aus. Eine SPA-Rewrite-Regel
+        (\texttt{/* $\rightarrow$ /index.html}) stellt clientseitiges Routing
+        sicher.
+  \item \textbf{Datenbank}: PostgreSQL~16 mit PostGIS~3.4 auf Neon.tech
+        (Serverless). Die Datenbank skaliert automatisch und bietet
+        branching-fähige Entwicklungsumgebungen.
+  \item \textbf{E-Mail-Redirect}: Firebase Hosting leitet Magic-Link-URLs
+        an die Flutter-App weiter.
+\end{itemize}

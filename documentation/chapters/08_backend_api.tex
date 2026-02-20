@@ -1,0 +1,111 @@
+% ============================================================
+\chapter{Backend-API}
+\label{ch:backend}
+% ============================================================
+
+Das Backend ist als \acrshort{rest}-konforme \acrshort{api} mit dem
+Python-Framework FastAPI \parencite{fastapi_docs} implementiert. Es stellt
+die zentrale Schnittstelle zwischen Frontend und Datenbank dar.
+
+\section{Endpunkte}
+\label{sec:endpunkte}
+
+Tabelle~\ref{tab:endpoints} zeigt alle verfügbaren HTTP-Endpunkte der
+\acrshort{api}.
+
+\begin{table}[H]
+      \centering
+      \caption{API-Endpunkte}
+      \label{tab:endpoints}
+      \small
+      \begin{tabularx}{\textwidth}{llX}
+            \toprule
+            \textbf{Methode} & \textbf{Pfad}                                                          & \textbf{Beschreibung} \\
+            \midrule
+            GET              & \texttt{/}
+                             & API-Metadaten (Version, Endpunktliste)                                                         \\
+            GET              & \texttt{/health}
+                             & Datenbank-Konnektivitätsprüfung                                                                \\
+            POST             & \texttt{/analyze}
+                             & \textbf{Kern-Endpunkt}: Berechnung des Livability Scores
+            für Koordinaten mit optionalen Präferenzen                                                                        \\
+            POST             & \texttt{/geocode}
+                             & Adresssuche über Nominatim \parencite{nominatim}                                               \\
+            GET              & \texttt{/preferences/defaults}
+                             & Gibt Standardpräferenzen, Multiplikatoren \newline und Faktoren zurück                         \\
+            POST             & \texttt{/users}
+                             & Benutzer anlegen oder aktualisieren                                                            \\
+            GET              & \texttt{/users/\{user\_id\}/favorites}
+                             & Favoriten eines Benutzers abrufen                                                              \\
+            POST             & \texttt{/users/\{user\_id\}/favorites}
+                             & Favorit hinzufügen                                                                             \\
+            DELETE           & \texttt{/users/\{user\_id\}/favorites/\{fav\_id\}}
+                             & Favorit löschen                                                                                \\
+            \bottomrule
+      \end{tabularx}
+\end{table}
+
+\section{Der \texttt{/analyze}-Endpunkt}
+\label{sec:analyze}
+
+Der zentrale Endpunkt nimmt eine Anfrage vom Typ
+\texttt{LocationRequest} entgegen und gibt eine Antwort vom Typ
+\texttt{LivabilityScoreResponse} zurück. Der Ablauf
+umfasst die folgenden Schritte:
+
+\begin{enumerate}
+      \item \textbf{Validierung}: Pydantic validiert die Eingabekoordinaten
+            ($-90 \leq \text{lat} \leq 90$, $-180 \leq \text{lon} \leq 180$).
+      \item \textbf{Räumliche Abfragen}: Für jeden nicht-ausgeschlossenen Faktor
+            wird eine PostGIS-\texttt{ST\_DWithin}-Abfrage ausgeführt, die alle
+            Objekte innerhalb des faktorspezifischen Radius ermittelt.
+      \item \textbf{Score-Berechnung}: Der \texttt{LivabilityScorer} berechnet
+            den Einzelscore jedes Faktors und aggregiert den Gesamtscore
+            (siehe Kapitel~\ref{ch:bewertung}).
+      \item \textbf{GeoJSON-Erzeugung}: Die nahen Objekte werden mit
+            \texttt{ST\_AsGeoJSON} in GeoJSON konvertiert und in der
+            Antwort als \texttt{nearby\_features} zurückgegeben.
+      \item \textbf{Zusammenfassung}: Ein menschenlesbarer Zusammenfassungstext
+            wird generiert.
+\end{enumerate}
+
+\subsection{Request-Modell}
+
+\begin{lstlisting}[style=json,caption={Beispiel-Request an \texttt{/analyze}},label={lst:analyze_req}]
+{
+  "latitude": 53.0793,
+  "longitude": 8.8017,
+  "preferences": {
+    "greenery": "high",
+    "airport": "excluded",
+    "noise": "low"
+  }
+}
+\end{lstlisting}
+
+\subsection{Response-Modell}
+
+Die Antwort enthält den \texttt{score} (0--100), den \texttt{base\_score}
+(40.0), die angefragten Koordinaten, eine \texttt{factors}-Liste mit
+Aufschlüsselung aller Einzelfaktoren, \texttt{nearby\_features} als
+GeoJSON-Objekte gruppiert nach Kategorie sowie eine textuelle
+\texttt{summary}.
+
+\section{Dependency Injection und CORS}
+\label{sec:di_cors}
+
+FastAPI nutzt Dependency Injection für Datenbankverbindungen: Die Funktion
+\texttt{get\_session()} liefert eine SQLModel-\texttt{Session} als Generator,
+sodass jede Anfrage eine eigene Session erhält.
+Da Frontend und Backend auf unterschiedlichen Domains gehostet werden,
+wird eine \acrfull{cors}-Middleware konfiguriert, deren erlaubte Origins
+über die Umgebungsvariable \texttt{CORS\_ORIGINS} gesteuert werden.
+
+\section{Geokodierung}
+
+Der \texttt{/geocode}-Endpunkt delegiert die Adresssuche an den
+\texttt{GeocodeService}, der intern die Nominatim-\acrshort{api}
+\parencite{nominatim} anspricht. Nominatim ist ein freier Geokodierungsdienst,
+der \acrshort{osm}-Daten nutzt und keine API-Schlüssel erfordert.
+Die Ergebnisse enthalten Koordinaten, eine formatierte Adresse,
+einen Typ und einen Relevanzwert (\texttt{importance}).

@@ -1,0 +1,101 @@
+% ============================================================
+\chapter{Grundlagen}
+\label{ch:grundlagen}
+% ============================================================
+
+\section{Lebensqualität und urbane Indizes}
+
+Der Begriff \textit{Lebensqualität} umfasst eine Vielzahl objektiv messbarer und
+subjektiv empfundener Dimensionen, darunter Gesundheitsversorgung, Bildung,
+Sicherheit, Umweltqualität und infrastrukturelle Erreichbarkeit
+\parencite{economist_gla}. Internationale Ansätze wie der \textit{Global
+  Liveability Index} (EIU) oder der \textit{Quality of Living Index} (Mercer)
+bewerten Städte auf Grundlage makroskopischer Indikatoren
+\parencite{mercer2019}. Beide operieren auf Stadtebene und bieten keine
+feinräumige Auflösung innerhalb einer Stadt.
+
+Ziel des Bremen Livability Index ist es, einen \textbf{mikroskaligen}
+Lebensqualitätsindex zu realisieren, der für \textit{jeden beliebigen Punkt}
+innerhalb des Stadtgebiets einen Score berechnet. Dazu werden
+\acrfull{gis}-Methoden eingesetzt, um die räumliche Nähe zu positiven und
+negativen Infrastrukturmerkmalen quantitativ zu erfassen.
+
+\section{Geoinformationssysteme und räumliche Datenbanken}
+\label{sec:gis_grundlagen}
+
+Ein \acrfull{gis} dient der Erfassung, Verwaltung, Analyse und Darstellung
+raumbezogener Daten. Im Kontext dieses Projekts werden insbesondere zwei
+Fähigkeiten benötigt:
+
+\begin{itemize}
+  \item \textbf{Räumliche Abfragen}: Bestimmung aller Objekte innerhalb eines
+        definierten Radius um einen Punkt (\textit{proximity queries}).
+  \item \textbf{Distanzberechnung}: Berechnung der ellipsoidalen Entfernung
+        zwischen geographischen Koordinaten unter Berücksichtigung der
+        Erdkrümmung.
+\end{itemize}
+
+Die Datenbank PostgreSQL bietet mit der Erweiterung \textbf{PostGIS}
+\parencite{postgis_docs} eine leistungsfähige räumliche Datenbanklösung.
+PostGIS unterstützt sowohl den Datentyp \texttt{GEOMETRY} (kartesische Ebene)
+als auch \texttt{GEOGRAPHY} (ellipsoidale Berechnung auf dem WGS\,84-Ellipsoid).
+Für die exakte Entfernungsberechnung in Metern wird in diesem Projekt
+ausschließlich der Typ \texttt{GEOGRAPHY} verwendet.
+
+Zentrale PostGIS-Funktionen im Projekt sind
+\texttt{ST\_DWithin} (Proximity-Prüfung mit GiST-Index),
+\texttt{ST\_Distance} (ellipsoidale Entfernung in Metern),
+\texttt{ST\_MakePoint}/\texttt{ST\_SetSRID} (Punkterzeugung mit \acrshort{crs}-Zuweisung)
+und \texttt{ST\_AsGeoJSON} (Konvertierung für das Frontend).
+
+\section{Koordinatenreferenzsysteme}
+\label{sec:crs}
+
+Im Projekt kommen zwei \acrlong{crs} zum Einsatz:
+
+\begin{table}[H]
+  \centering
+  \caption{Verwendete Koordinatenreferenzsysteme}
+  \label{tab:crs}
+  \begin{tabularx}{\textwidth}{lllX}
+    \toprule
+    \textbf{EPSG-Code} & \textbf{Bezeichnung}                                                      & \textbf{Typ} & \textbf{Verwendung} \\
+    \midrule
+    4326
+                       & \acrshort{wgs84}
+                       & Geographisch
+                       & Primäres \acrshort{crs} der Datenbank, \acrshort{api}-Ein-\slash Ausgabe,
+    \acrshort{osm}-Daten                                                                                                                \\
+    25832
+                       & ETRS89\,/\,\acrshort{utm} Zone 32N
+                       & Projiziert
+                       & Quellformat der Unfallatlas-Daten; wird bei der Datenerfassung
+    nach EPSG:4326 reprojiziert                                                                                                         \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Die Wahl von EPSG:4326 als Datenbankformat in Kombination mit dem PostGIS-Typ
+\texttt{GEOGRAPHY} stellt sicher, dass alle Distanzberechnungen korrekt auf dem
+\acrshort{wgs84}-Ellipsoid erfolgen -- ohne die Notwendigkeit einer zusätzlichen
+Projektion \parencite{postgis_docs}.
+
+\section{REST-APIs und das Client-Server-Modell}
+
+Die Kommunikation zwischen Frontend und Backend erfolgt über eine
+\acrfull{rest}-\acrshort{api}. Das Backend stellt HTTP-Endpunkte bereit, die
+JSON-formatierte Anfragen entgegennehmen und Antworten zurückgeben.
+Dieses zustandslose Architekturmuster ermöglicht eine klare Trennung von
+Darstellungs- und Geschäftslogik sowie eine einfache Skalierbarkeit
+\parencite{fastapi_docs}.
+
+\section{Das BLoC-Entwurfsmuster}
+\label{sec:bloc_pattern}
+
+Das \acrfull{bloc}-Entwurfsmuster \parencite{flutter_bloc} trennt in Flutter-
+Anwendungen die UI-Schicht von der Geschäftslogik: Die Benutzeroberfläche sendet
+\textit{Events} an den BLoC, der diese verarbeitet und neue \textit{States}
+emittiert. Die UI reagiert reaktiv auf Zustandsänderungen. In Kombination mit
+dem \texttt{Freezed}-Code\-generator entstehen typsichere, unveränderliche
+(\textit{immutable}) Zustandsobjekte, die eine vorhersagbare
+Zustandsverwaltung gewährleisten.

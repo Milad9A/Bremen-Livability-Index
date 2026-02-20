@@ -1,0 +1,136 @@
+% ============================================================
+\chapter{Datenquellen}
+\label{ch:datenquellen}
+% ============================================================
+
+Für die Berechnung des Livability Scores werden zwei komplementäre offene
+Datenquellen herangezogen: \acrfull{osm} für allgemeine Geodaten und der
+\textit{Unfallatlas} für verkehrsbezogene Unfalldaten.
+
+\section{OpenStreetMap}
+\label{sec:osm}
+
+\acrshort{osm} \parencite{osm_wiki} ist ein kollaboratives
+Kartenprojekt, das weltweit freie Geodaten unter der Open Database License
+(ODbL~1.0) bereitstellt \parencite{osm_odbl}. Die Daten werden von einer
+Community aus über 10 Millionen registrierten Nutzern gepflegt und umfassen
+Punkte (\textit{Nodes}), Wege (\textit{Ways}) und Relationen mit semantischen
+Tags.
+
+\subsection{Abfrage über die Overpass API}
+
+Der Zugriff auf die \acrshort{osm}-Daten erfolgt über die \textbf{Overpass API}
+\parencite{overpass_api}, eine spezialisierte Leseschnittstelle für räumliche
+Abfragen. Die Abfragen verwenden die Overpass-QL-Syntax mit einem
+Bounding-Box-Filter für das Stadtgebiet Bremen:
+
+\begin{lstlisting}[style=python,caption={Bounding-Box-Definition für Bremen},label={lst:bbox}]
+BREMEN_BBOX = {
+    "south": 53.0,
+    "west":  8.5,
+    "north": 53.2,
+    "east":  9.0
+}
+\end{lstlisting}
+
+Dieses Gebiet von ca.\ 420\,km² umfasst das gesamte Stadtgebiet der
+Freien Hansestadt Bremen einschließlich Bremerhaven.
+
+\subsection{Datenkategorien}
+
+Aus \acrshort{osm} werden 20 thematische Kategorien extrahiert, die als positive
+oder negative Einflussfaktoren in die Bewertung einfließen (Tabelle~\ref{tab:osm_kategorien}).
+
+\begin{table}[H]
+      \centering
+      \caption{OSM-Datenkategorien und verwendete Tags}
+      \label{tab:osm_kategorien}
+      \scriptsize
+      \begin{tabularx}{\textwidth}{lXll}
+            \toprule
+            \textbf{Kategorie} & \textbf{OSM-Tags}                                                                 & \textbf{Geom.} & \textbf{Einfl.} \\
+            \midrule
+            Bäume              & \texttt{natural=tree}                                                             & Point          & +               \\
+            Parks              & \texttt{leisure=park}                                                             & Polygon        & +               \\
+            Nahversorgung      & \texttt{amenity=supermarket|cafe|restaurant|bank|post\_office|bakery|butcher}     & Point          & +               \\
+            ÖPNV               & \texttt{highway=bus\_stop}, \texttt{railway=tram\_stop}                           & Point          & +               \\
+            Gesundheit         & \texttt{amenity=hospital|pharmacy|doctors|clinic}                                 & Point          & +               \\
+            Fahrrad            & \texttt{highway=cycleway}, \texttt{cycleway=*}, \texttt{amenity=bicycle\_parking} & Pt/Ln          & +               \\
+            Bildung            & \texttt{amenity=school|university|college|kindergarten|library}                   & Point          & +               \\
+            Sport/Freizeit     & \texttt{leisure=sports\_centre|swimming\_pool|playground|pitch}                   & Point          & +               \\
+            Fußgänger          & \texttt{highway=pedestrian|footway}                                               & Line           & +               \\
+            Kultur             & \texttt{tourism=museum|gallery}, \texttt{amenity=theatre|cinema}                  & Point          & +               \\
+            \addlinespace
+            Industrie          & \texttt{landuse=industrial}                                                       & Polygon        & $-$             \\
+            Hauptstraßen       & \texttt{highway=motorway|trunk|primary}                                           & Line           & $-$             \\
+            Lärm               & \texttt{amenity=nightclub|bar|pub|fast\_food|car\_repair}                         & Point          & $-$             \\
+            Eisenbahn          & \texttt{railway=rail}                                                             & Line           & $-$             \\
+            Tankstellen        & \texttt{amenity=fuel}                                                             & Point          & $-$             \\
+            Abfall             & \texttt{landuse=landfill}, \texttt{amenity=recycling}                             & Pt/Pg          & $-$             \\
+            Strom              & \texttt{power=substation|plant|generator}                                         & Pt/Pg          & $-$             \\
+            Parkplätze         & \texttt{amenity=parking} (Polygon)                                                & Polygon        & $-$             \\
+            Flughäfen          & \texttt{aeroway=aerodrome|helipad}                                                & Pt/Pg          & $-$             \\
+            Baustellen         & \texttt{landuse=construction}                                                     & Polygon        & $-$             \\
+            \bottomrule
+      \end{tabularx}
+\end{table}
+
+\subsection{Datenqualität und Vollständigkeit}
+\label{sec:osm_datenqualitaet}
+
+Die Qualität der \acrshort{osm}-Daten variiert je nach Kategorie. Für
+städtische Gebiete in Deutschland gilt \acrshort{osm} als weitgehend vollständig,
+insbesondere bei Straßen, Gebäuden und öffentlichen Einrichtungen. Bei Bäumen
+und Fahrradinfrastruktur bestehen dagegen Lücken, da diese Objekte häufig erst
+durch spezialisierte Mapping-Kampagnen erfasst werden. Eine systematische
+Validierung der Datenvollständigkeit liegt außerhalb des Projektumfangs, wird
+jedoch in Kapitel~\ref{ch:ergebnisse} diskutiert.
+
+% ──────────────────────────────────────────────────────────────
+\section{Unfallatlas}
+\label{sec:unfallatlas}
+
+Der \textit{Unfallatlas} \parencite{unfallatlas} ist ein Angebot der
+Statistischen Ämter des Bundes und der Länder und enthält georeferenzierte
+Straßenverkehrsunfälle mit Personenschaden ab dem Jahr 2016. Die Daten stehen
+als Open Data unter der Lizenz \texttt{dl-de/by-2-0} zum Download bereit
+\parencite{unfallatlas_download}.
+
+\subsection{Datenformat und Filterung}
+
+Die Unfalldaten werden als gezippte CSV-Dateien im Koordinatenreferenzsystem
+EPSG:25832 (\acrshort{utm} Zone 32N) bereitgestellt. Für das Projekt werden
+die Daten nach dem Bundeslandschlüssel \texttt{ULAND=4} (Bremen) gefiltert.
+
+\begin{table}[H]
+      \centering
+      \caption{Schweregrade der Unfälle im Unfallatlas}
+      \label{tab:unfall_severity}
+      \begin{tabular}{ccl}
+            \toprule
+            \textbf{UKATEGORIE} & \textbf{Schweregrad} & \textbf{Beschreibung}       \\
+            \midrule
+            1                   & \texttt{fatal}       & Unfall mit Getöteten        \\
+            2                   & \texttt{severe}      & Unfall mit Schwerverletzten \\
+            3                   & \texttt{minor}       & Unfall mit Leichtverletzten \\
+            \bottomrule
+      \end{tabular}
+\end{table}
+
+\subsection{Koordinatentransformation}
+
+Da die Unfalldaten im projizierten System EPSG:25832 vorliegen, die Datenbank
+jedoch EPSG:4326 (\acrshort{wgs84}) erwartet, erfolgt bei der Datenerfassung
+eine automatische Reprojektion mithilfe der Python-Bibliothek GeoPandas
+\parencite{geopandas}. Die Koordinatenspalten
+(\path{XGCSWGS84}/\path{YGCSWGS84} bzw.\
+\path{LINREFX}/\path{LINREFY}) werden automatisch erkannt.
+Zudem wird das deutsche Dezimalkomma-Format
+(z.\,B.\ \texttt{53,0793}) in Dezimalpunkt-Format konvertiert.
+
+\subsection{Zeitraum und Umfang}
+
+Es stehen Daten für die Jahre 2016\,--\,2024 zur Verfügung. Standardmäßig wird
+das aktuellste verfügbare Jahr (2024) importiert. Die Anzahl der Unfälle in
+Bremen variiert dabei je nach Jahr zwischen ca.\ 1.500 und 2.500
+Datensätzen.

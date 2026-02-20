@@ -1,0 +1,135 @@
+% ============================================================
+\chapter{Frontend}
+\label{ch:frontend}
+% ============================================================
+
+Das Frontend ist als plattformübergreifende Anwendung mit dem
+UI-Framework Flutter \parencite{flutter_docs} implementiert und unterstützt
+Web, iOS, Android, macOS, Windows und Linux.
+
+\section{Architektur und State Management}
+\label{sec:frontend_architektur}
+
+Die Anwendung folgt dem \acrfull{bloc}-Entwurfsmuster
+(vgl.\ Abschnitt~\ref{sec:bloc_pattern}), das die Geschäftslogik
+vollständig von der Darstellungsschicht trennt. Die Architektur gliedert
+sich in die folgenden Module:
+
+\begin{description}
+      \item[\texttt{lib/core/}] Querschnittskomponenten:
+            \path{ApiService} (HTTP-Client via Dio),
+            \path{DeepLinkService}, Theme-Definitionen
+            (\path{AppTheme}, \path{AppColors},
+            \path{AppTextStyles}) und wiederverwendbare Widgets.
+      \item[\texttt{lib/features/auth/}] Authentifizierungslogik:
+            \texttt{AuthBloc}, \texttt{AuthService}, Login-Screens.
+      \item[\texttt{lib/features/map/}] Kern-Feature:
+            \texttt{MapBloc} (Karteninteraktionen), \texttt{MapScreen},
+            \texttt{ScoreCardView}, \texttt{FloatingSearchBar}.
+      \item[\texttt{lib/features/favorites/}] Favoritenverwaltung:
+            \texttt{FavoritesBloc}, Datenmodelle.
+      \item[\texttt{lib/features/preferences/}] Nutzerpräferenzen:
+            \texttt{PreferencesBloc}, \texttt{PreferencesScreen},
+            \texttt{PreferencesService}.
+      \item[\texttt{lib/features/onboarding/}] Startbildschirm.
+\end{description}
+
+Alle Events und States werden mithilfe des Code-Generators \texttt{Freezed}
+als \textit{Sealed Unions} definiert. Dies erzwingt typsichere, vollständige
+Pattern-Matching-Behandlung in der UI und verhindert undefinierte Zustände.
+
+\section{Kartenansicht}
+\label{sec:kartenansicht}
+
+Die Kartenansicht bildet die zentrale Benutzeroberfläche. Sie basiert auf dem
+Widget \texttt{FlutterMap} \parencite{flutter_map} mit \textbf{CartoDB Voyager}
+Tiles -- einem schlichten Kartenstil ohne störende POI-Beschriftungen.
+
+\begin{itemize}
+      \item \textbf{Startzentrum}: $53{,}0793^{\circ}\,\text{N}$, $8{,}8017^{\circ}\,\text{E}$
+            (Bremen Innenstadt)
+      \item \textbf{Startzoom}: 13
+      \item \textbf{Interaktion}: Ein Tipp auf die Karte löst ein
+            \texttt{MapTapped}-Event aus, das den \texttt{MapBloc} veranlasst,
+            den \texttt{ApiService} anzufragen. Der berechnete Score und die
+            nahen Features werden anschließend als Marker und Score-Karte
+            dargestellt.
+\end{itemize}
+
+Jede Feature-Kategorie erhält einen eigenen Marker mit einer
+standardisierten Farbpalette aus \texttt{AppColors}, sodass der Nutzer
+die Art der nahen Einrichtungen visuell unterscheiden kann.
+
+\section{Benutzeroberfläche -- Liquid Glass Design}
+\label{sec:ui_design}
+
+Das UI-Design folgt einem \textit{Liquid Glass}-Konzept: Die Karte nimmt
+den gesamten Bildschirm ein, während alle interaktiven Elemente
+(Suchleiste, Score-Karte, Präferenzen) als halbtransparente, gefrostete
+Glasflächen über der Karte schweben. Optische Effekte wie leichte
+Vergrößerung, Verzerrung und haptisches Feedback auf Mobilgeräten
+runden das Interaktionserlebnis ab.
+
+\section{Authentifizierung}
+\label{sec:auth}
+
+Die Authentifizierung wird über Firebase Authentication \parencite{firebase_docs}
+abgewickelt und unterstützt mehrere Anmeldemethoden:
+
+\begin{table}[H]
+      \centering
+      \caption{Unterstützte Anmeldemethoden nach Plattform}
+      \label{tab:auth_methods}
+      \begin{tabularx}{\textwidth}{lX}
+            \toprule
+            \textbf{Plattform} & \textbf{Anmeldemethoden}                       \\
+            \midrule
+            Web, iOS, Android
+                               & Google, GitHub, E-Mail-Magic-Link, Anonym      \\
+            macOS, Windows, Linux
+                               & Nur als Gast (Firebase Auth wird übersprungen) \\
+            \bottomrule
+      \end{tabularx}
+\end{table}
+
+Auf Desktop-Plattformen wird die Firebase-Authentifizierung vollständig
+umgangen, da macOS-Keychains durch Sandboxing eingeschränkt sind und
+Windows/Linux keine nativen OAuth-Desktop-Flows unterstützen. Stattdessen
+wird ein lokales \texttt{AppUser.guest()}-Objekt ohne Firebase-Interaktion
+erzeugt.
+
+\subsection{Cross-Device E-Mail-Link-Flow}
+
+Wenn ein Nutzer einen Magic Link auf einem anderen Gerät öffnet als dem,
+auf dem er die Anmeldung initiiert hat, ist die E-Mail-Adresse nicht
+im lokalen Speicher hinterlegt. In diesem Fall erkennt der
+\texttt{DeepLinkService} den \texttt{oobCode}-Parameter in der URL,
+und der \texttt{AuthBloc} navigiert den Nutzer zu einem
+\texttt{EmailLinkPromptScreen}, auf dem er seine E-Mail-Adresse erneut
+eingeben kann.
+
+\section{Favoritenverwaltung}
+\label{sec:favorites}
+
+Nutzer können analysierte Standorte als Favoriten speichern. Die
+Datenhaltung ist zweistufig:
+
+\begin{itemize}
+      \item \textbf{Angemeldete Nutzer}: Synchronisation über Firebase Firestore
+            und das Backend (\path{/users/{user_id}/favorites}).
+      \item \textbf{Gäste}: Lokale Speicherung über \texttt{SharedPreferences}
+            (Key-Value-Store des Geräts).
+\end{itemize}
+
+Der \texttt{FavoritesBloc} abstrahiert die Speicherstrategie und stellt
+eine einheitliche Schnittstelle für das UI bereit.
+
+\section{Adresssuche}
+
+Die \texttt{FloatingSearchBar} ermöglicht die Suche nach Adressen.
+Eingaben werden über den \texttt{ApiService} an den
+\texttt{/geocode}-Endpunkt des Backends weitergeleitet, der wiederum die
+Nominatim-\acrshort{api} abfragt. Die Suchergebnisse werden als
+Drop-down-Liste angezeigt; bei Auswahl wird die Karte zur
+entsprechenden Koordinate navigiert und automatisch eine
+Score-Berechnung ausgelöst.

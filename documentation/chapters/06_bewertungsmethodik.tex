@@ -1,0 +1,105 @@
+% ============================================================
+\chapter{Bewertungsmethodik}
+\label{ch:bewertung}
+% ============================================================
+
+Das Kernstück des Bremen Livability Index ist der Bewertungsalgorithmus, der
+für einen gegebenen geographischen Punkt einen \textbf{Livability Score}
+zwischen 0 und 100 berechnet.
+
+\section{Bewertungsformel}
+\label{sec:formel}
+
+Der Score setzt sich aus einem Basiswert, der Summe positiver Faktoren und
+der Summe negativer Faktoren zusammen:
+
+\begin{equation}
+  \label{eq:score}
+  \text{Score} = \text{clamp}\!\left(
+  \underbrace{S_{\text{base}}}_{= 40}
+  + \sum_{i=1}^{9} w_i \cdot f_i^{+}
+  - \sum_{j=1}^{11} w_j \cdot f_j^{-}
+  ,\; 0,\; 100
+  \right)
+\end{equation}
+
+Dabei ist $S_{\text{base}} = 40$ ein neutraler Ausgangswert,
+$f_i^{+}$ bzw.\ $f_j^{-}$ die Einzelscores der positiven/negativen Faktoren
+und $w \in \{0{,}0;\; 0{,}5;\; 1{,}0;\; 1{,}5\}$ der nutzerspezifische
+Gewichtungsmultiplikator (\textit{ImportanceLevel}: \texttt{excluded},
+\texttt{low}, \texttt{medium}, \texttt{high}).
+
+Faktoren mit hohen Zählergebnissen verwenden logarithmische Skalierung
+$f(n) = \min(f_{\max},\; \ln(1{+}n) \cdot k)$, die übrigen lineare
+Skalierung $f(n) = \min(f_{\max},\; n \cdot k)$.
+
+\section{Positive Faktoren}
+\label{sec:positive_faktoren}
+
+\begin{table}[H]
+  \centering
+  \caption{Positive Einflussfaktoren (Summe Max.: 60)}
+  \label{tab:positive}
+  \scriptsize
+  \begin{tabularx}{\textwidth}{p{2.8cm}ccX}
+    \toprule
+    \textbf{Faktor} & \textbf{Max.} & \textbf{Radius} & \textbf{Formel}                                                \\
+    \midrule
+    Grünflächen     & 14            & 175\,m          & $\min(9, \ln(1{+}n_B) \cdot 2{,}0) + \min(5, n_P \cdot 2{,}5)$ \\
+    Nahversorgung   & 10            & 550\,m          & $\min(10, \ln(1{+}n) \cdot 2{,}8)$                             \\
+    ÖPNV            & 8             & 450\,m          & $\min(8, \ln(1{+}n) \cdot 3{,}5)$                              \\
+    Gesundheit      & 6             & 700\,m          & $\min(6, n \cdot 2{,}5)$                                       \\
+    Fahrrad         & 6             & 275\,m          & $\min(6, \ln(1{+}n) \cdot 2{,}5)$                              \\
+    Bildung         & 5             & 500\,m          & $\min(5, n \cdot 1{,}5)$                                       \\
+    Sport/Freizeit  & 4             & 700\,m          & $\min(4, \ln(1{+}n) \cdot 1{,}8)$                              \\
+    Kultur          & 4             & 500\,m          & $\min(4, n \cdot 2{,}0)$                                       \\
+    Fußgänger       & 3             & 275\,m          & $\min(3, \ln(1{+}n) \cdot 1{,}2)$                              \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Negative Faktoren}
+\label{sec:negative_faktoren}
+
+\begin{table}[H]
+  \centering
+  \caption{Negative Einflussfaktoren (Summe Max.: 57)}
+  \label{tab:negative}
+  \scriptsize
+  \begin{tabularx}{\textwidth}{p{2.8cm}ccX}
+    \toprule
+    \textbf{Faktor} & \textbf{Strafe} & \textbf{Radius} & \textbf{Typ}             \\
+    \midrule
+    Industriegebiet & 10              & 150\,m          & Binär                    \\
+    Unfälle         & 8               & 120\,m          & $\min(8, n \cdot 2{,}0)$ \\
+    Flughafen       & 7               & 600\,m          & Binär                    \\
+    Hauptstraßen    & 6               & 60\,m           & Binär                    \\
+    Lärmquellen     & 6               & 75\,m           & $\min(6, n \cdot 2{,}0)$ \\
+    Abfall          & 5               & 250\,m          & Binär                    \\
+    Eisenbahn       & 5               & 100\,m          & Binär                    \\
+    Tankstelle      & 3               & 75\,m           & Binär                    \\
+    Strom           & 3               & 75\,m           & Binär                    \\
+    Baustelle       & 2               & 125\,m          & Binär                    \\
+    Großparkplatz   & 2               & 50\,m           & Binär                    \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Binäre Faktoren vergeben die volle Strafe, sobald mindestens ein Objekt
+im Radius vorhanden ist. Zählerbasierte (Unfälle, Lärm) steigen
+proportional, sind aber nach oben begrenzt. Die Suchradien
+(50\,--\,700\,m) spiegeln den Einflussbereich der Faktoren wider;
+alle Abfragen nutzen \texttt{ST\_DWithin} auf dem \acrshort{wgs84}-Ellipsoid.
+
+\section{Score-Interpretation und Implementierung}
+
+Fünf Bewertungsbänder ordnen den Score ein:
+80--100 \textit{Hervorragend}, 60--79 \textit{Gut},
+40--59 \textit{Durchschnittlich}, 20--39 \textit{Unterdurchschnittlich},
+0--19 \textit{Schlecht}. Der Basiswert 40 stuft infrastrukturfreie
+Standorte als \enquote{durchschnittlich} ein.
+
+Der Algorithmus ist in \texttt{LivabilityScorer} (\texttt{core/scoring.py})
+implementiert. Jeder Faktor wird durch eine eigene statische Methode berechnet;
+\texttt{calculate\_score} aggregiert alle Beiträge zu einem
+\texttt{LivabilityScoreResponse}-Objekt.

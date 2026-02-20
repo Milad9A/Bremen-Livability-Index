@@ -1,0 +1,113 @@
+% ============================================================
+\chapter{Datenbankdesign}
+\label{ch:datenbankdesign}
+% ============================================================
+
+Die persistente Speicherung und räumliche Abfrage der Geodaten erfolgt über
+PostgreSQL~16 mit der Erweiterung PostGIS~3.4 \parencite{postgis_docs,
+      postgresql_docs}. Dieses Kapitel beschreibt das Datenbankschema, die
+Tabellenstruktur und die Indexierung.
+
+\section{Schema-Organisation}
+
+Alle projektspezifischen Tabellen befinden sich im dedizierten Schema
+\texttt{gis\_data}. Dieses Schema wird bei der erstmaligen Initialisierung
+durch das Skript \texttt{init\_db.sql} angelegt, zusammen mit der PostGIS-
+Erweiterung:
+
+\begin{lstlisting}[style=sql,caption={Schema- und PostGIS-Initialisierung},label={lst:initdb}]
+CREATE EXTENSION IF NOT EXISTS postgis;
+CREATE SCHEMA IF NOT EXISTS gis_data;
+\end{lstlisting}
+
+\section{Tabellenstruktur}
+\label{sec:tabellen}
+
+Das Schema umfasst \textbf{21 Tabellen}, die sich in drei Gruppen
+unterteilen lassen:
+
+\begin{enumerate}
+      \item \textbf{Positive Einflussfaktoren} (10 Tabellen):
+            \path{trees}, \path{parks}, \path{amenities},
+            \path{public_transport}, \path{healthcare},
+            \path{bike_infrastructure}, \path{education},
+            \path{sports_leisure}, \path{pedestrian_infrastructure},
+            \path{cultural_venues}
+      \item \textbf{Negative Einflussfaktoren} (11 Tabellen):
+            \path{accidents}, \path{industrial_areas},
+            \path{major_roads}, \path{noise_sources},
+            \path{railways}, \path{gas_stations},
+            \path{waste_facilities}, \path{power_infrastructure},
+            \path{parking_lots}, \path{airports},
+            \path{construction_sites}
+      \item \textbf{Benutzerverwaltung} (2 Tabellen): \texttt{users},
+            \texttt{favorite\_addresses}
+\end{enumerate}
+
+Jede Geo-Tabelle folgt einem einheitlichen Aufbau:
+
+\begin{table}[H]
+      \centering
+      \caption{Gemeinsames Spaltenschema der Geo-Tabellen}
+      \label{tab:common_schema}
+      \begin{tabularx}{\textwidth}{llX}
+            \toprule
+            \textbf{Spalte}      & \textbf{Datentyp}              & \textbf{Beschreibung}     \\
+            \midrule
+            \texttt{id}          & \texttt{SERIAL PRIMARY KEY}    & Auto-Inkrement-ID         \\
+            \texttt{osm\_id}     & \texttt{BIGINT}                & OpenStreetMap-Objekt-ID
+            (entfällt bei Unfalldaten)                                                        \\
+            \texttt{name}        & \texttt{TEXT}                  & Bezeichnung (optional)    \\
+            \texttt{geometry}    & \texttt{GEOGRAPHY(type, 4326)} & Räumliches Objekt im
+            \acrshort{wgs84}-System                                                           \\
+            \texttt{created\_at} & \texttt{TIMESTAMP}             & Zeitstempel der Erfassung \\
+            \bottomrule
+      \end{tabularx}
+\end{table}
+
+Einige Tabellen verfügen über zusätzliche Typspalten, z.\,B.\
+\texttt{amenity\_type} (Art der Einrichtung), \texttt{severity} (Unfallschweregrad),
+\texttt{transport\_type} (Bus/Tram) oder \texttt{healthcare\_type}.
+Die Benutzertabellen speichern Firebase-UIDs, E-Mail-Adressen und
+Favoriten-Koordinaten.
+
+\section{Geometrietypen}
+
+Abhängig von der Art der Geoobjekte werden drei Typen verwendet:
+\texttt{POINT} (z.\,B.\ Bäume, Haltestellen, Unfälle),
+\texttt{LINESTRING} (Straßen, Schienen, Rad-/Fußwege) und
+\texttt{POLYGON} (Parks, Industriegebiete, Parkplätze, Flughäfen).
+Alle Geometrien werden als \texttt{GEOGRAPHY} (nicht \texttt{GEOMETRY})
+gespeichert, sodass Distanzberechnungen automatisch auf dem
+\acrshort{wgs84}-Ellipsoid in Metern erfolgen.
+
+\section{Räumliche Indizierung}
+\label{sec:indexierung}
+
+Für jede Geometriespalte wird ein \textbf{GiST-Index} (\textit{Generalized
+      Search Tree}) angelegt. GiST-Indizes ermöglichen effiziente räumliche Abfragen,
+indem sie die Geometrien in hierarchische Bounding-Boxen partitionieren:
+
+\begin{lstlisting}[style=sql,caption={Beispiel: GiST-Index auf der Tabelle \texttt{trees}},label={lst:gist}]
+CREATE INDEX idx_trees_geom
+  ON gis_data.trees
+  USING GIST (geometry);
+\end{lstlisting}
+
+Zusätzlich werden B-Tree-Indizes auf Typspalten (z.\,B.\
+\texttt{amenity\_type}, \texttt{transport\_type}) erstellt, um Abfragen mit
+Typfiltern zu beschleunigen.
+
+Die Kombination aus GiST-Index und \texttt{ST\_DWithin} ermöglicht es, die
+räumlichen Abfragen des Scoring-Algorithmus in wenigen Millisekunden
+auszuführen -- selbst bei Tabellen mit über 40.000 Einträgen (z.\,B.\ Bäume).
+
+\section{ORM-Abbildung}
+
+Die Datenbankmodelle werden im Backend durch \textbf{SQLModel}-Klassen
+\parencite{sqlmodel_docs} abgebildet, die sowohl als SQLAlchemy-ORM-Modelle
+als auch als Pydantic-Validierungsmodelle dienen. Die Geometriespalten
+verwenden den Typ \texttt{Geography} aus GeoAlchemy2
+\parencite{geoalchemy2_docs}. Alle 21 Tabellen erben von einer gemeinsamen
+Basisklasse \texttt{GISBase} mit der Konfiguration
+\texttt{arbitrary\_types\_allowed = True}.
