@@ -55,7 +55,7 @@ RESTful API for livability analysis and geocoding.
 - 🗺️ **Premium Map Experience** – Full-screen map with "Liquid Glass" UI, real-time background refraction, and tactile haptic feedback.
 - 📍 **Instant Analysis** – Tap any location to calculate a detailed livability score based on 20+ spatial factors.
 - ⚙️ **Personalized Scoring** – Customize factor importance to tailor scores to your lifestyle.
-- � **Smart Search & Favorites** – "Apple-style" expandable search bar and cross-device sync.
+- 🔍 **Smart Search & Favorites** – "Apple-style" expandable search bar and cross-device sync.
 - 🔐 **Secure & Reliable** – Multi-provider authentication on web/mobile (Google, GitHub, Email); desktop apps run without login. >90% test coverage.
 
 

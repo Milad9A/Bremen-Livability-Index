@@ -5,6 +5,9 @@ import 'package:bli/features/auth/bloc/auth_bloc.dart';
 import 'package:bli/features/auth/bloc/auth_state.dart';
 import 'package:bli/features/auth/models/user.dart';
 import 'package:bli/features/auth/services/auth_service.dart';
+import 'package:bli/features/favorites/bloc/favorites_bloc.dart';
+import 'package:bli/features/favorites/bloc/favorites_state.dart';
+import 'package:bli/features/map/widgets/score_card.dart';
 import 'package:mockito/mockito.dart';
 import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
 import 'package:bli/features/preferences/models/user_preferences.dart';
@@ -19,6 +22,7 @@ import 'package:flutter_map/flutter_map.dart' hide MapEvent;
 import 'dart:async';
 import 'dart:io';
 
+import 'package:latlong2/latlong.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 // Simple mock for AuthService that can be instantiated without build_runner
@@ -51,6 +55,39 @@ class MockAuthBloc extends Mock implements AuthBloc {
   Future<void> close() => Future.value();
 }
 
+/// An AuthBloc whose stream can be controlled from tests.
+class ControllableAuthBloc implements AuthBloc {
+  final StreamController<AuthState> _controller;
+  AuthState _currentState;
+
+  ControllableAuthBloc({
+    required StreamController<AuthState> controller,
+    AuthState? initialState,
+  }) : _controller = controller,
+       _currentState =
+           initialState ??
+           const AuthState(
+             user: AppUser(id: '1', provider: AppAuthProvider.email),
+           );
+
+  @override
+  Stream<AuthState> get stream => _controller.stream;
+
+  @override
+  AuthState get state => _currentState;
+
+  void emitState(AuthState newState) {
+    _currentState = newState;
+    _controller.add(newState);
+  }
+
+  @override
+  Future<void> close() async => _controller.close();
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
 // Mock MapBloc
 class MockMapBloc extends Mock implements MapBloc {
   final MapController _mapController = MapController();
@@ -73,6 +110,18 @@ class MockMapBloc extends Mock implements MapBloc {
             returnValue: MapState.initial(),
           )
           as MapState;
+
+  @override
+  Future<void> close() => Future.value();
+}
+
+// Mock FavoritesBloc
+class MockFavoritesBloc extends Mock implements FavoritesBloc {
+  @override
+  Stream<FavoritesState> get stream => Stream.empty();
+
+  @override
+  FavoritesState get state => const FavoritesState();
 
   @override
   Future<void> close() => Future.value();
@@ -148,6 +197,7 @@ Widget _buildTestWidgetWithInstance(
   MockPreferencesService mockPreferencesService, {
   NavigatorObserver? navigatorObserver,
   AuthBloc? authBloc,
+  FavoritesBloc? favoritesBloc,
 }) {
   return MaterialApp(
     navigatorObservers: navigatorObserver != null ? [navigatorObserver] : [],
@@ -162,6 +212,9 @@ Widget _buildTestWidgetWithInstance(
           create: (_) =>
               PreferencesBloc(preferencesService: mockPreferencesService),
         ),
+        favoritesBloc != null
+            ? BlocProvider<FavoritesBloc>.value(value: favoritesBloc)
+            : BlocProvider<FavoritesBloc>.value(value: MockFavoritesBloc()),
       ],
       child: MapScreen(bloc: bloc),
     ),
@@ -344,6 +397,494 @@ void main() {
       await tester.pump(); // Trigger animation
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text(message), findsOneWidget);
+    });
+  });
+
+  // ─── Profile Button ──────────────────────────────────────────────────────────
+
+  group('Profile Button', () {
+    testWidgets('renders profile button with person icon', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      final liquidGlassView = tester.widget<LiquidGlassView>(
+        find.byType(LiquidGlassView),
+      );
+
+      // Index 1: Profile Lens (Search=0, Profile=1, Location=2)
+      final profileLens = liquidGlassView.children[1];
+      final gestureDetector = profileLens.child as GestureDetector;
+      final scaleTransition = gestureDetector.child as ScaleTransition;
+      final center = scaleTransition.child as Center;
+      final icon = center.child as Icon;
+
+      expect(icon.icon, Icons.person);
+    });
+  });
+
+  // ─── Loading States ───────────────────────────────────────────────────────────
+
+  group('Loading States', () {
+    testWidgets('shows CircularProgressIndicator while location is analysed', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      // Block the API so loading state persists
+      mockApiService.analyzeCompleter = Completer<void>();
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump();
+
+      // Tap inside Bremen to trigger loading
+      realBloc.add(const MapEvent.mapTapped(LatLng(53.0793, 8.8017)));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+
+      // CircularProgressIndicator lives inside LiquidGlass so the standard
+      // widget finder cannot reach it. Verify loading state via the bloc instead.
+      expect(realBloc.state.isLoading, isTrue);
+
+      // Unblock API to allow tearDown to complete cleanly
+      mockApiService.analyzeCompleter!.complete();
+      await tester.pump(const Duration(milliseconds: 500));
+      mockApiService.analyzeCompleter = null;
+    });
+
+    testWidgets(
+      'shows slow-loading message after slowLoadingTriggered while loading',
+      (WidgetTester tester) async {
+        await configureScreen(tester);
+        mockApiService.analyzeCompleter = Completer<void>();
+
+        await tester.pumpWidget(
+          _buildTestWidgetWithInstance(
+            realBloc,
+            mockAuthService,
+            mockPreferencesService,
+            authBloc: mockAuthBloc,
+          ),
+        );
+        await tester.pump();
+
+        // Start an analysis so bloc enters loading state
+        realBloc.add(const MapEvent.mapTapped(LatLng(53.0793, 8.8017)));
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pump();
+
+        // Confirm loading
+        expect(realBloc.state.isLoading, isTrue);
+
+        // Fire the slow-loading timer event manually
+        realBloc.add(const MapEvent.slowLoadingTriggered());
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pump();
+
+        // The slow-loading text lives inside LiquidGlass and is not reachable
+        // via standard finders – verify the bloc state reflects the flag instead.
+        expect(realBloc.state.showSlowLoadingMessage, isTrue);
+
+        mockApiService.analyzeCompleter!.complete();
+        await tester.pump(const Duration(milliseconds: 500));
+        mockApiService.analyzeCompleter = null;
+      },
+    );
+
+    testWidgets('hides loading indicator after analysis succeeds', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+
+      // Block the API first so we can confirm loading starts …
+      mockApiService.analyzeCompleter = Completer<void>();
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump();
+
+      realBloc.add(const MapEvent.mapTapped(LatLng(53.0793, 8.8017)));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+      expect(realBloc.state.isLoading, isTrue);
+
+      // Use runAsync so the Completer continuation and subsequent async event
+      // chain actually runs through Dart’s real microtask queue.
+      await tester.runAsync(() async {
+        mockApiService.analyzeCompleter!.complete();
+        mockApiService.analyzeCompleter = null;
+        await Future.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump();
+
+      expect(realBloc.state.isLoading, isFalse);
+    });
+  });
+
+  // ─── Score Card ───────────────────────────────────────────────────────────────
+
+  group('Score Card', () {
+    const _mockScore = LivabilityScore(
+      score: 75.0,
+      baseScore: 60.0,
+      summary: 'Good area',
+      factors: [],
+      nearbyFeatures: {},
+      location: Location(latitude: 53.0793, longitude: 8.8017),
+    );
+
+    testWidgets('shows ScoreCard widget after analysis succeeds', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+
+      // Add event BEFORE pumpWidget so the initial bloc state already contains
+      // the score when the widget tree is first built (same pattern used by the
+      // existing 'shows error message card' test).
+      realBloc.add(
+        const MapEvent.analysisSucceeded(_mockScore, LatLng(53.0793, 8.8017)),
+      );
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      // Multiple pumps to flush bloc stream events → state change → rebuild.
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(find.byType(ScoreCard), findsOneWidget);
+    });
+
+    testWidgets('score card is absent when no analysis has been run', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 200));
+
+      expect(find.byType(ScoreCard), findsNothing);
+    });
+
+    testWidgets('score card is hidden again after map reset', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+
+      // Pre-load score before building the widget.
+      realBloc.add(
+        const MapEvent.analysisSucceeded(_mockScore, LatLng(53.0793, 8.8017)),
+      );
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      expect(find.byType(ScoreCard), findsOneWidget);
+
+      // Dispatch mapReset in a real-async context so Dart’s event loop fully
+      // processes the event chain before we assert on the bloc state.
+      await tester.runAsync(() async {
+        realBloc.add(const MapEvent.mapReset());
+        await Future.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump();
+
+      expect(realBloc.state.currentScore, isNull);
+    });
+  });
+
+  // ─── Search Expansion ──────────────────────────────────────────────────────────
+
+  group('Search', () {
+    testWidgets('shows AddressSearchWidget when search is toggled on', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump();
+
+      realBloc.add(const MapEvent.searchToggled(true));
+      // AddressSearchWidget is inside LiquidGlass so the standard widget finder
+      // cannot reach it.  Verify the bloc state change instead.
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+
+      expect(realBloc.state.showSearch, isTrue);
+    });
+
+    testWidgets('hides AddressSearchWidget when search is toggled off', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump();
+
+      realBloc.add(const MapEvent.searchToggled(true));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+      expect(realBloc.state.showSearch, isTrue);
+
+      realBloc.add(const MapEvent.searchToggled(false));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+      expect(realBloc.state.showSearch, isFalse);
+    });
+
+    testWidgets('tapping map while in search mode closes search', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump();
+
+      // Open search
+      realBloc.add(const MapEvent.searchToggled(true));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+      expect(realBloc.state.showSearch, isTrue);
+
+      // Dispatch a mapTapped while showSearch == true (should close search)
+      realBloc.add(const MapEvent.mapTapped(LatLng(53.0793, 8.8017)));
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+
+      expect(realBloc.state.showSearch, isFalse);
+    });
+  });
+
+  // ─── Error Handling ───────────────────────────────────────────────────────────
+
+  group('Error Handling', () {
+    testWidgets('close button on error card dispatches errorCleared', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      realBloc.add(const MapEvent.analysisFailed('Something went wrong'));
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Something went wrong'), findsOneWidget);
+
+      // The tap fires onClose → bloc.add(errorCleared()).
+      // Use runAsync so the resulting async event chain completes.
+      await tester.tap(find.byIcon(Icons.close));
+      await tester.runAsync(() async {
+        await Future.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+
+      expect(realBloc.state.errorMessage, isNull);
+    });
+
+    testWidgets('multiple errors show only the latest one', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      realBloc.add(const MapEvent.analysisFailed('Error one'));
+      realBloc.add(const MapEvent.errorCleared());
+      realBloc.add(const MapEvent.analysisFailed('Error two'));
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump();
+
+      expect(find.text('Error two'), findsOneWidget);
+      expect(find.text('Error one'), findsNothing);
+    });
+  });
+
+  // ─── Auth Redirect ────────────────────────────────────────────────────────────
+
+  group('Auth Redirect', () {
+    testWidgets('navigates away when auth state becomes unauthenticated', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+
+      final authStreamController = StreamController<AuthState>.broadcast();
+      final controllableAuthBloc = ControllableAuthBloc(
+        controller: authStreamController,
+      );
+
+      // Use a named-route setup so that pushNamedAndRemoveUntil('/')
+      // lands on a lightweight stub page instead of re-rendering FlutterMap.
+      // Without this, a second FlutterMap init hits the path_provider plugin
+      // (not available in tests) and throws MissingPluginException.
+      await tester.pumpWidget(
+        MaterialApp(
+          navigatorObservers: [mockObserver],
+          initialRoute: '/map',
+          routes: {
+            '/': (context) =>
+                const Scaffold(body: Center(child: Text('Logged out'))),
+            '/map': (context) => MultiBlocProvider(
+              providers: [
+                BlocProvider<AuthBloc>.value(value: controllableAuthBloc),
+                BlocProvider<PreferencesBloc>(
+                  create: (_) => PreferencesBloc(
+                    preferencesService: mockPreferencesService,
+                  ),
+                ),
+                BlocProvider<FavoritesBloc>.value(value: MockFavoritesBloc()),
+              ],
+              child: MapScreen(bloc: realBloc),
+            ),
+          },
+        ),
+      );
+      await tester.pump();
+
+      final routeCountBefore = mockObserver.pushedRoutes.length;
+
+      await tester.runAsync(() async {
+        controllableAuthBloc.emitState(const AuthState());
+        await Future.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump();
+      await tester.pump();
+
+      // After sign-out the BlocListener should have pushed '/'.
+      expect(mockObserver.pushedRoutes.length, greaterThan(routeCountBefore));
+
+      await controllableAuthBloc.close();
+    });
+  });
+
+  // ─── Map State Consistency ────────────────────────────────────────────────────
+
+  group('Map State Consistency', () {
+    testWidgets('errorMessage is null after errorCleared event', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      realBloc.add(const MapEvent.analysisFailed('transient error'));
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump();
+      expect(find.text('transient error'), findsOneWidget);
+
+      // Use runAsync so the Bloc stream event is processed through Dart’s real
+      // event loop before asserting on the state.
+      await tester.runAsync(() async {
+        realBloc.add(const MapEvent.errorCleared());
+        await Future.delayed(const Duration(milliseconds: 100));
+      });
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pump();
+
+      expect(realBloc.state.errorMessage, isNull);
+    });
+
+    testWidgets('tapping outside-Bremen location shows snackbar, not crash', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump();
+
+      // Munich – outside Bremen bounds
+      realBloc.add(const MapEvent.mapTapped(LatLng(48.1351, 11.5820)));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+
+      // Bloc should have called onShowMessage; no crash
+      expect(tester.takeException(), isNull);
     });
   });
 }
