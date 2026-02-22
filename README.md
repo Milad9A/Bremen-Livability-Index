@@ -14,6 +14,8 @@ A comprehensive geospatial platform featuring a **Flutter mobile & web applicati
 
 > 📖 **For in-depth technical details, see [TECHNICAL.md](TECHNICAL.md)** – covering system architecture, database design, scoring algorithm, and deployment.
 
+> 🎓 **For the full academic write-up, see [documentation/main.pdf](documentation/main.pdf)** – the accompanying research paper covering theoretical background, methodology, data sources, and results.
+
 ## 🌐 Live Applications
 
 Access the Bremen Livability Index on multiple platforms:
@@ -37,18 +39,11 @@ RESTful API for livability analysis and geocoding.
 | ---------- | --------------------- | --------------------------- |
 | **iOS**    | `Runner.app` / Source | Run via Xcode / Flutter     |
 | **Android**| `BLI-Android.apk`     | Install APK on device.      |
-| **Windows**| `BLI-Windows.zip`     | Extract and run `bli.exe`.  |
-| **macOS**  | `BLI-macOS.zip`       | Extract and run `bli.app`.  |
-| **Linux**  | `BLI-Linux.tar.gz`    | Extract and run `./bundle/bli`. |
+| **Windows**| `BLI-Windows.zip`     | Extract and run `bli.exe`. If prompted by SmartScreen, click "More Info" → "Run anyway". |
+| **macOS**  | `BLI-macOS.zip`       | Extract and run `bli.app`. Right-click → "Open" to bypass Gatekeeper. |
+| **Linux**  | `BLI-Linux.tar.gz`    | Extract, run `chmod +x bli`, then `./bundle/bli`. |
 
-> ⚠️ **Note:** Desktop builds are unsigned. You may need to verify them in your system security settings:
->
-> - **Windows**: Click "More Info" → "Run anyway" in Windows Defender SmartScreen
-> - **macOS**: Right-click the app → "Open" → "Open" (bypasses Gatekeeper)
-> - **Linux**: Run `chmod +x bli` before running
-> All platforms use the same backend API and provide the same core functionality.
->
-> 💡 **Desktop apps do not require login.** Firebase Authentication has limited support for desktop platforms (macOS sandboxing blocks keychain access, Windows/Linux lack OAuth support), so desktop users enter directly as guests. Sign-in is available on web and mobile.
+Desktop builds are unsigned and run without login — sign-in is available on web and mobile only.
 
 ## ✨ Features
 
