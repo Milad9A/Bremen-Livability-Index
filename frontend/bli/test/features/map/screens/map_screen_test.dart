@@ -8,6 +8,8 @@ import 'package:bli/features/auth/services/auth_service.dart';
 import 'package:bli/features/favorites/bloc/favorites_bloc.dart';
 import 'package:bli/features/favorites/bloc/favorites_state.dart';
 import 'package:bli/features/map/widgets/score_card.dart';
+import 'package:bli/features/map/widgets/profile_sheet.dart';
+import 'package:bli/features/map/widgets/nearby_feature_layers.dart';
 import 'package:mockito/mockito.dart';
 import 'package:bli/features/preferences/bloc/preferences_bloc.dart';
 import 'package:bli/features/preferences/models/user_preferences.dart';
@@ -21,6 +23,7 @@ import 'package:flutter_map/flutter_map.dart' hide MapEvent;
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:latlong2/latlong.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
@@ -199,24 +202,24 @@ Widget _buildTestWidgetWithInstance(
   AuthBloc? authBloc,
   FavoritesBloc? favoritesBloc,
 }) {
-  return MaterialApp(
-    navigatorObservers: navigatorObserver != null ? [navigatorObserver] : [],
-    home: MultiBlocProvider(
-      providers: [
-        authBloc != null
-            ? BlocProvider<AuthBloc>.value(value: authBloc)
-            : BlocProvider<AuthBloc>(
-                create: (_) => AuthBloc(authService: mockAuthService),
-              ),
-        BlocProvider<PreferencesBloc>(
-          create: (_) =>
-              PreferencesBloc(preferencesService: mockPreferencesService),
-        ),
-        favoritesBloc != null
-            ? BlocProvider<FavoritesBloc>.value(value: favoritesBloc)
-            : BlocProvider<FavoritesBloc>.value(value: MockFavoritesBloc()),
-      ],
-      child: MapScreen(bloc: bloc),
+  return MultiBlocProvider(
+    providers: [
+      authBloc != null
+          ? BlocProvider<AuthBloc>.value(value: authBloc)
+          : BlocProvider<AuthBloc>(
+              create: (_) => AuthBloc(authService: mockAuthService),
+            ),
+      BlocProvider<PreferencesBloc>(
+        create: (_) =>
+            PreferencesBloc(preferencesService: mockPreferencesService),
+      ),
+      favoritesBloc != null
+          ? BlocProvider<FavoritesBloc>.value(value: favoritesBloc)
+          : BlocProvider<FavoritesBloc>.value(value: MockFavoritesBloc()),
+    ],
+    child: MaterialApp(
+      navigatorObservers: navigatorObserver != null ? [navigatorObserver] : [],
+      home: MapScreen(bloc: bloc),
     ),
   );
 }
@@ -398,6 +401,39 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text(message), findsOneWidget);
     });
+
+    testWidgets('shows MarkerLayer and NearbyFeatureLayers when score exist', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      const score = LivabilityScore(
+        score: 80.0,
+        baseScore: 50.0,
+        summary: "Mock Summary",
+        factors: [],
+        nearbyFeatures: {'park': []},
+        location: Location(latitude: 53.0793, longitude: 8.8017),
+      );
+
+      realBloc.add(
+        const MapEvent.analysisSucceeded(score, LatLng(53.0793, 8.8017)),
+      );
+
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(find.byType(MarkerLayer), findsOneWidget);
+      expect(find.byType(NearbyFeatureLayers), findsOneWidget);
+    });
   });
 
   // ─── Profile Button ──────────────────────────────────────────────────────────
@@ -429,6 +465,90 @@ void main() {
       final icon = center.child as Icon;
 
       expect(icon.icon, Icons.person);
+    });
+
+    testWidgets('tapping profile button shows ProfileSheet', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      final liquidGlassView = tester.widget<LiquidGlassView>(
+        find.byType(LiquidGlassView),
+      );
+      final profileLens = liquidGlassView.children[1];
+      final gestureDetector = profileLens.child as GestureDetector;
+
+      gestureDetector.onTapDown!(TapDownDetails(globalPosition: Offset.zero));
+      await tester.pump(const Duration(milliseconds: 100));
+      gestureDetector.onTapCancel!();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      gestureDetector.onTapDown!(TapDownDetails(globalPosition: Offset.zero));
+      await tester.pump(const Duration(milliseconds: 100));
+      gestureDetector.onTapUp!(
+        TapUpDetails(
+          globalPosition: Offset.zero,
+          kind: PointerDeviceKind.touch,
+        ),
+      );
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(find.byType(ProfileSheet), findsOneWidget);
+    });
+  });
+
+  // ─── Location Button ──────────────────────────────────────────────────────────
+
+  group('Location Button', () {
+    testWidgets('tapping location button triggers map reset', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      final liquidGlassView = tester.widget<LiquidGlassView>(
+        find.byType(LiquidGlassView),
+      );
+      final locationLens = liquidGlassView.children[2];
+      final gestureDetector = locationLens.child as GestureDetector;
+
+      gestureDetector.onTapDown!(TapDownDetails(globalPosition: Offset.zero));
+      await tester.pump(const Duration(milliseconds: 100));
+      gestureDetector.onTapCancel!();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      gestureDetector.onTapDown!(TapDownDetails(globalPosition: Offset.zero));
+      await tester.pump(const Duration(milliseconds: 100));
+      gestureDetector.onTapUp!(
+        TapUpDetails(
+          globalPosition: Offset.zero,
+          kind: PointerDeviceKind.touch,
+        ),
+      );
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(realBloc.state.currentScore, isNull);
     });
   });
 
@@ -546,7 +666,7 @@ void main() {
   // ─── Score Card ───────────────────────────────────────────────────────────────
 
   group('Score Card', () {
-    const _mockScore = LivabilityScore(
+    const mockScore = LivabilityScore(
       score: 75.0,
       baseScore: 60.0,
       summary: 'Good area',
@@ -564,7 +684,7 @@ void main() {
       // the score when the widget tree is first built (same pattern used by the
       // existing 'shows error message card' test).
       realBloc.add(
-        const MapEvent.analysisSucceeded(_mockScore, LatLng(53.0793, 8.8017)),
+        const MapEvent.analysisSucceeded(mockScore, LatLng(53.0793, 8.8017)),
       );
 
       await tester.pumpWidget(
@@ -608,7 +728,7 @@ void main() {
 
       // Pre-load score before building the widget.
       realBloc.add(
-        const MapEvent.analysisSucceeded(_mockScore, LatLng(53.0793, 8.8017)),
+        const MapEvent.analysisSucceeded(mockScore, LatLng(53.0793, 8.8017)),
       );
 
       await tester.pumpWidget(
@@ -714,6 +834,47 @@ void main() {
       await tester.pump();
 
       expect(realBloc.state.showSearch, isFalse);
+    });
+
+    testWidgets('Search button tap animates and toggles search', (
+      WidgetTester tester,
+    ) async {
+      await configureScreen(tester);
+      await tester.pumpWidget(
+        _buildTestWidgetWithInstance(
+          realBloc,
+          mockAuthService,
+          mockPreferencesService,
+          authBloc: mockAuthBloc,
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      final liquidGlassView = tester.widget<LiquidGlassView>(
+        find.byType(LiquidGlassView),
+      );
+      final searchLens = liquidGlassView.children[0];
+      final animatedSwitcher = searchLens.child as AnimatedSwitcher;
+      final gestureDetector = animatedSwitcher.child as GestureDetector;
+
+      gestureDetector.onTapDown!(TapDownDetails(globalPosition: Offset.zero));
+      await tester.pump(const Duration(milliseconds: 100));
+      gestureDetector.onTapCancel!();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      gestureDetector.onTapDown!(TapDownDetails(globalPosition: Offset.zero));
+      await tester.pump(const Duration(milliseconds: 100));
+      gestureDetector.onTapUp!(
+        TapUpDetails(
+          globalPosition: Offset.zero,
+          kind: PointerDeviceKind.touch,
+        ),
+      );
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(realBloc.state.showSearch, isTrue);
     });
   });
 

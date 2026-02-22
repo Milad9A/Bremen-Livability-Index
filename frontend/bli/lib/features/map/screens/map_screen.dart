@@ -299,6 +299,7 @@ class _MapScreenContentState extends State<_MapScreenContent>
         shape: const RoundedRectangleShape(cornerRadius: 30),
         color: AppColors.white.withValues(alpha: 0.15),
         child: GestureDetector(
+          key: const ValueKey('profile_button'),
           behavior: HitTestBehavior.opaque,
           onTapDown: (_) async {
             _isProfilePressed = true;
@@ -357,6 +358,7 @@ class _MapScreenContentState extends State<_MapScreenContent>
         shape: const RoundedRectangleShape(cornerRadius: 30),
         color: AppColors.white.withValues(alpha: 0.15),
         child: GestureDetector(
+          key: const ValueKey('location_button'),
           behavior: HitTestBehavior.opaque,
           onTapDown: (_) async {
             HapticFeedback.lightImpact();
