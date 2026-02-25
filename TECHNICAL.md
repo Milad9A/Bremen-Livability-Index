@@ -552,8 +552,10 @@ The system supports user-defined preferences, allowing personalized scoring. Bas
 
 ### Factor Weights & Radii
 
-| Factor | Type | Max Points | Radius | Calculation |
-|--------|------|------------|--------|-------------|
+> **Note:** "Max Points" reflects the base cap at the default **Medium (1.0x)** preference weight. User preferences scale these values: High (1.5x) increases the cap by 50%, Low (0.5x) halves it, and Excluded (0.0x) removes the factor entirely from scoring.
+
+| Factor | Type | Max Points (Medium) | Radius | Calculation |
+|--------|------|---------------------|--------|-------------|
 | **Greenery** | Positive | 14 | 175m | `min(9, log1p(trees) * 2.0) + min(5, parks * 2.5)` |
 | **Amenities** | Positive | 10 | 550m | `min(10, log1p(count) * 2.8)` |
 | **Transport** | Positive | 8 | 450m | `min(8, log1p(stops) * 3.5)` |

@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 % ============================================================
 \chapter{Systemarchitektur}
 \label{ch:architektur}
@@ -36,8 +37,31 @@ Frontend unabhängig voneinander entwickeln, testen und deployen.
   \label{fig:architektur_text}
 \end{figure}
 
+\section{Projektstruktur}
+
+Das Projekt ist als öffentliches GitHub-Repository unter \\
+\url{https://github.com/Milad9A/Bremen-Livability-Index} verfügbar und in
+drei Hauptverzeichnisse gegliedert:
+
+\begin{description}
+  \item[\texttt{backend/}] Enthält das FastAPI-Backend mit den Unterordnern
+        \texttt{app/} (Endpunkte, Modelle), \texttt{core/} (Datenbank, Scoring,
+        Logging), \texttt{services/} (Geokodierung), \texttt{scripts/}
+        (Datenerfassung) und \texttt{tests/} (Unit-Tests).
+  \item[\texttt{frontend/bli/}] Enthält die Flutter-Anwendung mit der
+        Verzeichnisstruktur \texttt{lib/core/} (Services, Theme, Widgets),
+        \texttt{lib/features/} (Auth, Map, Favorites, Preferences, Onboarding)
+        und plattformspezifischen Ordnern (\texttt{android/}, \texttt{ios/},
+        \texttt{web/}, \texttt{macos/}, \texttt{windows/}, \texttt{linux/}).
+  \item[\texttt{documentation/}] Enthält die vorliegende LaTeX-Dokumentation
+        mit separaten Kapiteldateien und dem Literaturverzeichnis.
+\end{description}
+
 \section{Technologiestack}
 \label{sec:techstack}
+
+Tabelle~\ref{tab:techstack} gibt einen Überblick über alle eingesetzten
+Technologien und begründet deren Auswahl.
 
 \begin{table}[ht!]
   \centering
@@ -57,6 +81,11 @@ Frontend unabhängig voneinander entwickeln, testen und deployen.
                      & FastAPI 0.115 (Python)
                      & Hohe Performance (ASGI), automatische OpenAPI-Doku,
     native Pydantic-Validierung \parencite{fastapi_docs}                                                          \\
+    \addlinespace
+    Validierung
+                     & Pydantic 2.x
+                     & Laufzeit-Datenvalidierung über Python-Typannotationen; bildet die
+    Grundlage für FastAPI-Request-Validierung und SQLModel-Typisierung                                            \\
     \addlinespace
     \acrshort{orm}
                      & SQLModel + GeoAlchemy2
@@ -96,26 +125,6 @@ Frontend unabhängig voneinander entwickeln, testen und deployen.
   \end{tabularx}
 \end{table}
 
-\section{Projektstruktur}
-
-Das Projekt ist als öffentliches GitHub-Repository unter \\
-\url{https://github.com/Milad9A/Bremen-Livability-Index} verfügbar und in
-drei Hauptverzeichnisse gegliedert:
-
-\begin{description}
-  \item[\texttt{backend/}] Enthält das FastAPI-Backend mit den Unterordnern
-        \texttt{app/} (Endpunkte, Modelle), \texttt{core/} (Datenbank, Scoring,
-        Logging), \texttt{services/} (Geokodierung), \texttt{scripts/}
-        (Datenerfassung) und \texttt{tests/} (Unit-Tests).
-  \item[\texttt{frontend/bli/}] Enthält die Flutter-Anwendung mit der
-        Verzeichnisstruktur \texttt{lib/core/} (Services, Theme, Widgets),
-        \texttt{lib/features/} (Auth, Map, Favorites, Preferences, Onboarding)
-        und plattformspezifischen Ordnern (\texttt{android/}, \texttt{ios/},
-        \texttt{web/}, \texttt{macos/}, \texttt{windows/}, \texttt{linux/}).
-  \item[\texttt{documentation/}] Enthält die vorliegende LaTeX-Dokumentation
-        mit separaten Kapiteldateien und dem Literaturverzeichnis.
-\end{description}
-
 \section{Deployment-Architektur}
 \label{sec:deployment}
 
@@ -128,11 +137,18 @@ und wird über eine deklarative \texttt{render.yaml}-Konfiguration gesteuert:
         gebaut und stellt den FastAPI-Server auf Port~8000 bereit. Die
         Umgebungsvariable \texttt{DATABASE\_URL} verbindet das Backend mit der
         Neon.tech-Datenbank.
-  \item \textbf{Frontend}: Statische Flutter-Webanwendung auf Render.com
+  \item \textbf{Frontend (Web)}: Statische Flutter-Webanwendung auf Render.com
         (Static Site). Das Build-Skript \texttt{render\_build.sh} führt
         \texttt{flutter build web} aus. Eine SPA-Rewrite-Regel
         (\texttt{/* $\rightarrow$ /index.html}) stellt clientseitiges Routing
         sicher.
+  \item \textbf{Frontend (Mobile \& Desktop)}: Ein GitHub-Actions-Workflow
+        (\texttt{build-release.yml}) wird nach jedem erfolgreichen Frontend-Test
+        auf dem \texttt{master}-Branch automatisch ausgelöst. Er baut die App
+        für Android (APK), Windows (ZIP), Linux (tarball) und macOS (ZIP) und
+        veröffentlicht alle vier Artefakte als einheitliches GitHub~Release mit
+        Zeitstempel-Tag. Desktop-Builds sind ad-hoc-signiert und erfordern ggf.
+        eine Sicherheitsausnahme beim ersten Start.
   \item \textbf{Datenbank}: PostgreSQL~16 mit PostGIS~3.4 auf Neon.tech
         (Serverless). Die Datenbank skaliert automatisch und bietet
         branching-fähige Entwicklungsumgebungen.

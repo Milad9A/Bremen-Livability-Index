@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 % ============================================================
 \chapter{Testing und Deployment}
 \label{ch:testing}
@@ -106,19 +107,27 @@ Frontend-Tests parallel und unabhängig voneinander ausgeführt werden.
 \section{Deployment}
 \label{sec:deployment_detail}
 
-Das Deployment erfolgt über die deklarative Datei \texttt{render.yaml} auf
-Render.com \parencite{render_docs}. Bei jedem Merge auf den
-\texttt{master}-Branch werden Backend und Frontend automatisch neu
-deployt.
+Die Infrastruktur (Render.com, Neon.tech, Firebase) ist in
+Kapitel~\ref{sec:deployment} beschrieben. Dieser Abschnitt fokussiert auf den
+automatisierten Ablauf vom Commit bis zur Produktivschaltung.
 
-\begin{itemize}
-      \item \textbf{Backend}: Render.com baut den Docker-Container aus
-            \texttt{backend/Dockerfile} und startet Uvicorn auf Port~8000.
-            Die \texttt{DATABASE\_URL} wird als Secret konfiguriert.
-      \item \textbf{Frontend}: Das Build-Skript \texttt{render\_build.sh}
-            führt \texttt{flutter build web} aus; das Ergebnis wird als
-            statische Website gehostet (SPA-Rewrite auf \texttt{/index.html}).
-      \item \textbf{Datenbank}: PostgreSQL~16 mit PostGIS~3.4 auf
-            Neon.tech \parencite{neontech} (Serverless, EU-Standort Frankfurt,
-            automatische Skalierung auf null bei Inaktivität).
-\end{itemize}
+Bei jedem Merge auf \texttt{master} greift folgende Pipeline:
+
+\begin{enumerate}
+      \item \textbf{Parallele CI-Checks}: \texttt{backend-tests.yml} und
+            \texttt{frontend-tests.yml} laufen unabhängig voneinander. Schlägt
+            einer der Checks fehl, wird kein Deployment ausgelöst.
+      \item \textbf{Web-Deployment}: Render.com erkennt den Merge automatisch
+            über den GitHub-Webhook und deployt Backend (Docker-Rebuild) und
+            Web-Frontend (\texttt{flutter build web}) ohne weiteren manuellen
+            Eingriff.
+      \item \textbf{Native Builds}: Nach erfolgreichem Abschluss von
+            \texttt{frontend-tests.yml} startet \texttt{build-release.yml}
+            automatisch. Er baut in parallelen Jobs Android (APK), Windows
+            (ZIP), Linux (tarball) und macOS (ZIP) und fasst alle Artefakte in
+            einem einzigen GitHub~Release zusammen.
+\end{enumerate}
+
+Das Ergebnis eines vollständigen Merge-Zyklus sind damit stets eine
+aktualisierte Web-App auf Render.com \emph{und} ein neues GitHub~Release mit
+nativen Binaries für alle vier Plattformen.

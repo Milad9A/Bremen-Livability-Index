@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 % ============================================================
 \chapter{Bewertungsmethodik}
 \label{ch:bewertung}
@@ -93,11 +94,9 @@ alle Abfragen nutzen \texttt{ST\_DWithin} auf dem \acrshort{wgs84}-Ellipsoid.
 
 \section{Score-Interpretation und Implementierung}
 
-Fünf Bewertungsbänder ordnen den Score ein:
-80--100 \textit{Hervorragend}, 60--79 \textit{Gut},
-40--59 \textit{Durchschnittlich}, 20--39 \textit{Unterdurchschnittlich},
-0--19 \textit{Schlecht}. Der Basiswert 40 stuft infrastrukturfreie
-Standorte als \enquote{durchschnittlich} ein.
+Die App visualisiert den Score durch eine dreistufige Farbcodierung:
+$\geq 70$ Grün (gut), $50$--$69$ Orange (mittel), $< 50$ Rot (schlecht).
+Der numerische Wert wird direkt angezeigt.
 
 Der Algorithmus ist in \texttt{LivabilityScorer} (\texttt{core/scoring.py})
 implementiert. Jeder Faktor wird durch eine eigene statische Methode berechnet;

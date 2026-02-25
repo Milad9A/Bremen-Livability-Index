@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 % ============================================================
 \chapter{Datenerfassung}
 \label{ch:datenerfassung}
@@ -7,6 +8,16 @@ Die Befüllung der Datenbank erfolgt automatisiert über Python-Skripte, die
 im Verzeichnis \path{backend/scripts/data_ingestion/} organisiert sind.
 Der Einstiegspunkt \texttt{ingest\_all\_data.py} ruft beide
 Ingestion-Module nacheinander auf.
+
+Die Ingestion wird durch das Container-Startskript \texttt{entrypoint.sh}
+gesteuert. Beim Start des Backends prüft das Skript alle 21 Geo-Tabellen auf
+Leerheit. Ist mindestens eine Tabelle leer, wird die vollständige Ingestion
+ausgeführt; sind alle Tabellen befüllt, wird sie übersprungen um Zeit zu
+sparen. Dadurch läuft die Ingestion automatisch beim Erstdeploy auf
+Render.com sowie nach einem manuellen Datenbank-Reset, nicht aber bei
+regulären Neustarts des Containers. In der lokalen Entwicklungsumgebung
+(\texttt{start\_server.sh}) muss \texttt{ingest\_all\_data.py} einmalig
+manuell ausgeführt werden.
 
 \section{OSM-Datenerfassung}
 \label{sec:osm_ingestion}
@@ -30,7 +41,14 @@ Für jede Kategorie wird folgende Pipeline durchlaufen:
                   \text{Wartezeit} = 10 \cdot 2^{\text{Versuch}} + r
                   \qquad r \sim \mathcal{U}(0, 5)
             \]
-            Maximal werden 5 Versuche unternommen.
+            Der Faktor $10 \cdot 2^{\text{Versuch}}$ verdoppelt die Wartezeit
+            mit jedem Fehlversuch (Versuch~1: 20\,s, Versuch~2: 40\,s,
+            Versuch~3: 80\,s usw.), damit der Server Zeit bekommt, sich zu
+            erholen. Der additive Zufallsterm $r$ (Jitter) aus einer
+            Gleichverteilung über $[0, 5)$ verhindert, dass mehrere parallele
+            Prozesse nach einem Fehler gleichzeitig einen neuen Versuch starten
+            und die API erneut überlasten. Maximal werden 5 Versuche
+            unternommen.
       \item \textbf{Tabelle leeren}: \texttt{TRUNCATE TABLE gis\_data.xxx CASCADE}
             entfernt alle bestehenden Daten, um eine idempotente
             Neuerfassung zu gewährleisten.

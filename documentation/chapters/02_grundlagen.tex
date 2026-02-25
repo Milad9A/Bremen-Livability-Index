@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 % ============================================================
 \chapter{Grundlagen}
 \label{ch:grundlagen}
@@ -48,32 +49,19 @@ Zentrale PostGIS-Funktionen im Projekt sind
 \texttt{ST\_MakePoint}/\texttt{ST\_SetSRID} (Punkterzeugung mit \acrshort{crs}-Zuweisung)
 und \texttt{ST\_AsGeoJSON} (Konvertierung für das Frontend).
 
-\section{Koordinatenreferenzsysteme}
+\section{Koordinatenreferenzsystem}
 \label{sec:crs}
 
-Im Projekt kommen zwei \acrlong{crs} zum Einsatz:
+Das gesamte Projekt verwendet durchgängig \textbf{EPSG:4326 (\acrshort{wgs84})}
+als einziges \acrlong{crs} -- für die Datenbank, die \acrshort{api}-Ein- und
+Ausgabe sowie alle \acrshort{osm}-Quelldaten.
 
-\begin{table}[H]
-  \centering
-  \caption{Verwendete Koordinatenreferenzsysteme}
-  \label{tab:crs}
-  \begin{tabularx}{\textwidth}{lllX}
-    \toprule
-    \textbf{EPSG-Code} & \textbf{Bezeichnung}                                                      & \textbf{Typ} & \textbf{Verwendung} \\
-    \midrule
-    4326
-                       & \acrshort{wgs84}
-                       & Geographisch
-                       & Primäres \acrshort{crs} der Datenbank, \acrshort{api}-Ein-\slash Ausgabe,
-    \acrshort{osm}-Daten                                                                                                                \\
-    25832
-                       & ETRS89\,/\,\acrshort{utm} Zone 32N
-                       & Projiziert
-                       & Quellformat der Unfallatlas-Daten; wird bei der Datenerfassung
-    nach EPSG:4326 reprojiziert                                                                                                         \\
-    \bottomrule
-  \end{tabularx}
-\end{table}
+Die Rohdaten des Unfallatlas liegen im Quellformat EPSG:25832
+(ETRS89\,/\,\acrshort{utm} Zone\,32N) vor. Sie werden jedoch bereits während
+der Datenerfassung (Kapitel~\ref{ch:datenerfassung}) automatisch nach EPSG:4326
+reprojiziert, sodass EPSG:25832 ausschließlich als Eingangsformat des
+Ingestion-Skripts auftritt und im restlichen System nicht mehr in Erscheinung
+tritt.
 
 Die Wahl von EPSG:4326 als Datenbankformat in Kombination mit dem PostGIS-Typ
 \texttt{GEOGRAPHY} stellt sicher, dass alle Distanzberechnungen korrekt auf dem
@@ -87,7 +75,9 @@ Die Kommunikation zwischen Frontend und Backend erfolgt über eine
 JSON-formatierte Anfragen entgegennehmen und Antworten zurückgeben.
 Dieses zustandslose Architekturmuster ermöglicht eine klare Trennung von
 Darstellungs- und Geschäftslogik sowie eine einfache Skalierbarkeit
-\parencite{fastapi_docs}.
+\parencite{fastapi_docs}. Die \acrshort{api} ist öffentlich erreichbar unter
+\url{https://bremen-livability-backend.onrender.com}; eine interaktive
+Swagger-Dokumentation steht unter \texttt{/docs} zur Verfügung.
 
 \section{Das BLoC-Design-Pattern}
 \label{sec:bloc_pattern}

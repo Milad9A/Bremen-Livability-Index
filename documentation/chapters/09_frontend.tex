@@ -1,3 +1,4 @@
+% !TEX root = ../main.tex
 % ============================================================
 \chapter{Frontend}
 \label{ch:frontend}
@@ -123,6 +124,37 @@ Datenhaltung ist zweistufig:
 
 Der \texttt{FavoritesBloc} abstrahiert die Speicherstrategie und stellt
 eine einheitliche Schnittstelle für das UI bereit.
+
+\section{Nutzerpräferenzen}
+\label{sec:praeferenzen}
+
+Der \texttt{PreferencesScreen} erlaubt es dem Nutzer, für jeden der 20
+Bewertungsfaktoren eine Wichtigkeit (\texttt{excluded}, \texttt{low},
+\texttt{medium}, \texttt{high}) festzulegen. Jede Einstellung entspricht
+dem \texttt{ImportanceLevel}-Enum des Backends und wird beim nächsten
+\texttt{/analyze}-Aufruf als \texttt{preferences}-Objekt im Request-Body
+mitgesendet, wodurch der Score unmittelbar auf die persönlichen
+Prioritäten des Nutzers reagiert.
+
+Die Persistenz der Präferenzen ist -- analog zur Favoritenverwaltung
+(vgl.\ Abschnitt~\ref{sec:favorites}) -- zweistufig:
+
+\begin{itemize}
+  \item \textbf{Gäste}: Die Einstellungen werden als JSON-String lokal
+        im Gerätespeicher über \texttt{SharedPreferences} unter dem
+        Schlüssel \texttt{user\_preferences} abgelegt.
+  \item \textbf{Angemeldete Nutzer}: Die Einstellungen werden zusätzlich
+        in Firestore unter
+        \path{users/{user_id}/preferences/factor_settings} gespeichert
+        und über einen Echtzeit-Stream (\texttt{watchCloudPreferences})
+        geräteübergreifend synchronisiert. Beim Abmelden werden die
+        Cloud-Präferenzen automatisch gelöscht.
+\end{itemize}
+
+Der \texttt{PreferencesBloc} koordiniert Lade- und Speichervorgänge
+und stellt über \texttt{PreferencesLoaded} den aktuellen
+\texttt{UserPreferences}-Zustand bereit, auf den \texttt{MapBloc}
+bei jeder Score-Anfrage zugreift.
 
 \section{Adresssuche}
 

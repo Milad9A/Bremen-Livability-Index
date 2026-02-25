@@ -1,3 +1,4 @@
+% !TEX root = main.tex
 % ============================================================
 % Bremen Livability Index – Projektdokumentation
 % Hochschule Bremen · Geodatenverarbeitung · WS 2025/26
@@ -80,6 +81,9 @@
   language=SQL,
   morekeywords={GEOGRAPHY, GIST, SCHEMA, CASCADE, TRUNCATE}
 }
+\renewcommand{\lstlistlistingname}{Listingverzeichnis}
+\renewcommand{\lstlistingname}{Listing}
+
 \lstdefinestyle{json}{
   string=[s]{"}{"},
   comment=[l]{:\ "},
@@ -122,7 +126,7 @@
 ]{biblatex}
 \addbibresource{references.bib}
 
-% ── Glossar / Abkürzungen (optional) ────────────────────────
+% ── Glossar / Abkürzungen ────────────────────────
 \usepackage[acronym,toc]{glossaries}
 \makeglossaries
 \renewcommand*{\glsgroupskip}{}
@@ -206,6 +210,18 @@
 \pagenumbering{roman}
 
 \tableofcontents
+\clearpage
+
+\begingroup
+\let\clearpage\relax
+\let\cleardoublepage\relax
+\addcontentsline{toc}{chapter}{\listfigurename}
+\listoffigures
+\addcontentsline{toc}{chapter}{\listtablename}
+\listoftables
+\addcontentsline{toc}{chapter}{\lstlistlistingname}
+\lstlistoflistings
+\endgroup
 \clearpage
 
 \printglossary[type=\acronymtype, title={Abkürzungsverzeichnis}]

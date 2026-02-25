@@ -2,7 +2,8 @@
 <div align="center">
   <img src="frontend/bli/assets/app_icon_rounded.png" alt="Bremen Livability Index Icon" width="120">
 
-  # Bremen Livability Index (BLI)
+# Bremen Livability Index (BLI)
+
 </div>
 
 [![Backend Tests](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/Milad9A/Bremen-Livability-Index/actions/workflows/backend-tests.yml)
@@ -53,12 +54,12 @@ Desktop builds are unsigned and run without login — sign-in is available on we
 - 🔍 **Smart Search & Favorites** – "Apple-style" expandable search bar and cross-device sync.
 - 🔐 **Secure & Reliable** – Multi-provider authentication on web/mobile (Google, GitHub, Email); desktop apps run without login. >90% test coverage.
 
-
 ## 📊 Scoring System
 
 Livability is calculated from **20 spatial factors** using proximity-based analysis. Score range: **0-100**.
 
 **Factors:**
+
 - **Positive (9):** Greenery, Amenities, Public Transport, Healthcare, Bike Infra, Education, Sports, Pedestrian, Culture
 - **Negative (11):** Accidents, Industry, Major Roads, Noise, Railways, Gas Stations, Waste, Power, Parking, Airports, Construction
 

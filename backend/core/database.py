@@ -1,21 +1,17 @@
 """Database connection and session management using SQLModel."""
+
 from contextlib import contextmanager
 from typing import Generator
 from sqlmodel import create_engine, Session
 from sqlalchemy import text
-from fastapi import Depends
 from config import settings
 
-engine = create_engine(
-    settings.database_url,
-    echo=False,
-    pool_pre_ping=True
-)
+engine = create_engine(settings.database_url, echo=False, pool_pre_ping=True)
 
 
 def get_session() -> Generator[Session, None, None]:
     """Get a database session for FastAPI dependency injection.
-    
+
     Usage:
         @app.get("/endpoint")
         def endpoint(session: Session = Depends(get_session)):
@@ -28,7 +24,7 @@ def get_session() -> Generator[Session, None, None]:
 @contextmanager
 def get_db_session() -> Generator[Session, None, None]:
     """Get a database session with automatic cleanup (context manager version).
-    
+
     Usage:
         with get_db_session() as session:
             ...

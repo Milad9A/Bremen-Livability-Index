@@ -1,11 +1,13 @@
+% !TEX root = ../main.tex
 % ============================================================
 \chapter{Datenbankdesign}
 \label{ch:datenbankdesign}
 % ============================================================
 
 Die persistente Speicherung und räumliche Abfrage der Geodaten erfolgt über
-PostgreSQL~16 mit der Erweiterung PostGIS~3.4 \parencite{postgis_docs,
-      postgresql_docs}. Dieses Kapitel beschreibt das Datenbankschema, die
+PostgreSQL~16 mit der Erweiterung PostGIS~3.4 
+\parencite{postgis_docs, postgresql_docs} mittels erweiterter
+\acrfull{sql}-Abfragen. Dieses Kapitel beschreibt das Datenbankschema, die
 Tabellenstruktur und die Indexierung.
 
 \section{Schema-Organisation}
@@ -23,7 +25,7 @@ CREATE SCHEMA IF NOT EXISTS gis_data;
 \section{Tabellenstruktur}
 \label{sec:tabellen}
 
-Das Schema umfasst \textbf{21 Tabellen}, die sich in drei Gruppen
+Das Schema umfasst \textbf{23 Tabellen}, die sich in drei Gruppen
 unterteilen lassen:
 
 \begin{enumerate}
@@ -108,6 +110,12 @@ Die Datenbankmodelle werden im Backend durch \textbf{SQLModel}-Klassen
 \parencite{sqlmodel_docs} abgebildet, die sowohl als SQLAlchemy-ORM-Modelle
 als auch als Pydantic-Validierungsmodelle dienen. Die Geometriespalten
 verwenden den Typ \texttt{Geography} aus GeoAlchemy2
-\parencite{geoalchemy2_docs}. Alle 21 Tabellen erben von einer gemeinsamen
+\parencite{geoalchemy2_docs}. Alle 21 Geo-Tabellen erben von einer gemeinsamen
 Basisklasse \texttt{GISBase} mit der Konfiguration
-\texttt{arbitrary\_types\_allowed = True}.
+\texttt{arbitrary\_types\_allowed = True}. Diese Einstellung ist notwendig,
+weil Pydantic standardmäßig nur bekannte Python-Typen validiert. Der Typ
+\texttt{Geography} aus GeoAlchemy2 ist kein nativer Python-Typ, sondern eine
+SQLAlchemy-Spaltendefinition. Ohne diese Einstellung würde Pydantic beim
+Initialisieren der Modellklassen mit einem \texttt{RuntimeError} abbrechen.
+Der Parameter weist Pydantic an, solche nicht-standardisierten Typen ohne
+eigene Validator-Logik zu akzeptieren.

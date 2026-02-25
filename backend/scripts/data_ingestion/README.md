@@ -5,9 +5,11 @@ Scripts for fetching and importing spatial data into the PostGIS database.
 ## Scripts
 
 ### `ingest_osm_data.py`
+
 Fetches data from OpenStreetMap via Overpass API:
 
 **Positive Factors:**
+
 - Trees (`natural=tree`)
 - Parks (`leisure=park`)
 - Amenities (`supermarket`, `cafe`, `restaurant`, `bank`, `post_office`, `bakery`, `butcher`)
@@ -20,12 +22,15 @@ Fetches data from OpenStreetMap via Overpass API:
 - Cultural Venues (`museums`, `galleries`, `theatres`, `cinemas`, `arts centres`, `community centres`)
 
 **Negative Factors:**
+
 - Industrial areas (`landuse=industrial`)
 - Major roads (`motorway`, `trunk`, `primary`)
 - Noise Sources (`nightclubs`, `bars`, `pubs`, `fast food`, `car repair`)
 
 ### `ingest_unfallatlas.py`
+
 Downloads accident data from the German Accident Atlas (Unfallatlas):
+
 - Source: unfallatlas.statistikportal.de
 - Filters for Bremen (ULAND=4)
 - Years: 2019-2023
@@ -33,6 +38,7 @@ Downloads accident data from the German Accident Atlas (Unfallatlas):
 ## Usage
 
 Run all ingestion:
+
 ```bash
 python -m scripts.ingest_all_data
 ```
