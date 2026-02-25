@@ -9,24 +9,57 @@
 Im Rahmen des Moduls \textit{Geodatenverarbeitung} an der Hochschule Bremen
 wurde mit dem \textbf{Bremen Livability Index} ein vollständiges
 Geoinformationssystem konzipiert, implementiert und als produktionstaugliche
-Webanwendung bereitgestellt. Das System erfüllt alle fünf in
-Kapitel~\ref{ch:einleitung} definierten Ziele: automatisierte Erfassung
-von über 60.000 Geodaten-Objekten, Echtzeit-Scoring (0\,--\,100) für
-beliebige Standorte, transparente Faktoraufschlüsselung mit
-GeoJSON-Visualisierung, interaktive Kartenanwendung und individuelle
-Gewichtung durch den Nutzer.
+Anwendung bereitgestellt. Ausgangspunkt war der Wunsch, heterogene, frei
+verfügbare Geodaten -- aus OpenStreetMap und dem Unfallatlas -- zu einem
+einheitlichen, feinräumigen Lebensqualitätsindex zu verdichten. Über eine
+vollständig automatisierte Ingestion-Pipeline wurden mehr als 60.000
+Objekte aus 20 thematischen Kategorien in eine PostGIS-Datenbank geladen
+und mit GiST-Indizes für Echtzeit-Radiusabfragen optimiert. Das FastAPI-Backend
+berechnet Scores innerhalb von Millisekunden und liefert die umliegenden
+\acrshort{gis}-Features als GeoJSON zurück. Die Flutter-Applikation stellt
+diese Ergebnisse plattformübergreifend -- Web, iOS, Android, Desktop --
+auf einer interaktiven Karte dar und erlaubt individuelle Präferenzgewichtung.
+Authentifizierung und Favoritensynchronisation werden über Firebase abgewickelt,
+während die domänenspezifische Geo-Logik ausschließlich im Backend verbleibt.
+Das Projekt zeigt, dass sich aus frei verfügbaren Geodaten mit vertretbarem
+Aufwand ein praxistaugliches, feinräumiges Analysewerkzeug realisieren lässt.
 
 \section{Beantwortung der Zielsetzung}
 
 Die zentrale Fragestellung -- ob sich aus frei verfügbaren Geodaten ein
 aussagekräftiger, feinräumiger Lebensqualitätsindex für Bremen ableiten
-lässt -- kann positiv beantwortet werden. Die exemplarischen Ergebnisse
-(Kapitel~\ref{ch:ergebnisse}) zeigen plausible Unterschiede zwischen
-verschiedenen Standorttypen.
+lässt -- kann positiv beantwortet werden. Alle fünf in
+Kapitel~\ref{ch:einleitung} formulierten Projektziele wurden erreicht:
+\emph{(1)}~Über 60.000 Geodatenobjekte werden automatisiert erfasst und
+aktualisiert; \emph{(2)}~der Livability Score (0\,--\,100) wird für
+beliebige Bremer Koordinaten in Echtzeit berechnet; \emph{(3)}~die
+Faktoraufschlüsselung macht positive und negative Einflüsse transparent
+nachvollziehbar; \emph{(4)}~die Kartenanwendung visualisiert die umgebenden
+\acrshort{gis}-Features interaktiv; und \emph{(5)}~Nutzer können die
+Gewichtung der Faktoren ihren persönlichen Präferenzen anpassen. Die
+exemplarischen Standortbewertungen (Kapitel~\ref{ch:ergebnisse}) bestätigen,
+dass das Modell plausible Ergebnisse liefert: urban dichte, gut versorgte
+Standorte erzielen deutlich höhere Scores als periphere Industrie- oder
+Verkehrsflächen.
 
 \section{Ausblick}
 
-Vielversprechende Weiterentwicklungen umfassen die Skalierung auf weitere
-Städte, die Integration von Echtzeitdaten (Luftqualität, Lärmkarten) und
-die empirische Validierung der Gewichtungen durch Nutzerbefragungen
-oder maschinelles Lernen.
+Konkrete technische Erweiterungsmöglichkeiten -- von der Skalierung auf
+weitere Städte über Echtzeitdaten bis hin zu datengetriebener Kalibrierung --
+wurden bereits in Abschnitt~\ref{sec:verbesserungen} identifiziert. Darüber
+hinaus ergeben sich weiterreichende Perspektiven.
+
+Der gewählte Architekturansatz -- automatisierte OSM-Ingestion, konfigurierbares
+Scoring-Schema und plattformübergreifendes Frontend -- ist nicht auf das Thema
+Lebensqualität beschränkt. Dieselbe Pipeline ließe sich mit angepassten
+Kategorien und Gewichtungen auf verwandte Fragestellungen übertragen, etwa
+die Bewertung von Gewerbestandorten, barrierefreier Infrastruktur oder
+Schulwegqualität.
+
+Für eine institutionelle Nutzung in der Stadtplanung oder Immobilienwirtschaft
+wäre eine empirische Validierung der Gewichtungen unerlässlich -- beispielsweise
+durch Korrelation der berechneten Scores mit Mietpreisspiegeln,
+Zufriedenheitsbefragungen oder soziodemographischen Indikatoren. Die
+Bereitstellung einer öffentlichen \acrshort{api} könnte zudem die Integration
+in bestehende Geoinformations- und Planungswerkzeuge erleichtern und den
+Anwendungskreis über das akademische Umfeld hinaus erweitern.

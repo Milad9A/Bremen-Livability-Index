@@ -101,9 +101,6 @@ Die \acrshort{ci}-Pipeline basiert auf \textbf{GitHub Actions}
       \end{tabularx}
 \end{table}
 
-Durch die Aufteilung in drei separate Workflows können Backend- und
-Frontend-Tests parallel und unabhängig voneinander ausgeführt werden.
-
 \section{Deployment}
 \label{sec:deployment_detail}
 
@@ -111,21 +108,19 @@ Die Infrastruktur (Render.com, Neon.tech, Firebase) ist in
 Kapitel~\ref{sec:deployment} beschrieben. Dieser Abschnitt fokussiert auf den
 automatisierten Ablauf vom Commit bis zur Produktivschaltung.
 
-Bei jedem Merge auf \texttt{master} greift folgende Pipeline:
+Bei jedem Merge auf \texttt{master} laufen \texttt{backend-tests.yml} und
+\texttt{frontend-tests.yml} parallel; schlägt einer der Checks fehl, wird
+kein Deployment ausgelöst. Andernfalls:
 
 \begin{enumerate}
-      \item \textbf{Parallele CI-Checks}: \texttt{backend-tests.yml} und
-            \texttt{frontend-tests.yml} laufen unabhängig voneinander. Schlägt
-            einer der Checks fehl, wird kein Deployment ausgelöst.
       \item \textbf{Web-Deployment}: Render.com erkennt den Merge automatisch
             über den GitHub-Webhook und deployt Backend (Docker-Rebuild) und
             Web-Frontend (\texttt{flutter build web}) ohne weiteren manuellen
             Eingriff.
-      \item \textbf{Native Builds}: Nach erfolgreichem Abschluss von
-            \texttt{frontend-tests.yml} startet \texttt{build-release.yml}
-            automatisch. Er baut in parallelen Jobs Android (APK), Windows
-            (ZIP), Linux (tarball) und macOS (ZIP) und fasst alle Artefakte in
-            einem einzigen GitHub~Release zusammen.
+      \item \textbf{Native Builds}: \texttt{build-release.yml} startet nach
+            bestandenen Frontend-Tests und veröffentlicht alle vier
+            Plattform-Artefakte als einheitliches GitHub~Release
+            (vgl.\ Tabelle~\ref{tab:workflows}).
 \end{enumerate}
 
 Das Ergebnis eines vollständigen Merge-Zyklus sind damit stets eine

@@ -12,7 +12,7 @@ Kapitel gibt einen Überblick über den Gesamtaufbau und den Technologiestack.
 \section{Architekturüberblick}
 \label{sec:architektur_ueberblick}
 
-Abbildung~\ref{fig:architektur_text} beschreibt die zentralen Komponenten und
+Abbildung~\ref{fig:architektur} zeigt die zentralen Komponenten und
 deren Zusammenspiel. Durch die Trennung der Schichten lassen sich Backend und
 Frontend unabhängig voneinander entwickeln, testen und deployen.
 
@@ -27,23 +27,60 @@ verbleibt im PostGIS-Backend, während \emph{Identitätsverwaltung und
 
 \begin{figure}[H]
   \centering
-  \fbox{\parbox{0.9\textwidth}{%
-      \textbf{Architekturdiagramm (textuell)}\\[0.5em]
-      \texttt{%
-        Flutter-App (Web / iOS / Android / Desktop)\\
-        \quad $\downarrow$ HTTP/JSON\\
-        FastAPI-Backend (Docker-Container auf Render.com)\\
-        \quad $\downarrow$ SQL / PostGIS-Queries\\
-        PostgreSQL 16 + PostGIS 3.4 (Neon.tech, Serverless)\\[0.5em]
-        Nebenkomponenten:\\
-        \quad Firebase Auth $\rightarrow$ Authentifizierung\\
-        \quad Firebase Firestore $\rightarrow$ Favoritensynchronisation\\
-        \quad Nominatim API $\rightarrow$ Adressgeokodierung\\
-        \quad Overpass API $\rightarrow$ OSM-Datenerfassung (offline)
-      }%
-    }}
-  \caption{Überblick der System\-architektur}
-  \label{fig:architektur_text}
+  \begin{tikzpicture}[
+    node distance=1.6cm and 1.8cm,
+    every node/.style={font=\small},
+    box/.style={draw, rounded corners=3pt, minimum width=4.8cm,
+                minimum height=0.9cm, align=center, fill=#1!12,
+                draw=#1!60, text=#1!80!black},
+    box/.default=teal,
+    svc/.style={draw, rounded corners=3pt, minimum width=3.4cm,
+                minimum height=0.75cm, align=center, fill=#1!10,
+                draw=#1!50, text=#1!70!black, font=\small},
+    svc/.default=gray,
+    arr/.style={-{Stealth[length=5pt]}, thick, color=#1!70},
+    arr/.default=teal,
+    lbl/.style={font=\scriptsize\sffamily, text=black!60},
+  ]
+    % ── Main stack ──
+    \node[box=teal]  (fe)  {Flutter-App\\[-2pt]
+                             \scriptsize Web\,/\,iOS\,/\,Android\,/\,Desktop};
+    \node[box=blue,  below=of fe]  (be)  {FastAPI-Backend\\[-2pt]
+                             \scriptsize Docker auf Render.com};
+    \node[box=violet, below=of be] (db)  {PostgreSQL\,16 + PostGIS\,3.4\\[-2pt]
+                             \scriptsize Neon.tech (Serverless)};
+
+    % ── Arrows main ──
+    \draw[arr=teal]   (fe) -- node[lbl, right, xshift=2pt] {HTTP\,/\,JSON} (be);
+    \draw[arr=blue]   (be) -- node[lbl, right, xshift=2pt] {SQL\,/\,PostGIS} (db);
+
+    % ── Side services (Firebase group, aligned to Flutter row) ──
+    \node[svc=orange, right=2.2cm of fe, yshift=0.4cm] (auth) {Firebase Auth\\[-2pt]
+                             \scriptsize Authentifizierung};
+    \node[svc=orange, below=0.45cm of auth] (fire) {Firestore\\[-2pt]
+                             \scriptsize Favoriten\,\&\,Präferenzen};
+    % ── Side services (External APIs, aligned to Backend row) ──
+    \node[svc=gray,   right=2.2cm of be, yshift=0.4cm] (nom)  {Nominatim API\\[-2pt]
+                             \scriptsize Geokodierung};
+    \node[svc=gray,   below=0.45cm of nom] (over) {Overpass API\\[-2pt]
+                             \scriptsize OSM-Daten (offline)};
+
+    % ── Arrows side ──
+    \draw[arr=orange] (fe.east) -- (auth.west);
+    \draw[arr=orange] (fe.east) ++(0,-0.15) -| ([xshift=-4pt]fire.west) -- (fire.west);
+    \draw[arr=gray]   (be.east) -- (nom.west);
+    \draw[arr=gray]   (be.east) ++(0,-0.15) -| ([xshift=-4pt]over.west) -- (over.west);
+
+    % ── Background groups ──
+    \begin{scope}[on background layer]
+      \node[fit=(auth)(fire), fill=orange!5, draw=orange!25,
+            rounded corners=5pt, inner sep=6pt] {};
+      \node[fit=(nom)(over), fill=gray!5, draw=gray!25,
+            rounded corners=5pt, inner sep=6pt] {};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{Systemarchitektur des Bremen Livability Index}
+  \label{fig:architektur}
 \end{figure}
 
 \section{Projektstruktur}
