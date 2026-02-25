@@ -16,6 +16,15 @@ Abbildung~\ref{fig:architektur_text} beschreibt die zentralen Komponenten und
 deren Zusammenspiel. Durch die Trennung der Schichten lassen sich Backend und
 Frontend unabhängig voneinander entwickeln, testen und deployen.
 
+Die Kernfunktionalität -- räumliche Näheanalysen mittels PostGIS-Funktionen wie
+\texttt{ST\_DWithin} und \texttt{GEOGRAPHY}-Datentypen -- erfordert eine
+vollwertige räumliche Datenbank, die Firebase/Firestore nicht bieten kann.
+Gleichzeitig stellt Firebase Authentication bewährte OAuth- und
+Magic-Link-Flows bereit, deren Eigenimplementierung unverhältnismäßig aufwändig
+wäre. Die Architektur trennt daher bewusst: \emph{geodatenintensive Logik}
+verbleibt im PostGIS-Backend, während \emph{Identitätsverwaltung und
+  Favoritensynchronisation} über Firebase-Dienste abgewickelt werden.
+
 \begin{figure}[H]
   \centering
   \fbox{\parbox{0.9\textwidth}{%

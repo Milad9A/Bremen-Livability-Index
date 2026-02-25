@@ -1,7 +1,6 @@
 """FastAPI backend for Bremen Livability Index using SQLModel ORM."""
 
 from typing import List, Optional
-from datetime import datetime
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import Session, select
@@ -48,50 +47,11 @@ from app.db_models import (
     Airport,
     ConstructionSite,
 )
-from app.user_models import User, FavoriteAddress
 from core.scoring import LivabilityScorer
 from core.database import get_session, check_database_connection
 from core.logging import logger
 from services.geocode import GeocodeService
 from config import settings
-
-
-class UserCreateRequest(BaseModel):
-    """Request model for creating/registering a user."""
-
-    id: str = Field(..., description="Firebase UID")
-    email: Optional[str] = None
-    display_name: Optional[str] = None
-    provider: str = Field(
-        ..., description="Auth provider: google, github, email, guest"
-    )
-
-
-class FavoriteCreateRequest(BaseModel):
-    """Request model for adding a favorite address."""
-
-    label: str = Field(..., min_length=1, max_length=255)
-    latitude: float = Field(..., ge=-90, le=90)
-    longitude: float = Field(..., ge=-180, le=180)
-    address: Optional[str] = None
-
-
-class FavoriteResponse(BaseModel):
-    """Response model for a favorite address."""
-
-    id: int
-    label: str
-    latitude: float
-    longitude: float
-    address: Optional[str]
-    created_at: datetime
-
-
-class FavoritesListResponse(BaseModel):
-    """Response model for list of favorites."""
-
-    favorites: List[FavoriteResponse]
-    count: int
 
 
 app = FastAPI(
@@ -123,8 +83,6 @@ async def root():
             "health": "/health",
             "geocode": "/geocode",
             "preferences": "/preferences/defaults",
-            "users": "/users/{user_id}",
-            "favorites": "/users/{user_id}/favorites",
         },
     }
 
@@ -147,158 +105,6 @@ async def get_default_preferences():
         "multipliers": LivabilityScorer.IMPORTANCE_MULTIPLIERS,
         "factor_keys": LivabilityScorer.FACTOR_KEYS,
     }
-
-
-@app.post("/users", status_code=201)
-async def create_or_update_user(
-    request: UserCreateRequest, session: Session = Depends(get_session)
-):
-    """Create or update a user record."""
-    try:
-        existing_user = session.get(User, request.id)
-
-        if existing_user:
-            existing_user.email = request.email or existing_user.email
-            existing_user.display_name = (
-                request.display_name or existing_user.display_name
-            )
-            existing_user.provider = request.provider
-            session.add(existing_user)
-            session.commit()
-            session.refresh(existing_user)
-            logger.info(f"Updated user: {request.id}")
-            return {"message": "User updated", "user_id": existing_user.id}
-        else:
-            user = User(
-                id=request.id,
-                email=request.email,
-                display_name=request.display_name,
-                provider=request.provider,
-            )
-            session.add(user)
-            session.commit()
-            session.refresh(user)
-            logger.info(f"Created new user: {request.id}")
-            return {"message": "User created", "user_id": user.id}
-
-    except Exception as e:
-        logger.exception(f"Failed to create/update user: {request.id}")
-        raise HTTPException(status_code=500, detail=f"User operation failed: {str(e)}")
-
-
-@app.get("/users/{user_id}/favorites", response_model=FavoritesListResponse)
-async def get_user_favorites(user_id: str, session: Session = Depends(get_session)):
-    """Get all favorite addresses for a user."""
-    try:
-        user = session.get(User, user_id)
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        statement = (
-            select(FavoriteAddress)
-            .where(FavoriteAddress.user_id == user_id)
-            .order_by(FavoriteAddress.created_at.desc())
-        )
-
-        favorites = session.exec(statement).all()
-
-        return FavoritesListResponse(
-            favorites=[
-                FavoriteResponse(
-                    id=f.id,
-                    label=f.label,
-                    latitude=f.latitude,
-                    longitude=f.longitude,
-                    address=f.address,
-                    created_at=f.created_at,
-                )
-                for f in favorites
-            ],
-            count=len(favorites),
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.exception(f"Failed to get favorites for user: {user_id}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to get favorites: {str(e)}"
-        )
-
-
-@app.post(
-    "/users/{user_id}/favorites", response_model=FavoriteResponse, status_code=201
-)
-async def add_favorite(
-    user_id: str,
-    request: FavoriteCreateRequest,
-    session: Session = Depends(get_session),
-):
-    """Add a favorite address for a user."""
-    try:
-        user = session.get(User, user_id)
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        favorite = FavoriteAddress(
-            user_id=user_id,
-            label=request.label,
-            latitude=request.latitude,
-            longitude=request.longitude,
-            address=request.address,
-        )
-        session.add(favorite)
-        session.commit()
-        session.refresh(favorite)
-
-        logger.info(f"Added favorite for user {user_id}: {request.label}")
-
-        return FavoriteResponse(
-            id=favorite.id,
-            label=favorite.label,
-            latitude=favorite.latitude,
-            longitude=favorite.longitude,
-            address=favorite.address,
-            created_at=favorite.created_at,
-        )
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.exception(f"Failed to add favorite for user: {user_id}")
-        raise HTTPException(status_code=500, detail=f"Failed to add favorite: {str(e)}")
-
-
-@app.delete("/users/{user_id}/favorites/{favorite_id}", status_code=204)
-async def delete_favorite(
-    user_id: str, favorite_id: int, session: Session = Depends(get_session)
-):
-    """Delete a favorite address."""
-    try:
-        user = session.get(User, user_id)
-        if not user:
-            raise HTTPException(status_code=404, detail="User not found")
-
-        favorite = session.get(FavoriteAddress, favorite_id)
-        if not favorite:
-            raise HTTPException(status_code=404, detail="Favorite not found")
-        if favorite.user_id != user_id:
-            raise HTTPException(
-                status_code=403, detail="Favorite does not belong to this user"
-            )
-
-        session.delete(favorite)
-        session.commit()
-
-        logger.info(f"Deleted favorite {favorite_id} for user {user_id}")
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.exception(f"Failed to delete favorite {favorite_id} for user: {user_id}")
-        raise HTTPException(
-            status_code=500, detail=f"Failed to delete favorite: {str(e)}"
-        )
 
 
 @app.post("/geocode", response_model=GeocodeResponse)

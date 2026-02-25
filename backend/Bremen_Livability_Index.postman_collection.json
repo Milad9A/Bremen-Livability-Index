@@ -282,99 +282,6 @@
 				},
 				"description": "Returns all factor keys, their default importance levels (medium), and the multipliers for each level (excluded=0, low=0.5, medium=1.0, high=1.5)."
 			}
-		},
-		{
-			"name": "Create or Update User",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"id\": \"{{user_id}}\",\n    \"email\": \"test@example.com\",\n    \"display_name\": \"Test User\",\n    \"provider\": \"google\"\n}"
-				},
-				"url": {
-					"raw": "{{base_url}}/users",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"users"
-					]
-				},
-				"description": "Create or update a user by Firebase UID. Provider can be: google, github, email, guest."
-			}
-		},
-		{
-			"name": "Get User Favorites",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/users/{{user_id}}/favorites",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"users",
-						"{{user_id}}",
-						"favorites"
-					]
-				},
-				"description": "Get all saved favorite addresses for a user."
-			}
-		},
-		{
-			"name": "Add Favorite",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n    \"label\": \"Home\",\n    \"latitude\": 53.0793,\n    \"longitude\": 8.8017,\n    \"address\": \"Marktplatz 1, 28195 Bremen\"\n}"
-				},
-				"url": {
-					"raw": "{{base_url}}/users/{{user_id}}/favorites",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"users",
-						"{{user_id}}",
-						"favorites"
-					]
-				},
-				"description": "Save a new favorite address for a user."
-			}
-		},
-		{
-			"name": "Delete Favorite",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/users/{{user_id}}/favorites/{{favorite_id}}",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"users",
-						"{{user_id}}",
-						"favorites",
-						"{{favorite_id}}"
-					]
-				},
-				"description": "Delete a saved favorite address by its ID."
-			}
 		}
 	],
 	"variable": [
@@ -408,18 +315,6 @@
 			"key": "longitude",
 			"value": "8.8017",
 			"type": "string"
-		},
-		{
-			"key": "user_id",
-			"value": "firebase-uid-here",
-			"type": "string",
-			"description": "Firebase UID of the user"
-		},
-		{
-			"key": "favorite_id",
-			"value": "1",
-			"type": "string",
-			"description": "ID of the favorite address to delete"
 		}
 	]
 }

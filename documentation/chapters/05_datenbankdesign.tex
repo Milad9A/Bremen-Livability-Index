@@ -5,7 +5,7 @@
 % ============================================================
 
 Die persistente Speicherung und räumliche Abfrage der Geodaten erfolgt über
-PostgreSQL~16 mit der Erweiterung PostGIS~3.4 
+PostgreSQL~16 mit der Erweiterung PostGIS~3.4
 \parencite{postgis_docs, postgresql_docs} mittels erweiterter
 \acrfull{sql}-Abfragen. Dieses Kapitel beschreibt das Datenbankschema, die
 Tabellenstruktur und die Indexierung.
@@ -25,53 +25,49 @@ CREATE SCHEMA IF NOT EXISTS gis_data;
 \section{Tabellenstruktur}
 \label{sec:tabellen}
 
-Das Schema umfasst \textbf{23 Tabellen}, die sich in drei Gruppen
+Das Schema umfasst \textbf{21 Tabellen}, die sich in zwei Gruppen
 unterteilen lassen:
 
 \begin{enumerate}
-      \item \textbf{Positive Einflussfaktoren} (10 Tabellen):
-            \path{trees}, \path{parks}, \path{amenities},
-            \path{public_transport}, \path{healthcare},
-            \path{bike_infrastructure}, \path{education},
-            \path{sports_leisure}, \path{pedestrian_infrastructure},
-            \path{cultural_venues}
-      \item \textbf{Negative Einflussfaktoren} (11 Tabellen):
-            \path{accidents}, \path{industrial_areas},
-            \path{major_roads}, \path{noise_sources},
-            \path{railways}, \path{gas_stations},
-            \path{waste_facilities}, \path{power_infrastructure},
-            \path{parking_lots}, \path{airports},
-            \path{construction_sites}
-      \item \textbf{Benutzerverwaltung} (2 Tabellen): \texttt{users},
-            \texttt{favorite\_addresses}
+	\item \textbf{Positive Einflussfaktoren} (10 Tabellen):
+	      \path{trees}, \path{parks}, \path{amenities},
+	      \path{public_transport}, \path{healthcare},
+	      \path{bike_infrastructure}, \path{education},
+	      \path{sports_leisure}, \path{pedestrian_infrastructure},
+	      \path{cultural_venues}
+	\item \textbf{Negative Einflussfaktoren} (11 Tabellen):
+	      \path{accidents}, \path{industrial_areas},
+	      \path{major_roads}, \path{noise_sources},
+	      \path{railways}, \path{gas_stations},
+	      \path{waste_facilities}, \path{power_infrastructure},
+	      \path{parking_lots}, \path{airports},
+	      \path{construction_sites}
 \end{enumerate}
 
 Jede Geo-Tabelle folgt einem einheitlichen Aufbau:
 
 \begin{table}[H]
-      \centering
-      \caption{Gemeinsames Spaltenschema der Geo-Tabellen}
-      \label{tab:common_schema}
-      \begin{tabularx}{\textwidth}{llX}
-            \toprule
-            \textbf{Spalte}      & \textbf{Datentyp}              & \textbf{Beschreibung}     \\
-            \midrule
-            \texttt{id}          & \texttt{SERIAL PRIMARY KEY}    & Auto-Inkrement-ID         \\
-            \texttt{osm\_id}     & \texttt{BIGINT}                & OpenStreetMap-Objekt-ID
-            (entfällt bei Unfalldaten)                                                        \\
-            \texttt{name}        & \texttt{TEXT}                  & Bezeichnung (optional)    \\
-            \texttt{geometry}    & \texttt{GEOGRAPHY(type, 4326)} & Räumliches Objekt im
-            \acrshort{wgs84}-System                                                           \\
-            \texttt{created\_at} & \texttt{TIMESTAMP}             & Zeitstempel der Erfassung \\
-            \bottomrule
-      \end{tabularx}
+	\centering
+	\caption{Gemeinsames Spaltenschema der Geo-Tabellen}
+	\label{tab:common_schema}
+	\begin{tabularx}{\textwidth}{llX}
+		\toprule
+		\textbf{Spalte}      & \textbf{Datentyp}              & \textbf{Beschreibung}     \\
+		\midrule
+		\texttt{id}          & \texttt{SERIAL PRIMARY KEY}    & Auto-Inkrement-ID         \\
+		\texttt{osm\_id}     & \texttt{BIGINT}                & OpenStreetMap-Objekt-ID
+		(entfällt bei Unfalldaten)                                                        \\
+		\texttt{name}        & \texttt{TEXT}                  & Bezeichnung (optional)    \\
+		\texttt{geometry}    & \texttt{GEOGRAPHY(type, 4326)} & Räumliches Objekt im
+		\acrshort{wgs84}-System                                                           \\
+		\texttt{created\_at} & \texttt{TIMESTAMP}             & Zeitstempel der Erfassung \\
+		\bottomrule
+	\end{tabularx}
 \end{table}
 
 Einige Tabellen verfügen über zusätzliche Typspalten, z.\,B.\
 \texttt{amenity\_type} (Art der Einrichtung), \texttt{severity} (Unfallschweregrad),
 \texttt{transport\_type} (Bus/Tram) oder \texttt{healthcare\_type}.
-Die Benutzertabellen speichern Firebase-UIDs, E-Mail-Adressen und
-Favoriten-Koordinaten.
 
 \section{Geometrietypen}
 
@@ -87,7 +83,7 @@ gespeichert, sodass Distanzberechnungen automatisch auf dem
 \label{sec:indexierung}
 
 Für jede Geometriespalte wird ein \textbf{GiST-Index} (\textit{Generalized
-      Search Tree}) angelegt. GiST-Indizes ermöglichen effiziente räumliche Abfragen,
+	Search Tree}) angelegt. GiST-Indizes ermöglichen effiziente räumliche Abfragen,
 indem sie die Geometrien in hierarchische Bounding-Boxen partitionieren:
 
 \begin{lstlisting}[style=sql,caption={Beispiel: GiST-Index auf der Tabelle \texttt{trees}},label={lst:gist}]

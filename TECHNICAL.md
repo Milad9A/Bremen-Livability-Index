@@ -333,38 +333,14 @@ The backend exposes a comprehensive REST API with the following endpoints:
 }
 ```
 
-#### User Management & Favorites (Firebase Integration)
-
-| Endpoint | Method | Request Body | Response | Status | Description |
-|----------|--------|--------------|----------|--------|-------------|
-| `/users` | POST | `{id: string (Firebase UID), email?: string, display_name?: string, provider: string}` | `{"message", "user_id"}` | 201 | Create or update user record |
-| `/users/{user_id}/favorites` | GET | - | `FavoritesListResponse` | 200 | Get all user's saved favorite locations |
-| `/users/{user_id}/favorites` | POST | `{label: string, latitude: float, longitude: float, address?: string}` | `FavoriteResponse` | 201 | Add new favorite location |
-| `/users/{user_id}/favorites/{favorite_id}` | DELETE | - | - | 204 | Delete a favorite location |
-
-**Favorite Location Response Example:**
-
-```json
-{
-  "id": 42,
-  "label": "My Apartment",
-  "latitude": 53.0793,
-  "longitude": 8.8017,
-  "address": "Example Street 123, 28195 Bremen",
-  "created_at": "2025-12-15T10:30:00Z"
-}
-```
-
 #### Authentication & Authorization
 
 - **User Creation**: Triggered via Firebase Authentication (on client side)
   - Firebase UID is used as the primary identifier (`user_id`)
   - Multiple auth providers supported: Google, GitHub, Email/Password, Anonymous
-  - Backend receives user metadata and stores it in the `users` table
 
 - **Favorites Sync**: Authenticated via Firebase ID Token (client passes in Authorization header)
   - Firestore rules ensure users can only access their own favorites
-  - Backend verifies user ownership before allowing delete operations
 
 ### Email Magic Link Flow (Deep Links)
 
@@ -611,6 +587,7 @@ Each metric captures a specific aspect of neighborhood livability:
 | **Large Parking Lots** | Surface parking lots create urban heat islands, generate traffic, and are visually unappealing. They indicate car-centric rather than pedestrian-friendly design. | Large parking facilities within 50m (binary detection) |
 | **Airports/Helipads** | Aircraft noise significantly impacts quality of life. Airports generate air pollution and constant traffic from departing/arriving passengers. | Airports, heliports, aerodromes within 600m (binary detection) |
 | **Construction Sites** | Active construction creates noise, dust, and traffic disruption. While temporary, they significantly impact short-term livability. | Active construction areas within 125m (binary detection) |
+
 ### Dynamic Weight Preferences
 
 The scoring system now supports personalized factor weighting, allowing users to adjust the influence of each metric on the final score.
@@ -720,6 +697,7 @@ class LivabilityScorer:
 ```
 
 The class uses:
+
 - **Class-level constants**: All weights (e.g., `WEIGHT_GREENERY = 14.0`) and search radii (e.g., `GREENERY_RADIUS = 175`) are defined as class attributes. The `/analyze` endpoint imports these constants to ensure spatial queries use the same radii as the scoring documentation.
 - **Static methods**: Each factor has a dedicated calculation method (e.g., `calculate_greenery_score()`, `calculate_accident_penalty()`)
 - **Type safety**: Method signatures specify exact parameter types and return `float` values
@@ -812,6 +790,7 @@ def fetch_nearby_features(
 > **Single Source of Truth**: All 21 spatial queries in `main.py` use `LivabilityScorer.*_RADIUS` constants. This ensures the query radii always match the factor documentation and descriptions shown in the API response.
 
 **Key PostGIS Functions Used**:
+
 - `ST_DWithin(geom1, geom2, distance)`: Returns true if geometries are within specified distance (meters for Geography type)
 - `ST_Distance(geom1, geom2)`: Returns distance in meters between two geographies
 - `ST_AsGeoJSON(geom)`: Converts geometry to GeoJSON for frontend display
@@ -822,6 +801,7 @@ def fetch_nearby_features(
 Each factor follows a consistent calculation pattern:
 
 **Count-Based Positive Factors** (with logarithmic scaling):
+
 ```python
 @staticmethod
 def calculate_amenities_score(amenity_count: int) -> float:
@@ -832,6 +812,7 @@ def calculate_amenities_score(amenity_count: int) -> float:
 ```
 
 **Binary Negative Factors** (presence/absence):
+
 ```python
 @staticmethod
 def calculate_industrial_penalty(in_industrial_area: bool) -> float:
@@ -840,6 +821,7 @@ def calculate_industrial_penalty(in_industrial_area: bool) -> float:
 ```
 
 **Composite Factors** (combining multiple data sources):
+
 ```python
 @staticmethod
 def calculate_greenery_score(tree_count: int, park_count: int) -> float:
@@ -873,6 +855,7 @@ final_score = max(0.0, min(100.0, cls.BASE_SCORE + positive - negative))
 The scoring method generates three key outputs:
 
 1. **factors** (`List[FactorBreakdown]`): Detailed breakdown for each contributing factor
+
    ```python
    FactorBreakdown(
        factor="Greenery",
@@ -883,6 +866,7 @@ The scoring method generates three key outputs:
    ```
 
 2. **summary** (`str`): Human-readable summary based on thresholds
+
    ```python
    summary_parts = []
    if greenery >= 10:
@@ -893,6 +877,7 @@ The scoring method generates three key outputs:
    ```
 
 3. **nearby_features** (`Dict`): GeoJSON features for map display (added by `main.py`)
+
    ```python
    nearby_features = {
        "trees": [FeatureDetail(...), ...],
@@ -1098,6 +1083,7 @@ The app uses Firebase for authentication and favorites sync:
 **Authentication Providers (Web/Mobile only)**: Google, GitHub, Email (Magic Link), Anonymous (Guest)
 
 **Email Deep Links Setup**:
+
 - Firebase Hosting serves a redirect page at `bremen-livability-index.firebaseapp.com/login`
 - Android: App Links configured in `AndroidManifest.xml` with SHA256 verification
 - iOS: Falls back to web app (Universal Links require paid Apple Developer account)
@@ -1110,6 +1096,7 @@ The API URL is configured in `lib/core/services/api_service.dart`.
 **Default**: Production Backend (`https://bremen-livability-backend.onrender.com`)
 
 **To use local backend:**
+
 1. Open `lib/core/services/api_service.dart`
 2. Uncomment the localhost line and comment out the Render URL
 
@@ -1122,6 +1109,7 @@ flutter pub run build_runner build --delete-conflicting-outputs
 ```
 
 ### Responsive UI
+
 - The application uses `LayoutBuilder` and `MediaQuery` to adapt to different screen sizes.
 - **Constraints**:
   - `AuthScreen` limits content width to 600px on tablet/desktop for better readability.
@@ -1150,7 +1138,6 @@ Located in `frontend/bli/test/`:
   - `favorites_bloc_test.dart`: (If implemented) Logic tests for adding/removing favorites.
 
 - **Map Feature (`test/features/map/`)**: Tests for map markers and interactions.
-
 
 **Run tests:**
 
@@ -1413,10 +1400,11 @@ firebase deploy --only hosting --project bremen-livability-index
    ```
 
    **Key Points:**
-   - Database schema is idempotent (`CREATE TABLE IF NOT EXISTS`)
-   - Data ingestion only runs on first deploy, after database reset, or when any required table is empty
-   - Neon.tech database persists data across Render deploys
-   - Subsequent deploys take ~10 seconds (schema check + server start)
+
+- Database schema is idempotent (`CREATE TABLE IF NOT EXISTS`)
+- Data ingestion only runs on first deploy, after database reset, or when any required table is empty
+- Neon.tech database persists data across Render deploys
+- Subsequent deploys take ~10 seconds (schema check + server start)
 
 ### Environment Variables
 

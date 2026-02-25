@@ -17,22 +17,22 @@ vollständig von der Darstellungsschicht trennt. Die Architektur gliedert
 sich in die folgenden Module:
 
 \begin{description}
-      \item[\texttt{lib/core/}] Querschnittskomponenten:
-            \path{ApiService} (HTTP-Client via Dio),
-            \path{DeepLinkService}, Theme-Definitionen
-            (\path{AppTheme}, \path{AppColors},
-            \path{AppTextStyles}) und wiederverwendbare Widgets.
-      \item[\texttt{lib/features/auth/}] Authentifizierungslogik:
-            \texttt{AuthBloc}, \texttt{AuthService}, Login-Screens.
-      \item[\texttt{lib/features/map/}] Kern-Feature:
-            \texttt{MapBloc} (Karteninteraktionen), \texttt{MapScreen},
-            \texttt{ScoreCardView}, \texttt{FloatingSearchBar}.
-      \item[\texttt{lib/features/favorites/}] Favoritenverwaltung:
-            \texttt{FavoritesBloc}, Datenmodelle.
-      \item[\texttt{lib/features/preferences/}] Nutzerpräferenzen:
-            \texttt{PreferencesBloc}, \texttt{PreferencesScreen},
-            \texttt{PreferencesService}.
-      \item[\texttt{lib/features/onboarding/}] Startbildschirm.
+  \item[\texttt{lib/core/}] Querschnittskomponenten:
+        \path{ApiService} (HTTP-Client via Dio),
+        \path{DeepLinkService}, Theme-Definitionen
+        (\path{AppTheme}, \path{AppColors},
+        \path{AppTextStyles}) und wiederverwendbare Widgets.
+  \item[\texttt{lib/features/auth/}] Authentifizierungslogik:
+        \texttt{AuthBloc}, \texttt{AuthService}, Login-Screens.
+  \item[\texttt{lib/features/map/}] Kern-Feature:
+        \texttt{MapBloc} (Karteninteraktionen), \texttt{MapScreen},
+        \texttt{ScoreCardView}, \texttt{FloatingSearchBar}.
+  \item[\texttt{lib/features/favorites/}] Favoritenverwaltung:
+        \texttt{FavoritesBloc}, Datenmodelle.
+  \item[\texttt{lib/features/preferences/}] Nutzerpräferenzen:
+        \texttt{PreferencesBloc}, \texttt{PreferencesScreen},
+        \texttt{PreferencesService}.
+  \item[\texttt{lib/features/onboarding/}] Startbildschirm.
 \end{description}
 
 Alle Events und States werden mithilfe des Code-Generators \texttt{Freezed}
@@ -47,14 +47,14 @@ Widget \texttt{FlutterMap} \parencite{flutter_map} mit \textbf{CartoDB Voyager}
 Tiles -- einem schlichten Kartenstil ohne störende POI-Beschriftungen.
 
 \begin{itemize}
-      \item \textbf{Startzentrum}: $53{,}0793^{\circ}\,\text{N}$, $8{,}8017^{\circ}\,\text{E}$
-            (Bremen Innenstadt)
-      \item \textbf{Startzoom}: 13
-      \item \textbf{Interaktion}: Ein Tipp auf die Karte löst ein
-            \texttt{MapTapped}-Event aus, das den \texttt{MapBloc} veranlasst,
-            den \texttt{ApiService} anzufragen. Der berechnete Score und die
-            nahen Features werden anschließend als Marker und Score-Karte
-            dargestellt.
+  \item \textbf{Startzentrum}: $53{,}0793^{\circ}\,\text{N}$, $8{,}8017^{\circ}\,\text{E}$
+        (Bremen Innenstadt)
+  \item \textbf{Startzoom}: 13
+  \item \textbf{Interaktion}: Ein Tipp auf die Karte löst ein
+        \texttt{MapTapped}-Event aus, das den \texttt{MapBloc} veranlasst,
+        den \texttt{ApiService} anzufragen. Der berechnete Score und die
+        nahen Features werden anschließend als Marker und Score-Karte
+        dargestellt.
 \end{itemize}
 
 Jede Feature-Kategorie erhält einen eigenen Marker mit einer
@@ -78,19 +78,19 @@ Die Authentifizierung wird über Firebase Authentication \parencite{firebase_doc
 abgewickelt und unterstützt mehrere Anmeldemethoden:
 
 \begin{table}[H]
-      \centering
-      \caption{Unterstützte Anmeldemethoden nach Plattform}
-      \label{tab:auth_methods}
-      \begin{tabularx}{\textwidth}{lX}
-            \toprule
-            \textbf{Plattform} & \textbf{Anmeldemethoden}                       \\
-            \midrule
-            Web, iOS, Android
-                               & Google, GitHub, E-Mail-Magic-Link, Anonym      \\
-            macOS, Windows, Linux
-                               & Nur als Gast (Firebase Auth wird übersprungen) \\
-            \bottomrule
-      \end{tabularx}
+  \centering
+  \caption{Unterstützte Anmeldemethoden nach Plattform}
+  \label{tab:auth_methods}
+  \begin{tabularx}{\textwidth}{lX}
+    \toprule
+    \textbf{Plattform} & \textbf{Anmeldemethoden}                       \\
+    \midrule
+    Web, iOS, Android
+                       & Google, GitHub, E-Mail-Magic-Link, Anonym      \\
+    macOS, Windows, Linux
+                       & Nur als Gast (Firebase Auth wird übersprungen) \\
+    \bottomrule
+  \end{tabularx}
 \end{table}
 
 Auf Desktop-Plattformen wird die Firebase-Authentifizierung vollständig
@@ -116,10 +116,9 @@ Nutzer können analysierte Standorte als Favoriten speichern. Die
 Datenhaltung ist zweistufig:
 
 \begin{itemize}
-      \item \textbf{Angemeldete Nutzer}: Synchronisation über Firebase Firestore
-            und das Backend (\path{/users/{user_id}/favorites}).
-      \item \textbf{Gäste}: Lokale Speicherung über \texttt{SharedPreferences}
-            (Key-Value-Store des Geräts).
+  \item \textbf{Angemeldete Nutzer}: Synchronisation über Firebase Firestore.
+  \item \textbf{Gäste}: Lokale Speicherung über \texttt{SharedPreferences}
+        (Key-Value-Store des Geräts).
 \end{itemize}
 
 Der \texttt{FavoritesBloc} abstrahiert die Speicherstrategie und stellt
@@ -137,24 +136,15 @@ mitgesendet, wodurch der Score unmittelbar auf die persönlichen
 Prioritäten des Nutzers reagiert.
 
 Die Persistenz der Präferenzen ist -- analog zur Favoritenverwaltung
-(vgl.\ Abschnitt~\ref{sec:favorites}) -- zweistufig:
-
-\begin{itemize}
-  \item \textbf{Gäste}: Die Einstellungen werden als JSON-String lokal
-        im Gerätespeicher über \texttt{SharedPreferences} unter dem
-        Schlüssel \texttt{user\_preferences} abgelegt.
-  \item \textbf{Angemeldete Nutzer}: Die Einstellungen werden zusätzlich
-        in Firestore unter
-        \path{users/{user_id}/preferences/factor_settings} gespeichert
-        und über einen Echtzeit-Stream (\texttt{watchCloudPreferences})
-        geräteübergreifend synchronisiert. Beim Abmelden werden die
-        Cloud-Präferenzen automatisch gelöscht.
-\end{itemize}
+(vgl.\ Abschnitt~\ref{sec:favorites}) -- zweistufig: Gäste speichern
+ihre Einstellungen lokal via \texttt{SharedPreferences}; angemeldete
+Nutzer synchronisieren sie zusätzlich über Firestore
+(\path{users/{user_id}/preferences/factor_settings}), geräteübergreifend
+per Echtzeit-Stream, mit automatischem Löschen beim Abmelden.
 
 Der \texttt{PreferencesBloc} koordiniert Lade- und Speichervorgänge
-und stellt über \texttt{PreferencesLoaded} den aktuellen
-\texttt{UserPreferences}-Zustand bereit, auf den \texttt{MapBloc}
-bei jeder Score-Anfrage zugreift.
+und stellt den aktuellen \texttt{UserPreferences}-Zustand bereit, auf
+den \texttt{MapBloc} bei jeder Score-Anfrage zugreift.
 
 \section{Adresssuche}
 

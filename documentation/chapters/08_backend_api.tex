@@ -20,40 +20,28 @@ Tabelle~\ref{tab:endpoints} zeigt alle verfügbaren HTTP-Endpunkte der
 \acrshort{api}.
 
 \begin{table}[H]
-  \centering
-  \caption{API-Endpunkte}
-  \label{tab:endpoints}
-  \small
-  \begin{tabularx}{\textwidth}{llX}
-    \toprule
-    \textbf{Methode} & \textbf{Pfad}                                                          & \textbf{Beschreibung} \\
-    \midrule
-    GET              & \texttt{/}
-                     & API-Metadaten (Version, Endpunktliste)                                                         \\
-    GET              & \texttt{/health}
-                     & Datenbank-Konnektivitätsprüfung                                                                \\
-    POST             & \texttt{/analyze}
-                     & \textbf{Kern-Endpunkt}: Berechnung des Livability Scores
-    für Koordinaten mit optionalen Präferenzen                                                                        \\
-    POST             & \texttt{/geocode}
-                     & Adresssuche über Nominatim \parencite{nominatim}                                               \\
-    GET              & \texttt{/preferences/defaults}
-                     & Gibt Standardpräferenzen, Multiplikatoren \newline und Faktoren zurück                         \\
-    POST             & \texttt{/users}
-                     & Benutzer anlegen oder aktualisieren                                                            \\
-    GET              & \texttt{/users/\{user\_id\}/favorites}
-                     & Favoriten eines Benutzers abrufen                                                              \\
-    POST             & \texttt{/users/\{user\_id\}/favorites}
-                     & Favorit hinzufügen                                                                             \\
-    DELETE           & \texttt{/users/\{user\_id\}/favorites/\{fav\_id\}}
-                     & Favorit löschen                                                                                \\
-    \bottomrule
-  \end{tabularx}
+	\centering
+	\caption{API-Endpunkte}
+	\label{tab:endpoints}
+	\small
+	\begin{tabularx}{\textwidth}{llX}
+		\toprule
+		\textbf{Methode} & \textbf{Pfad}                                                          & \textbf{Beschreibung} \\
+		\midrule
+		GET              & \texttt{/}
+		                 & API-Metadaten (Version, Endpunktliste)                                                         \\
+		GET              & \texttt{/health}
+		                 & Datenbank-Konnektivitätsprüfung                                                                \\
+		POST             & \texttt{/analyze}
+		                 & \textbf{Kern-Endpunkt}: Berechnung des Livability Scores
+		für Koordinaten mit optionalen Präferenzen                                                                        \\
+		POST             & \texttt{/geocode}
+		                 & Adresssuche über Nominatim \parencite{nominatim}                                               \\
+		GET              & \texttt{/preferences/defaults}
+		                 & Gibt Standardpräferenzen, Multiplikatoren \newline und Faktoren zurück                         \\
+		\bottomrule
+	\end{tabularx}
 \end{table}
-
-Die Favoriten-Endpunkte bilden vollständige \acrfull{crud}-Operationen ab:
-Anlegen (POST), Abrufen (GET) und Löschen (DELETE) von gespeicherten
-Standorten.
 
 \section{Der \texttt{/analyze}-Endpunkt}
 \label{sec:analyze}
@@ -64,19 +52,19 @@ Der zentrale Endpunkt nimmt eine Anfrage vom Typ
 umfasst die folgenden Schritte:
 
 \begin{enumerate}
-  \item \textbf{Validierung}: Pydantic validiert die Eingabekoordinaten
-        ($-90 \leq \text{lat} \leq 90$, $-180 \leq \text{lon} \leq 180$).
-  \item \textbf{Räumliche Abfragen}: Für jeden nicht-ausgeschlossenen Faktor
-        wird eine PostGIS-\texttt{ST\_DWithin}-Abfrage ausgeführt, die alle
-        Objekte innerhalb des faktorspezifischen Radius ermittelt.
-  \item \textbf{Score-Berechnung}: Der \texttt{LivabilityScorer} berechnet
-        den Einzelscore jedes Faktors und aggregiert den Gesamtscore
-        (siehe Kapitel~\ref{ch:bewertung}).
-  \item \textbf{GeoJSON-Erzeugung}: Die nahen Objekte werden mit
-        \texttt{ST\_AsGeoJSON} in GeoJSON konvertiert und in der
-        Antwort als \texttt{nearby\_features} zurückgegeben.
-  \item \textbf{Zusammenfassung}: Ein menschenlesbarer Zusammenfassungstext
-        wird generiert.
+	\item \textbf{Validierung}: Pydantic validiert die Eingabekoordinaten
+	      ($-90 \leq \text{lat} \leq 90$, $-180 \leq \text{lon} \leq 180$).
+	\item \textbf{Räumliche Abfragen}: Für jeden nicht-ausgeschlossenen Faktor
+	      wird eine PostGIS-\texttt{ST\_DWithin}-Abfrage ausgeführt, die alle
+	      Objekte innerhalb des faktorspezifischen Radius ermittelt.
+	\item \textbf{Score-Berechnung}: Der \texttt{LivabilityScorer} berechnet
+	      den Einzelscore jedes Faktors und aggregiert den Gesamtscore
+	      (siehe Kapitel~\ref{ch:bewertung}).
+	\item \textbf{GeoJSON-Erzeugung}: Die nahen Objekte werden mit
+	      \texttt{ST\_AsGeoJSON} in GeoJSON konvertiert und in der
+	      Antwort als \texttt{nearby\_features} zurückgegeben.
+	\item \textbf{Zusammenfassung}: Ein menschenlesbarer Zusammenfassungstext
+	      wird generiert.
 \end{enumerate}
 
 \subsection{Request-Modell}
