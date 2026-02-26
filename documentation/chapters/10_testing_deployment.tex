@@ -122,8 +122,10 @@ Prozesse parallel ausgelöst:
             (Flag: \texttt{frontend}). Wird nur bei Änderungen unter
             \texttt{frontend/} getriggert.
       \item \textbf{Web-Deployment}: Render.com erkennt den Merge über einen
-            GitHub-Webhook und deployt zwei unabhängige Services --
-            unabhängig von den Testergebnissen:
+            GitHub-Webhook. Dank der \texttt{rootDir}-Konfiguration in
+            \texttt{render.yaml} wird nur der Service neu gebaut, dessen
+            Verzeichnis von der Änderung betroffen ist -- unabhängig von
+            den Testergebnissen:
             \begin{itemize}
                   \item \textbf{Backend}: Docker-Rebuild des FastAPI-Servers
                         im Verzeichnis \texttt{backend/} (Region: Frankfurt).
@@ -146,42 +148,55 @@ Abbildung~\ref{fig:cicd_pipeline} fasst den Ablauf visuell zusammen.
 \begin{figure}[H]
   \centering
   \begin{tikzpicture}[
-    box/.style={draw, rounded corners, minimum width=3.2cm,
-                minimum height=1.0cm, align=center, font=\small},
+    box/.style={draw, rounded corners, minimum width=3.0cm,
+                minimum height=0.9cm, align=center, font=\small},
     trigger/.style={box, fill=gray!15, minimum width=4.0cm},
+    path/.style={box, fill=Apricot!20, minimum width=2.4cm},
     test/.style={box, fill=NavyBlue!12},
     deploy/.style={box, fill=OliveGreen!15},
     codecov/.style={box, fill=Orange!12},
-    arr/.style={-{Stealth[length=5pt]}, thick}
+    arr/.style={-{Stealth[length=5pt]}, thick},
+    pathlbl/.style={font=\scriptsize\ttfamily, text=black!60}
   ]
     % Row 0: Trigger
     \node[trigger] at (0, 0) (push)
       {Push / Merge auf \texttt{master}};
 
-    % Row 1: Three columns
-    \node[test]   at (-5, -2.5) (bt) {\texttt{backend-tests.yml}};
-    \node[deploy] at ( 0, -2.5) (render)
-      {Render.com (Webhook)\\[2pt]
-       {\scriptsize Backend: Docker}\\[-1pt]
-       {\scriptsize Frontend: Static Site}};
-    \node[test]   at ( 5, -2.5) (ft) {\texttt{frontend-tests.yml}};
+    % Row 1: Path split
+    \node[path] at (-4.5, -1.6) (bpath) {\texttt{backend/**}};
+    \node[path] at ( 4.5, -1.6) (fpath) {\texttt{frontend/**}};
 
-    % Row 2: Outcomes
-    \node[codecov] at (-5, -5.0) (cov1) {Codecov\\(\texttt{backend})};
-    \node[codecov] at ( 8, -5.0) (cov2) {Codecov\\(\texttt{frontend})};
+    % Row 2: Tests + Deploys
+    \node[test]   at (-6.5, -3.4) (bt) {\texttt{backend-tests.yml}};
+    \node[deploy] at (-2.5, -3.4) (rb) {Render.com\\{\scriptsize Backend (Docker)}};
+    \node[test]   at ( 2.5, -3.4) (ft) {\texttt{frontend-tests.yml}};
+    \node[deploy] at ( 6.5, -3.4) (rf) {Render.com\\{\scriptsize Frontend (Static)}};
 
-    % Row 3: Build release
-    \node[deploy] at ( 5, -7.5) (release)
-      {\texttt{build-release.yml}\\GitHub Release (4 Plattf.)};
+    % Row 3: Outcomes
+    \node[codecov] at (-6.5, -5.2) (cov1) {Codecov\\(\texttt{backend})};
+    \node[codecov] at ( 2.5, -5.2) (cov2) {Codecov\\(\texttt{frontend})};
 
-    % Arrows
-    \draw[arr] (push) -- (bt);
-    \draw[arr] (push) -- (render);
-    \draw[arr] (push) -- (ft);
-    \draw[arr] (bt)   -- (cov1);
-    \draw[arr] (ft)   -- (cov2);
-    \draw[arr] (ft)   -- (release);
+    % Row 4: Build release
+    \node[deploy] at ( 6.5, -6.8) (release)
+      {\texttt{build-release.yml}\\{\scriptsize GitHub Release (4 Plattf.)}};
+
+    % Arrows: Push → Paths
+    \draw[arr] (push) -- (bpath);
+    \draw[arr] (push) -- (fpath);
+
+    % Arrows: Backend path → tests + deploy
+    \draw[arr] (bpath) -- (bt);
+    \draw[arr] (bpath) -- (rb);
+
+    % Arrows: Frontend path → tests + deploy
+    \draw[arr] (fpath) -- (ft);
+    \draw[arr] (fpath) -- (rf);
+
+    % Arrows: Outcomes
+    \draw[arr] (bt) -- (cov1);
+    \draw[arr] (ft) -- (cov2);
+    \draw[arr] (ft) -- node[pathlbl, right] {workflow\_run} (release);
   \end{tikzpicture}
-  \caption{CI/CD-Pipeline: Drei unabhängige Pfade nach dem Merge}
+  \caption{CI/CD-Pipeline: Pfadbasierte Auslösung nach dem Merge}
   \label{fig:cicd_pipeline}
 \end{figure}
