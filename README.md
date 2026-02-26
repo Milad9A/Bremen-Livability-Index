@@ -15,7 +15,7 @@ A comprehensive geospatial platform featuring a **Flutter mobile & web applicati
 
 > 📖 **For in-depth technical details, see [TECHNICAL.md](TECHNICAL.md)** – covering system architecture, database design, scoring algorithm, and deployment.
 
-> 🎓 **For the full academic write-up, see [documentation/main.pdf](documentation/main.pdf)** – the accompanying research paper covering theoretical background, methodology, data sources, and results.
+> 🎓 **For the full academic write-up, see [documentation/main.pdf](documentation/main.pdf)** ([LaTeX source](documentation/main.tex)) – the accompanying research paper covering theoretical background, methodology, data sources, and results.
 
 ## 🌐 Live Applications
 
