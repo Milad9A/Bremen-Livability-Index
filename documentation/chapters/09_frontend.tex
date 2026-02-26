@@ -93,6 +93,16 @@ abgewickelt und unterstützt mehrere Anmeldemethoden:
   \end{tabularx}
 \end{table}
 
+Abbildung~\ref{fig:login_screen} zeigt den Anmeldebildschirm mit den
+verfügbaren Authentifizierungsmethoden.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.45\textwidth]{login_screen}
+  \caption{Anmeldebildschirm mit den verfügbaren Authentifizierungsmethoden}
+  \label{fig:login_screen}
+\end{figure}
+
 Auf Desktop-Plattformen wird die Firebase-Authentifizierung vollständig
 umgangen, da macOS-Keychains durch Sandboxing eingeschränkt sind und
 Windows/Linux keine nativen OAuth-Desktop-Flows unterstützen. Stattdessen
@@ -152,6 +162,13 @@ Die \texttt{FloatingSearchBar} ermöglicht die Suche nach Adressen.
 Eingaben werden über den \texttt{ApiService} an den
 \texttt{/geocode}-Endpunkt des Backends weitergeleitet, der wiederum die
 Nominatim-\acrshort{api} abfragt. Die Suchergebnisse werden als
-Drop-down-Liste angezeigt; bei Auswahl wird die Karte zur
-entsprechenden Koordinate navigiert und automatisch eine
-Score-Berechnung ausgelöst.
+Drop-down-Liste angezeigt (Abbildung~\ref{fig:search_bar}); bei Auswahl
+wird die Karte zur entsprechenden Koordinate navigiert und automatisch
+eine Score-Berechnung ausgelöst.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.55\textwidth]{search_bar}
+  \caption{Adresssuche mit Geokodierungsergebnissen für die Hochschule Bremen}
+  \label{fig:search_bar}
+\end{figure}
