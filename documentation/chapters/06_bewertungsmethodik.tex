@@ -94,11 +94,92 @@ alle Abfragen nutzen \texttt{ST\_DWithin} auf dem \acrshort{wgs84}-Ellipsoid.
 
 \section{Score-Interpretation und Implementierung}
 
-Die App visualisiert den Score durch eine dreistufige Farbcodierung:
-$\geq 70$ Grün (gut), $50$--$69$ Orange (mittel), $< 50$ Rot (schlecht).
-Der numerische Wert wird direkt angezeigt.
+Die App visualisiert den Score durch eine dreistufige Farbcodierung
+(Tabelle~\ref{tab:farbcodierung}). Der numerische Wert wird direkt angezeigt.
+
+\begin{table}[H]
+  \centering
+  \caption{Farbcodierung des Livability Scores}
+  \label{tab:farbcodierung}
+  \begin{tabular}{ccl}
+    \toprule
+    \textbf{Score-Bereich} & \textbf{Farbe} & \textbf{Bewertung} \\
+    \midrule
+    $\geq 70$   & \textcolor{OliveGreen}{\rule{1em}{1em}} Grün   & Gut    \\
+    $50$--$69$  & \textcolor{Orange}{\rule{1em}{1em}} Orange      & Mittel \\
+    $< 50$      & \textcolor{BrickRed}{\rule{1em}{1em}} Rot       & Schlecht \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Abbildung~\ref{fig:score_fluss} veranschaulicht den Berechnungsfluss
+des Algorithmus: Der Basiswert wird mit den gewichteten positiven und
+negativen Teilscores verrechnet und das Ergebnis auf $[0,\;100]$ begrenzt.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+    node distance=0.6cm and 1.2cm,
+    box/.style={draw, rounded corners, minimum width=2.6cm,
+                minimum height=0.9cm, align=center, font=\small},
+    sumbox/.style={box, fill=OliveGreen!15},
+    penbox/.style={box, fill=BrickRed!12},
+    basebox/.style={box, fill=gray!15},
+    resbox/.style={box, fill=NavyBlue!15, font=\small\bfseries},
+    arr/.style={-{Stealth[length=5pt]}, thick}
+  ]
+    % Base score
+    \node[basebox] (base) {$S_{\text{base}} = 40$};
+
+    % Positive factors
+    \node[sumbox, below left=1.0cm and 0.4cm of base] (pos) {%
+      $\displaystyle\sum w_i \cdot f_i^{+}$\\[2pt]
+      {\scriptsize(9 Faktoren, max.\,60)}};
+
+    % Negative factors
+    \node[penbox, below right=1.0cm and 0.4cm of base] (neg) {%
+      $\displaystyle\sum w_j \cdot f_j^{-}$\\[2pt]
+      {\scriptsize(11 Faktoren, max.\,57)}};
+
+    % Aggregation
+    \node[box, below=1.6cm of base, fill=yellow!12] (agg) {%
+      $S_{\text{base}} + \Sigma^{+} - \Sigma^{-}$};
+
+    % Clamp
+    \node[resbox, below=0.7cm of agg] (clamp) {%
+      $\text{clamp}(0,\;100)$};
+
+    % Final
+    \node[resbox, below=0.7cm of clamp, fill=OliveGreen!25] (result) {%
+      Livability Score};
+
+    % Arrows
+    \draw[arr] (base)  -- (agg);
+    \draw[arr] (pos)   -- (agg);
+    \draw[arr] (neg)   -- (agg);
+    \draw[arr] (agg)   -- (clamp);
+    \draw[arr] (clamp) -- (result);
+  \end{tikzpicture}
+  \caption{Berechnungsfluss des Livability Scores}
+  \label{fig:score_fluss}
+\end{figure}
 
 Der Algorithmus ist in \texttt{LivabilityScorer} (\texttt{core/scoring.py})
 implementiert. Jeder Faktor wird durch eine eigene statische Methode berechnet;
 \texttt{calculate\_score} aggregiert alle Beiträge zu einem
-\texttt{LivabilityScoreResponse}-Objekt.
+\texttt{LivabilityScoreResponse}-Objekt. Listing~\ref{lst:score_agg} zeigt
+den zentralen Aggregationsschritt.
+
+\begin{lstlisting}[style=python, caption={Aggregation in \texttt{calculate\_score}}, label={lst:score_agg}]
+positive = (greenery + amenities + transport + healthcare
+            + bike_infra + education + sports
+            + pedestrian + cultural)
+negative = (accident_penalty + industrial_penalty
+            + roads_penalty + noise_penalty
+            + railway_penalty + gas_station_penalty
+            + waste_penalty + power_penalty
+            + parking_penalty + airport_penalty
+            + construction_penalty)
+final_score = max(0.0, min(100.0,
+                  cls.BASE_SCORE + positive - negative))
+\end{lstlisting}

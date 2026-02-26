@@ -108,21 +108,80 @@ Die Infrastruktur (Render.com, Neon.tech, Firebase) ist in
 Kapitel~\ref{sec:deployment} beschrieben. Dieser Abschnitt fokussiert auf den
 automatisierten Ablauf vom Commit bis zur Produktivschaltung.
 
-Bei jedem Merge auf \texttt{master} laufen \texttt{backend-tests.yml} und
-\texttt{frontend-tests.yml} parallel; schlägt einer der Checks fehl, wird
-kein Deployment ausgelöst. Andernfalls:
+Bei jedem Push oder Merge auf \texttt{master} werden vier unabhängige
+Prozesse parallel ausgelöst:
 
 \begin{enumerate}
-      \item \textbf{Web-Deployment}: Render.com erkennt den Merge automatisch
-            über den GitHub-Webhook und deployt Backend (Docker-Rebuild) und
-            Web-Frontend (\texttt{flutter build web}) ohne weiteren manuellen
-            Eingriff.
-      \item \textbf{Native Builds}: \texttt{build-release.yml} startet nach
-            bestandenen Frontend-Tests und veröffentlicht alle vier
-            Plattform-Artefakte als einheitliches GitHub~Release
+      \item \textbf{Backend-Tests}: \texttt{backend-tests.yml} führt
+            \texttt{pytest} mit einer PostGIS-Service-Instanz aus und
+            übermittelt die Coverage an Codecov (Flag: \texttt{backend}).
+            Wird nur bei Änderungen unter \texttt{backend/} getriggert.
+      \item \textbf{Frontend-Tests}: \texttt{frontend-tests.yml} führt
+            \texttt{flutter test -{}-coverage} und \texttt{flutter analyze}
+            aus und übermittelt die Coverage ebenfalls an Codecov
+            (Flag: \texttt{frontend}). Wird nur bei Änderungen unter
+            \texttt{frontend/} getriggert.
+      \item \textbf{Web-Deployment}: Render.com erkennt den Merge über einen
+            GitHub-Webhook und deployt zwei unabhängige Services --
+            unabhängig von den Testergebnissen:
+            \begin{itemize}
+                  \item \textbf{Backend}: Docker-Rebuild des FastAPI-Servers
+                        im Verzeichnis \texttt{backend/} (Region: Frankfurt).
+                  \item \textbf{Frontend}: Statische Site, gebaut durch
+                        \texttt{render\_build.sh}
+                        (\texttt{flutter build web -{}-release}); das
+                        Ergebnis in \texttt{build/web} wird als Static~Site
+                        mit SPA-Rewrite veröffentlicht.
+            \end{itemize}
+      \item \textbf{Native Builds}: \texttt{build-release.yml} wird durch den
+            \emph{erfolgreichen} Abschluss von \texttt{frontend-tests.yml}
+            getriggert (\texttt{workflow\_run}) und baut APK- (Android),
+            Windows-, macOS- und Linux-Binaries, die als einheitliches
+            GitHub~Release veröffentlicht werden
             (vgl.\ Tabelle~\ref{tab:workflows}).
 \end{enumerate}
 
-Das Ergebnis eines vollständigen Merge-Zyklus sind damit stets eine
-aktualisierte Web-App auf Render.com \emph{und} ein neues GitHub~Release mit
-nativen Binaries für alle vier Plattformen.
+Abbildung~\ref{fig:cicd_pipeline} fasst den Ablauf visuell zusammen.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=3.2cm,
+                minimum height=1.0cm, align=center, font=\small},
+    trigger/.style={box, fill=gray!15, minimum width=4.0cm},
+    test/.style={box, fill=NavyBlue!12},
+    deploy/.style={box, fill=OliveGreen!15},
+    codecov/.style={box, fill=Orange!12},
+    arr/.style={-{Stealth[length=5pt]}, thick}
+  ]
+    % Row 0: Trigger
+    \node[trigger] at (0, 0) (push)
+      {Push / Merge auf \texttt{master}};
+
+    % Row 1: Three columns
+    \node[test]   at (-5, -2.5) (bt) {\texttt{backend-tests.yml}};
+    \node[deploy] at ( 0, -2.5) (render)
+      {Render.com (Webhook)\\[2pt]
+       {\scriptsize Backend: Docker}\\[-1pt]
+       {\scriptsize Frontend: Static Site}};
+    \node[test]   at ( 5, -2.5) (ft) {\texttt{frontend-tests.yml}};
+
+    % Row 2: Outcomes
+    \node[codecov] at (-5, -5.0) (cov1) {Codecov\\(\texttt{backend})};
+    \node[codecov] at ( 8, -5.0) (cov2) {Codecov\\(\texttt{frontend})};
+
+    % Row 3: Build release
+    \node[deploy] at ( 5, -7.5) (release)
+      {\texttt{build-release.yml}\\GitHub Release (4 Plattf.)};
+
+    % Arrows
+    \draw[arr] (push) -- (bt);
+    \draw[arr] (push) -- (render);
+    \draw[arr] (push) -- (ft);
+    \draw[arr] (bt)   -- (cov1);
+    \draw[arr] (ft)   -- (cov2);
+    \draw[arr] (ft)   -- (release);
+  \end{tikzpicture}
+  \caption{CI/CD-Pipeline: Drei unabhängige Pfade nach dem Merge}
+  \label{fig:cicd_pipeline}
+\end{figure}

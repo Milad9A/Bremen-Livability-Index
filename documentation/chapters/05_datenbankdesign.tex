@@ -115,3 +115,27 @@ SQLAlchemy-Spaltendefinition. Ohne diese Einstellung würde Pydantic beim
 Initialisieren der Modellklassen mit einem \texttt{RuntimeError} abbrechen.
 Der Parameter weist Pydantic an, solche nicht-standardisierten Typen ohne
 eigene Validator-Logik zu akzeptieren.
+
+Listing~\ref{lst:orm_example} zeigt die Basisklasse und ein konkretes Modell
+als Beispiel:
+
+\begin{lstlisting}[style=python, caption={ORM-Basisklasse und Beispielmodell \texttt{Tree}}, label={lst:orm_example}]
+class GISBase(SQLModel):
+    """Base class for all 21 GIS models."""
+    class Config:
+        arbitrary_types_allowed = True
+
+class Tree(GISBase, table=True):
+    __tablename__ = "trees"
+    __table_args__ = {"schema": "gis_data"}
+
+    id: Optional[int] = Field(default=None, primary_key=True)
+    osm_id: Optional[int] = Field(sa_column=Column(BigInteger))
+    name: Optional[str] = Field(sa_column=Column(Text))
+    geometry: Any = Field(
+        sa_column=Column(Geography("POINT", srid=4326))
+    )
+    created_at: Optional[datetime] = Field(
+        sa_column=Column(TIMESTAMP, default=datetime.utcnow)
+    )
+\end{lstlisting}

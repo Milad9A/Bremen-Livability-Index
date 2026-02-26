@@ -78,6 +78,30 @@ Darstellungs- und Geschäftslogik sowie eine einfache Skalierbarkeit
 \parencite{fastapi_docs}. Die \acrshort{api} ist öffentlich erreichbar unter
 \url{https://bremen-livability-backend.onrender.com}; eine interaktive
 Swagger-Dokumentation steht unter \texttt{/docs} zur Verfügung.
+Abbildung~\ref{fig:client_server} zeigt den Kommunikationsfluss.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=2.6cm,
+                minimum height=1.0cm, align=center, font=\small},
+    client/.style={box, fill=NavyBlue!12},
+    server/.style={box, fill=OliveGreen!15},
+    db/.style={box, fill=Orange!12},
+    arr/.style={-{Stealth[length=5pt]}, thick}
+  ]
+    \node[client] at (0, 0)    (fe) {Flutter App\\(Frontend)};
+    \node[server] at (5.5, 0)  (be) {FastAPI\\(Backend)};
+    \node[db]     at (11, 0)   (db) {PostGIS\\(Datenbank)};
+
+    \draw[arr] ([yshift= 3pt]fe.east)  -- node[above, font=\scriptsize] {JSON-Request} ([yshift= 3pt]be.west);
+    \draw[arr] ([yshift=-3pt]be.west)  -- node[below, font=\scriptsize] {JSON-Response} ([yshift=-3pt]fe.east);
+    \draw[arr] ([yshift= 3pt]be.east)  -- node[above, font=\scriptsize] {SQL / ST\_DWithin} ([yshift= 3pt]db.west);
+    \draw[arr] ([yshift=-3pt]db.west)  -- node[below, font=\scriptsize] {GeoJSON} ([yshift=-3pt]be.east);
+  \end{tikzpicture}
+  \caption{Client-Server-Kommunikation über die REST-API}
+  \label{fig:client_server}
+\end{figure}
 
 \section{Das BLoC-Design-Pattern}
 \label{sec:bloc_pattern}
@@ -89,3 +113,26 @@ emittiert. Die UI reagiert reaktiv auf Zustandsänderungen. In Kombination mit
 dem \texttt{Freezed}-Code\-generator entstehen typsichere, unveränderliche
 (\textit{immutable}) Zustandsobjekte, die eine vorhersagbare
 Zustandsverwaltung gewährleisten.
+Abbildung~\ref{fig:bloc_pattern} veranschaulicht diesen Kreislauf.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=2.8cm,
+                minimum height=1.0cm, align=center, font=\small},
+    ui/.style={box, fill=NavyBlue!12},
+    bloc/.style={box, fill=OliveGreen!15},
+    state/.style={box, fill=Orange!12},
+    arr/.style={-{Stealth[length=5pt]}, thick}
+  ]
+    \node[ui]    at (0, 0)   (uinode) {UI\\(Widget)};
+    \node[bloc]  at (4.5, 0) (blocnode) {BLoC\\(Geschäftslogik)};
+    \node[state] at (4.5, -2.5) (statenode) {State\\(\texttt{Freezed})};
+
+    \draw[arr] (uinode.east) -- node[above, font=\scriptsize] {Event} (blocnode.west);
+    \draw[arr] (blocnode.south) -- node[right, font=\scriptsize] {emittiert} (statenode.north);
+    \draw[arr] (statenode.west) -- node[below, font=\scriptsize] {reaktives Rebuild} (uinode.south east);
+  \end{tikzpicture}
+  \caption{BLoC-Pattern: Event-State-Kreislauf}
+  \label{fig:bloc_pattern}
+\end{figure}
