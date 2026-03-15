@@ -19,10 +19,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return web;
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -53,8 +50,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '402145256946',
     projectId: 'bremen-livability-index',
     storageBucket: 'bremen-livability-index.firebasestorage.app',
-    iosClientId:
-        '402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt.apps.googleusercontent.com',
+    androidClientId: '402145256946-bg9ro0g8m31j4dv4et3e6kgdcnulcdq8.apps.googleusercontent.com',
+    iosClientId: '402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt.apps.googleusercontent.com',
     iosBundleId: 'com.example.bli',
   );
 
@@ -64,8 +61,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '402145256946',
     projectId: 'bremen-livability-index',
     storageBucket: 'bremen-livability-index.firebasestorage.app',
-    iosClientId:
-        '402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt.apps.googleusercontent.com',
+    androidClientId: '402145256946-bg9ro0g8m31j4dv4et3e6kgdcnulcdq8.apps.googleusercontent.com',
+    iosClientId: '402145256946-eeopjp0jqhujcvseq2rts2fcbjr8t3pt.apps.googleusercontent.com',
     iosBundleId: 'com.example.bli',
   );
 
@@ -77,4 +74,5 @@ class DefaultFirebaseOptions {
     authDomain: 'bremen-livability-index.firebaseapp.com',
     storageBucket: 'bremen-livability-index.firebasestorage.app',
   );
+
 }
